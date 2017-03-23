@@ -21,24 +21,37 @@ function GetFileRepresentativeImage(file){
 
 @inject("MainStore") @observer
 class NewSubmissionPage extends Component {
-  state = {files:[]}
+  state = {files:[],showSuccessMessage:false,showErrorMessage:false}
   constructor(props){
     super(props)
     this.removeFile = this.removeFile.bind(this)
   }
+  submitForm(e){
+    e.stopPropagation()
+    e.preventDefault()
+
+    let formData = {}
+    formData.submissionName = this.refs.submissionName.value
+    formData.files = this.state.files
+
+    console.log(formData)
+    this.props.MainStore.submitFormToServer(formData,()=>{
+      this.setState({showSuccessMessage:true})
+    })
+
+  }
   FileSelectHandler(e){
     var files = e.target.files || e.dataTransfer.files;
-	for (let i = 0;i<files.length ; i++) {
-    let file = files[i]
-    var reader = new FileReader();
-    reader.onload = (()=> {
-       return (e)=> {
-         this.setState({files:this.state.files.concat({file:e.target.result,name:file.name,type:file.type})})
-       };
-     })();
-    reader.readAsDataURL(file);
-	}
-
+  	for (let i = 0;i<files.length ; i++) {
+      let file = files[i]
+      var reader = new FileReader();
+      reader.onload = (()=> {
+         return (e)=> {
+           this.setState({files:this.state.files.concat({file:e.target.result,name:file.name,type:file.type})})
+         };
+       })();
+      reader.readAsDataURL(file);
+  	}
   }
   removeFile(key){
     console.log(key)
@@ -71,7 +84,8 @@ class NewSubmissionPage extends Component {
   }
 
   render() {
-    let selectedFiles = this.state.files.map(function(file,key){
+    let {state} = this;
+    let selectedFiles = state.files.map(function(file,key){
       console.log(key)
       return (<div className="pr1 pb1 w-25 fl" key={key}>
           <div className="h-100 ba b--black-20 tc pa2">
@@ -89,11 +103,11 @@ class NewSubmissionPage extends Component {
         <section className="tc pt5">
           <section className="pt5 dib w-100 w-70-m w-50-l ">
             <div className="pv3">
-              <span className="navy w-100 f3">New Submission{this.props.MainStore.xyz}</span>
+              <span className="navy w-100 f3">New Submission</span>
             </div>
-            <section className="pv3">
+            <form className="pv3" onSubmit={this.submitForm.bind(this)}>
               <div className="pv3">
-                <input type="text" className="pa3 w-100" placeholder="Submission Name"/>
+                <input type="text" className="pa3 w-100" placeholder="Submission Name" ref="submissionName"/>
               </div>
               <div className="pv3">
                 <label htmlFor="upload_file" ref="upload_file" className="pa5 w-100 border-box dib ba b--black-30 navy hover-bg-light-gray pointer" onDrop={this.onDropFileHandler.bind(this)} onDragEnter={this.onDragEnterHandler.bind(this)} onDragOver={this.onDragOverHandler.bind(this)} onDragEnd={this.onMouseOutHandler.bind(this)}>
@@ -105,10 +119,14 @@ class NewSubmissionPage extends Component {
               <div className="cf">
                 {selectedFiles}
               </div>
-              <div className="pv3 tr">
-                <button className="pa3 bg-navy grow shadow-4  bw0 white-80 hover-white">Submit</button>
+              <div className="pv3">
+                {state.showSuccessMessage?<p className="pa3 ba">Submitted Successfully</p>:""}
+                {state.showErrorMessage?<p className="pa3 ba">Error In Submission</p>:""}
               </div>
-            </section>
+              <div className="pv3 tr">
+                <button className="pa3 bg-navy grow shadow-4  bw0 white-80 hover-white" type="submit">Submit</button>
+              </div>
+            </form>
           </section>
         </section>
       </section>
