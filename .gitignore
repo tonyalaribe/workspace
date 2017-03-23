@@ -9,6 +9,9 @@ ui/coverage
 # production
 #/build
 
+#where uploaded files are stored
+data
+
 # misc
 .DS_Store
 .env
