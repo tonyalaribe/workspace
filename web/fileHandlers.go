@@ -3,7 +3,6 @@ package web
 import (
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -34,13 +33,13 @@ func Base64ToFileSystem(b64 string, filepath string) {
 
 func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.Context().Value("username").(string)
-	log.Println(username)
+
 	formData := FormData{}
 	err := json.NewDecoder(r.Body).Decode(&formData)
 	if err != nil {
 		log.Println(err)
 	}
-	log.Printf("%+v", formData)
+
 	for _, file := range formData.Files {
 		pathToUser := filepath.Join(".", "data", username)
 		os.MkdirAll(pathToUser, os.ModePerm)
@@ -60,7 +59,7 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 
 func GetMySubmissionsHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.Context().Value("username").(string)
-	log.Println(username)
+
 	pathToUser := filepath.Join(".", "data", username)
 	os.MkdirAll(pathToUser, os.ModePerm)
 
@@ -76,7 +75,7 @@ func GetMySubmissionsHandler(w http.ResponseWriter, r *http.Request) {
 
 		filename := f.Name()
 		splitFilename := strings.Split(filename, "^^")
-		fmt.Println(f.Name())
+
 		submissionData = append(submissionData, File{
 			SubmissionName: splitFilename[0],
 			FileName:       splitFilename[1],

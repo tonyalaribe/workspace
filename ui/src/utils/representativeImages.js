@@ -3,8 +3,6 @@ var imageImageRepresentation = require("../assets/image.png")
 var xlsImageRepresentation = require("../assets/xls.png")
 var docImageRepresentation = require("../assets/doc.jpg")
 
-
-
 export function GetFileRepresentativeImage(file){
 
   switch (file.type){

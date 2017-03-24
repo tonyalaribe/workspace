@@ -8,7 +8,7 @@ import mitt from 'mitt';
     // Configure Auth0
     this.lock = new Auth0Lock(clientId, domain, {
       auth: {
-        redirectUrl: 'http://localhost:3000/login',
+        redirectUrl: window.location.origin+'/login',
         responseType: 'token'
       }
     })
