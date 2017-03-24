@@ -1,25 +1,11 @@
 import React, { Component } from 'react';
 import Nav from '../components/nav.js';
-import {inject, observer} from "mobx-react";
+import {inject} from "mobx-react";
+import {GetFileRepresentativeImage } from '../utils/representativeImages.js';
 
-var fileImageRepresentation = require("../assets/files.png")
-function GetFileRepresentativeImage(file){
 
-  switch (file.type){
-    case "image/png":
-      return file.file
-    case "image/jpeg":
-      return file.file
-    case "image/jpg":
-      return file.file
-    case "image/gif":
-      return file.file
-    default:
-      return fileImageRepresentation
-  }
-}
 
-@inject("MainStore") @observer
+@inject("MainStore")
 class NewSubmissionPage extends Component {
   state = {files:[],showSuccessMessage:false,showErrorMessage:false}
   constructor(props){

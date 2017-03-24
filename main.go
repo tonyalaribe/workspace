@@ -8,11 +8,12 @@ import (
 	"net/http"
 	"os"
 
-	"gitlab.com/middlefront/submittal/web"
-
+	jwtmiddleware "github.com/auth0/go-jwt-middleware"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
 	"github.com/rs/cors"
+	"gitlab.com/middlefront/submittal/web"
 )
 
 // Router struct would carry the httprouter instance, so its methods could be verwritten and replaced with methds with wraphandler
@@ -59,11 +60,24 @@ func init() {
 
 func main() {
 
+	authMiddleware := jwtmiddleware.New(jwtmiddleware.Options{
+		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
+			secret := []byte("jb5NjpdYD9LeKKHlwNQdE2UrtX5CwAfpqsmRelbKps1U_92UpxUqKggVyX9WcGCx")
+
+			if len(secret) == 0 {
+				log.Fatal("AUTH0_CLIENT_SECRET is not set")
+			}
+
+			return secret, nil
+		},
+	})
+
 	commonHandlers := alice.New(web.LoggingHandler)
 	//web.RecoverHandler, context.ClearHandler,
 	router := NewRouter()
 
-	router.Post("/api/new_submission", commonHandlers.ThenFunc(web.NewFormSubmissionHandler))
+	router.Post("/api/new_submission", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.NewFormSubmissionHandler))
+	router.Get("/api/submissions", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.GetMySubmissionsHandler))
 
 	router.Get("/", commonHandlers.ThenFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./ui/build/index.html")

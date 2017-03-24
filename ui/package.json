@@ -4,6 +4,7 @@
   "private": true,
   "proxy": "http://localhost:8080",
   "dependencies": {
+    "mitt": "^1.1.0",
     "mobx": "^3.1.7",
     "mobx-react": "^4.1.3",
     "react": "^15.4.2",

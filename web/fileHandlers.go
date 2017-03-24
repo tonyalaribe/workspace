@@ -3,9 +3,12 @@ package web
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -18,18 +21,20 @@ type FormData struct {
 	SubmissionName string `json:"submissionName"`
 }
 
-func Base64ToFileSystem(b64 string, filename string) {
+func Base64ToFileSystem(b64 string, filepath string) {
 	byt, err := base64.StdEncoding.DecodeString(strings.Split(b64, "base64,")[1])
 	if err != nil {
 		log.Println(err)
 	}
-	err = ioutil.WriteFile("./data/"+filename, byt, 0644)
+	err = ioutil.WriteFile(filepath, byt, 0644)
 	if err != nil {
 		log.Println(err)
 	}
 }
 
 func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
+	username := r.Context().Value("username").(string)
+	log.Println(username)
 	formData := FormData{}
 	err := json.NewDecoder(r.Body).Decode(&formData)
 	if err != nil {
@@ -37,8 +42,11 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("%+v", formData)
 	for _, file := range formData.Files {
-		filename := file.Name
-		Base64ToFileSystem(file.File, filename)
+		pathToUser := filepath.Join(".", "data", username)
+		os.MkdirAll(pathToUser, os.ModePerm)
+		filepath := filepath.Join(pathToUser, formData.SubmissionName+"^^"+file.Name)
+
+		Base64ToFileSystem(file.File, filepath)
 	}
 
 	response := map[string]string{}
@@ -48,4 +56,38 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+}
+
+func GetMySubmissionsHandler(w http.ResponseWriter, r *http.Request) {
+	username := r.Context().Value("username").(string)
+	log.Println(username)
+	pathToUser := filepath.Join(".", "data", username)
+	os.MkdirAll(pathToUser, os.ModePerm)
+
+	type File struct {
+		SubmissionName string
+		FileName       string
+		CreatedBy      string
+	}
+	submissionData := []File{}
+
+	files, _ := ioutil.ReadDir(pathToUser)
+	for _, f := range files {
+
+		filename := f.Name()
+		splitFilename := strings.Split(filename, "^^")
+		fmt.Println(f.Name())
+		submissionData = append(submissionData, File{
+			SubmissionName: splitFilename[0],
+			FileName:       splitFilename[1],
+			CreatedBy:      username,
+		})
+	}
+	w.Header().Set("Content-type", "application/json")
+
+	err := json.NewEncoder(w).Encode(submissionData)
+	if err != nil {
+		log.Println(err)
+	}
+
 }
