@@ -17,8 +17,10 @@ class NewSubmissionPage extends Component {
     e.preventDefault()
 
     let formData = {}
+    formData.status = this.refs.status.value
     formData.submissionName = this.refs.submissionName.value
     formData.files = this.state.files
+
 
     console.log(formData)
     this.props.MainStore.submitFormToServer(formData,()=>{
@@ -92,6 +94,13 @@ class NewSubmissionPage extends Component {
               <span className="navy w-100 f3">New Submission</span>
             </div>
             <form className="pv3" onSubmit={this.submitForm.bind(this)}>
+              <div className="tr pv2">
+                <label className="ph2" htmlFor="status" ref="status">status: </label>
+                <select className="pa2 br0 bg-transparent ba b--black-30" id="status" ref="status">
+                  <option>draft</option>
+                  <option>published</option>
+                </select>
+              </div>
               <div className="pv3">
                 <input type="text" className="pa3 w-100" placeholder="Submission Name" ref="submissionName"/>
               </div>

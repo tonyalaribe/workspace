@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/boltdb/bolt"
+	"gitlab.com/middlefront/workspace/config"
 )
 
 type FormData struct {
@@ -21,6 +22,7 @@ type FormData struct {
 		Type string `json:"type"`
 	} `json:"files"`
 	SubmissionName string `json:"submissionName"`
+	Status         string `json:"status"`
 }
 
 type File struct {
@@ -29,20 +31,7 @@ type File struct {
 	FilePath       string
 	CreatedBy      string
 	UploadDate     string
-}
-
-type Config struct {
-	rootDirectory     string
-	boltFile          string
-	submissionsBucket []byte
-}
-
-var config Config
-
-func init() {
-	config.rootDirectory = filepath.Join(".", "data")
-	config.boltFile = filepath.Join(config.rootDirectory, "workspace.db")
-	config.submissionsBucket = []byte("submissions")
+	Status         string
 }
 
 func Base64ToFileSystem(b64 string, filepath string) {
@@ -66,13 +55,10 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
-	db, err := bolt.Open(config.boltFile, 0666, &bolt.Options{Timeout: 2 * time.Second})
-	if err != nil {
-		log.Println(err)
-	}
+	conf := config.Get()
 
 	for _, file := range formData.Files {
-		pathToUser := filepath.Join(config.rootDirectory, username, formData.SubmissionName)
+		pathToUser := filepath.Join(conf.RootDirectory, username, formData.SubmissionName)
 		os.MkdirAll(pathToUser, os.ModePerm)
 		filepath := filepath.Join(pathToUser, file.Name)
 		Base64ToFileSystem(file.File, filepath)
@@ -83,6 +69,7 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 			CreatedBy:      username,
 			UploadDate:     time.Now().Format(time.RFC1123),
 			SubmissionName: formData.SubmissionName,
+			Status:         formData.Status,
 		}
 		dataByte, err := json.Marshal(data)
 		if err != nil {
@@ -90,7 +77,7 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		/*Save to boltdb*/
 
-		tx, err := db.Begin(true)
+		tx, err := conf.DB.Begin(true)
 		if err != nil {
 			log.Println(err)
 		}
@@ -128,17 +115,15 @@ func GetMySubmissionsHandler(w http.ResponseWriter, r *http.Request) {
 
 	submissionData := []File{}
 
-	db, err := bolt.Open(config.boltFile, 0666, &bolt.Options{Timeout: 2 * time.Second})
-	if err != nil {
-		log.Println(err)
-	}
+	conf := config.Get()
 
-	err = db.View(func(tx *bolt.Tx) error {
+	var err error
+	err = conf.DB.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(username))
 
 		c := b.Cursor()
 
-		for k, v := c.First(); k != nil; k, v = c.Next() {
+		for k, v := c.Last(); k != nil; k, v = c.Prev() {
 			f := File{}
 
 			err = json.Unmarshal(v, &f)

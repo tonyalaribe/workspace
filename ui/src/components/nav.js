@@ -9,7 +9,6 @@ class Nav extends Component {
       profile: AuthService.getProfile()
     }
 
-
     // listen to profile_updated events to update internal state
     AuthService.emitter.on('profile_updated', (newProfile) => {
       console.log('profile updated')
@@ -21,7 +20,7 @@ class Nav extends Component {
     return (
       <nav className="bg-navy w-100 fixed shadow-4 pa3 ph4 white-80 dib">
         <Link to="/" className="pa2 dib link white-80 hover-white">
-          Submitter
+          Workspace
         </Link>
         <div className="dib pa2 fr pr5">
           <Link to="/new_submission" className="white-70  link pa2 ba hover-white">

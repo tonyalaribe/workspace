@@ -46,7 +46,6 @@ func GetUserInfoFromToken(next http.Handler) http.Handler {
 
 		param := make(map[string]string)
 		param["id_token"] = strings.Split(tokenValue, " ")[1]
-		log.Println(param)
 
 		b := new(bytes.Buffer)
 		err := json.NewEncoder(b).Encode(param)

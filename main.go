@@ -13,6 +13,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
 	"github.com/rs/cors"
+	"gitlab.com/middlefront/workspace/config"
 	"gitlab.com/middlefront/workspace/web"
 )
 
@@ -59,6 +60,7 @@ func init() {
 }
 
 func main() {
+	config.Init()
 
 	authMiddleware := jwtmiddleware.New(jwtmiddleware.Options{
 		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
@@ -72,7 +74,7 @@ func main() {
 		},
 	})
 
-	commonHandlers := alice.New(web.LoggingHandler, web.RecoverHandler)
+	commonHandlers := alice.New(web.LoggingHandler)
 	//web.RecoverHandler
 	router := NewRouter()
 

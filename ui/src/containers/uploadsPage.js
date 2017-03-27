@@ -23,7 +23,9 @@ class UploadsPage extends Component {
         </div><div className="dib w-70 h-100 v-top bl b--light-gray pa3">
           <h3 className="navy mv1 ">{fileData.SubmissionName} </h3>
           <div><small>File Name: {fileData.FileName}</small></div>
+          <div><small>status: {fileData.Status}</small></div>
           <div><small>Uploaded By: {fileData.CreatedBy}</small></div>
+
         </div>
         {/** End Upload Item **/}
       </div>)
