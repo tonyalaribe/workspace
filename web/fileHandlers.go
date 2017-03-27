@@ -3,12 +3,16 @@ package web
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
+
+	"github.com/boltdb/bolt"
 )
 
 type FormData struct {
@@ -18,6 +22,28 @@ type FormData struct {
 		Type string `json:"type"`
 	} `json:"files"`
 	SubmissionName string `json:"submissionName"`
+}
+
+type File struct {
+	SubmissionName string
+	FileName       string
+	FilePath       string
+	CreatedBy      string
+	UploadDate     string
+}
+
+type Config struct {
+	rootDirectory     string
+	boltFile          string
+	submissionsBucket []byte
+}
+
+var config Config
+
+func init() {
+	config.rootDirectory = filepath.Join(".", "data")
+	config.boltFile = filepath.Join(config.rootDirectory, "workspace.db")
+	config.submissionsBucket = []byte("submissions")
 }
 
 func Base64ToFileSystem(b64 string, filepath string) {
@@ -40,12 +66,50 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
-	for _, file := range formData.Files {
-		pathToUser := filepath.Join(".", "data", username)
-		os.MkdirAll(pathToUser, os.ModePerm)
-		filepath := filepath.Join(pathToUser, formData.SubmissionName+"^^"+file.Name)
+	db, err := bolt.Open(config.boltFile, 0666, &bolt.Options{Timeout: 2 * time.Second})
+	if err != nil {
+		log.Println(err)
+	}
 
+	for _, file := range formData.Files {
+		pathToUser := filepath.Join(config.rootDirectory, username, formData.SubmissionName)
+		os.MkdirAll(pathToUser, os.ModePerm)
+		filepath := filepath.Join(pathToUser, file.Name)
 		Base64ToFileSystem(file.File, filepath)
+
+		data := File{
+			FileName:       file.Name,
+			FilePath:       filepath,
+			CreatedBy:      username,
+			UploadDate:     time.Now().Format(time.RFC1123),
+			SubmissionName: formData.SubmissionName,
+		}
+		dataByte, err := json.Marshal(data)
+		if err != nil {
+			log.Println(err)
+		}
+		/*Save to boltdb*/
+
+		tx, err := db.Begin(true)
+		if err != nil {
+			log.Println(err)
+		}
+		defer tx.Rollback()
+
+		bucket, err := tx.CreateBucketIfNotExists([]byte(username))
+		if err != nil {
+			log.Println(err)
+		}
+
+		nextID, err := bucket.NextSequence()
+		if err != nil {
+			log.Println(err)
+		}
+		err = bucket.Put(itob(int(nextID)), dataByte)
+		if err != nil {
+			log.Println(err)
+		}
+		tx.Commit()
 	}
 
 	response := map[string]string{}
@@ -60,31 +124,39 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 func GetMySubmissionsHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.Context().Value("username").(string)
 
-	pathToUser := filepath.Join(".", "data", username)
-	os.MkdirAll(pathToUser, os.ModePerm)
-
-	type File struct {
-		SubmissionName string
-		FileName       string
-		CreatedBy      string
-	}
 	submissionData := []File{}
 
-	files, _ := ioutil.ReadDir(pathToUser)
-	for _, f := range files {
-
-		filename := f.Name()
-		splitFilename := strings.Split(filename, "^^")
-
-		submissionData = append(submissionData, File{
-			SubmissionName: splitFilename[0],
-			FileName:       splitFilename[1],
-			CreatedBy:      username,
-		})
+	log.Println(config.boltFile)
+	db, err := bolt.Open(config.boltFile, 0666, &bolt.Options{Timeout: 2 * time.Second})
+	if err != nil {
+		log.Println(err)
 	}
+
+	err = db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(username))
+
+		c := b.Cursor()
+
+		for k, v := c.First(); k != nil; k, v = c.Next() {
+			fmt.Printf("key=%s, value=%s\n", k, v)
+			f := File{}
+			err = json.Unmarshal(v, &f)
+			if err != nil {
+				log.Println(err)
+			}
+			submissionData = append(submissionData, f)
+		}
+
+		return nil
+
+	})
+	if err != nil {
+		log.Println(err)
+	}
+
 	w.Header().Set("Content-type", "application/json")
 
-	err := json.NewEncoder(w).Encode(submissionData)
+	err = json.NewEncoder(w).Encode(submissionData)
 	if err != nil {
 		log.Println(err)
 	}

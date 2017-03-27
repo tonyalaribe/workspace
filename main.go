@@ -13,7 +13,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
 	"github.com/rs/cors"
-	"gitlab.com/middlefront/submittal/web"
+	"gitlab.com/middlefront/workspace/web"
 )
 
 // Router struct would carry the httprouter instance, so its methods could be verwritten and replaced with methds with wraphandler
@@ -72,8 +72,8 @@ func main() {
 		},
 	})
 
-	commonHandlers := alice.New(web.LoggingHandler)
-	//web.RecoverHandler, context.ClearHandler,
+	commonHandlers := alice.New(web.LoggingHandler, web.RecoverHandler)
+	//web.RecoverHandler
 	router := NewRouter()
 
 	router.Post("/api/new_submission", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.NewFormSubmissionHandler))
