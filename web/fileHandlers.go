@@ -3,7 +3,6 @@ package web
 import (
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -51,6 +50,7 @@ func Base64ToFileSystem(b64 string, filepath string) {
 	if err != nil {
 		log.Println(err)
 	}
+
 	err = ioutil.WriteFile(filepath, byt, 0644)
 	if err != nil {
 		log.Println(err)
@@ -114,7 +114,9 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 
 	response := map[string]string{}
 	response["message"] = "Upload Success"
+
 	w.WriteHeader(http.StatusOK)
+
 	err = json.NewEncoder(w).Encode(response)
 	if err != nil {
 		log.Println(err)
@@ -126,7 +128,6 @@ func GetMySubmissionsHandler(w http.ResponseWriter, r *http.Request) {
 
 	submissionData := []File{}
 
-	log.Println(config.boltFile)
 	db, err := bolt.Open(config.boltFile, 0666, &bolt.Options{Timeout: 2 * time.Second})
 	if err != nil {
 		log.Println(err)
@@ -138,8 +139,8 @@ func GetMySubmissionsHandler(w http.ResponseWriter, r *http.Request) {
 		c := b.Cursor()
 
 		for k, v := c.First(); k != nil; k, v = c.Next() {
-			fmt.Printf("key=%s, value=%s\n", k, v)
 			f := File{}
+
 			err = json.Unmarshal(v, &f)
 			if err != nil {
 				log.Println(err)

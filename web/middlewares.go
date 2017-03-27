@@ -71,7 +71,6 @@ func GetUserInfoFromToken(next http.Handler) http.Handler {
 		if err != nil {
 			log.Println(err)
 		}
-		log.Println(responseMap)
 
 		ctx := context.WithValue(r.Context(), "username", responseMap["username"].(string))
 		r = r.WithContext(ctx)
