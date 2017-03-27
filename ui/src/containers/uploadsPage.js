@@ -21,9 +21,11 @@ class UploadsPage extends Component {
             <img src={GetRepresentativeImageByFileExtension(fileData.FileName)} className="w3 h3 dib v-mid" alt="file representative logo"/>
           </div>
         </div><div className="dib w-70 h-100 v-top bl b--light-gray pa3">
+        <div>
+          <small className="fr pa2 bg-navy white-80">{fileData.Status}</small>
+        </div>
           <h3 className="navy mv1 ">{fileData.SubmissionName} </h3>
           <div><small>File Name: {fileData.FileName}</small></div>
-          <div><small>status: {fileData.Status}</small></div>
           <div><small>Uploaded By: {fileData.CreatedBy}</small></div>
 
         </div>
