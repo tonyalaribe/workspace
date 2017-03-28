@@ -3,6 +3,7 @@ import AuthService from '../utils/auth0.js';
 
 class  mainStore {
   @observable Submissions = []
+  @observable SubmissionInfo = {files:[]}
 
   @action submitFormToServer = async(formData,callback)=>{
     console.log(formData)
@@ -45,6 +46,27 @@ class  mainStore {
         this.Submissions.replace(data)
     })
   }
+
+  @action getSubmissionInfo = async(submissionID)=>{
+    let authToken = AuthService.getToken()
+
+    const response = await fetch("/api/submissions/"+submissionID,{
+      method: 'GET',
+      mode: 'cors',
+      headers: {
+        "Content-type":"application/json",
+        "authorization":"Bearer "+authToken,
+      }
+    });
+    const data = await response.json()
+    /* required in strict mode to be allowed to update state: */
+    runInAction("update state after fetching data", () => {
+        console.log(data)
+        this.SubmissionInfo = data
+    })
+  }
+
+
 }
 
 

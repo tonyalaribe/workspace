@@ -24,7 +24,8 @@ class NewSubmissionPage extends Component {
 
     console.log(formData)
     this.props.MainStore.submitFormToServer(formData,()=>{
-      this.setState({showSuccessMessage:true})
+      this.setState({showSuccessMessage:true,files:[]})
+      this.refs.submissionName.value = ""
     })
 
   }
@@ -109,7 +110,7 @@ class NewSubmissionPage extends Component {
                   <div>Drop File to Upload</div>
                   <div><small>( or click to select a file )</small></div>
                 </label>
-                <input type="file" className="dn" id="upload_file" onChange={this.FileSelectHandler.bind(this)}/>
+                <input type="file" className="dn" id="upload_file" onChange={this.FileSelectHandler.bind(this)} multiple/>
               </div>
               <div className="cf">
                 {selectedFiles}
