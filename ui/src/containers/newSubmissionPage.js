@@ -12,12 +12,29 @@ class NewSubmissionPage extends Component {
     super(props)
     this.removeFile = this.removeFile.bind(this)
   }
-  submitForm(e){
+  publishForm(e){
     e.stopPropagation()
     e.preventDefault()
 
     let formData = {}
-    formData.status = this.refs.status.value
+    formData.status = "published"
+    formData.submissionName = this.refs.submissionName.value
+    formData.files = this.state.files
+
+
+    console.log(formData)
+    this.props.MainStore.submitFormToServer(formData,()=>{
+      this.setState({showSuccessMessage:true,files:[]})
+      this.refs.submissionName.value = ""
+    })
+
+  }
+  saveAsDraft(e){
+    e.stopPropagation()
+    e.preventDefault()
+
+    let formData = {}
+    formData.status = "draft"
     formData.submissionName = this.refs.submissionName.value
     formData.files = this.state.files
 
@@ -94,14 +111,7 @@ class NewSubmissionPage extends Component {
             <div className="pv3">
               <span className="navy w-100 f3">New Submission</span>
             </div>
-            <form className="pv3" onSubmit={this.submitForm.bind(this)}>
-              <div className="tr pv2">
-                <label className="ph2" htmlFor="status" ref="status">status: </label>
-                <select className="pa2 br0 bg-transparent ba b--black-30" id="status" ref="status">
-                  <option>draft</option>
-                  <option>published</option>
-                </select>
-              </div>
+            <form className="pv3" >
               <div className="pv3">
                 <input type="text" className="pa3 w-100" placeholder="Submission Name" ref="submissionName"/>
               </div>
@@ -120,7 +130,8 @@ class NewSubmissionPage extends Component {
                 {state.showErrorMessage?<p className="pa3 ba">Error In Submission</p>:""}
               </div>
               <div className="pv3 tr">
-                <button className="pa3 bg-navy grow shadow-4  bw0 white-80 hover-white" type="submit">Submit</button>
+                <button className="pa3 bg-transparent ba bw1 navy b--navy grow shadow-4  white-80 mh2 pointer"  onClick={this.saveAsDraft.bind(this)}>save as draft</button>
+                <button className="pa3 bg-navy grow shadow-4  bw0 white-80 hover-white ml2 pointer"  onClick={this.publishForm.bind(this)}>publish</button>
               </div>
             </form>
           </section>
