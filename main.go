@@ -81,6 +81,7 @@ func main() {
 	router.Post("/api/new_submission", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.NewFormSubmissionHandler))
 	router.Get("/api/submissions", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.GetMySubmissionsHandler))
 	router.Get("/api/submissions/:submissionID", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.GetSubmissionInfoHandler))
+	router.Post("/api/submissions/:submissionID", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.UpdateSubmissionHandler))
 
 	router.Get("/", commonHandlers.ThenFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./ui/build/index.html")
