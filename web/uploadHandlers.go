@@ -6,11 +6,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/boltdb/bolt"
 	"github.com/julienschmidt/httprouter"
@@ -18,21 +15,54 @@ import (
 )
 
 type SubmissionData struct {
-	Files []struct {
-		Status     string `json:"status"`
-		File       string `json:"file"`
-		Name       string `json:"name"`
-		Type       string `json:"type"`
-		Path       string `json:"path"`
-		CreatedBy  string `json:"createdBy"`
-		UploadDate string `json:"uploadDate"`
-	} `json:"files"`
-	CreatedBy      string `json:"createdBy"`
-	CreationDate   string `json:"uploadDate"`
-	SubmissionName string `json:"submissionName"`
-	Status         string `json:"status"`
-	ID             int    `json:"id"`
+	FormData       map[string]interface{} `json:"formData"`
+	Created        int                    `json:"created"`
+	LastModified   int                    `json:"lastModified"`
+	SubmissionName string                 `json:"submissionName"`
+	Status         string                 `json:"status"`
+	ID             int                    `json:"id"`
 }
+
+type Files struct {
+	Status     string `json:"status"`
+	File       string `json:"file"`
+	Name       string `json:"name"`
+	Type       string `json:"type"`
+	Path       string `json:"path"`
+	CreatedBy  string `json:"createdBy"`
+	UploadDate string `json:"uploadDate"`
+}
+
+const JSONSchema = `{
+  "type": "object",
+  "required": [
+    "firstName",
+    "lastName"
+  ],
+  "properties": {
+    "firstName": {
+      "type": "string",
+      "title": "First name"
+    },
+    "lastName": {
+      "type": "string",
+      "title": "Last name"
+    },
+    "age": {
+      "type": "integer",
+      "title": "Age"
+    },
+    "bio": {
+      "type": "string",
+      "title": "Bio"
+    },
+    "password": {
+      "type": "string",
+      "title": "Password",
+      "minLength": 3
+    }
+  }
+}`
 
 func Base64ToFileSystem(b64 string, filepath string) {
 	byt, err := base64.StdEncoding.DecodeString(strings.Split(b64, "base64,")[1])
@@ -49,28 +79,57 @@ func Base64ToFileSystem(b64 string, filepath string) {
 func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.Context().Value("username").(string)
 
-	formData := SubmissionData{}
-	err := json.NewDecoder(r.Body).Decode(&formData)
+	submission := SubmissionData{}
+	err := json.NewDecoder(r.Body).Decode(&submission)
 	if err != nil {
 		log.Println(err)
 	}
 
-	formData.CreatedBy = username
-	formData.CreationDate = time.Now().Format(time.RFC1123)
 	conf := config.Get()
 
-	for i, file := range formData.Files {
-		pathToUser := filepath.Join(conf.RootDirectory, username, formData.SubmissionName)
-		os.MkdirAll(pathToUser, os.ModePerm)
-		filepath := filepath.Join(pathToUser, file.Name)
-		Base64ToFileSystem(file.File, filepath)
-
-		formData.Files[i].File = ""
-		formData.Files[i].Path = filepath
-		formData.Files[i].CreatedBy = username
-		formData.Files[i].UploadDate = time.Now().Format(time.RFC1123)
-
+	schema := make(map[string]interface{})
+	err = json.Unmarshal([]byte(JSONSchema), &schema)
+	if err != nil {
+		log.Println(err)
 	}
+	log.Printf("%+v", schema)
+
+	for k, v := range submission.FormData {
+		schemaObject := schema["properties"].(map[string]interface{})[k].(map[string]interface{})
+		switch schemaObject["type"] {
+		case "string":
+			switch schemaObject["format"] {
+			case "data-uri":
+				//file formatting
+				break
+			default:
+				submission.FormData[k] = v.(string)
+			}
+
+		case "integer":
+			//Using type float64 due to compiler complaints when handling integer types
+			submission.FormData[k] = submission.FormData[k].(float64)
+		default:
+			log.Printf("%+v", schemaObject)
+		}
+	}
+
+	// formData.CreatedBy = username
+	// formData.CreationDate = time.Now().Format(time.RFC1123)
+	//
+	//
+	// for i, file := range formData.Files {
+	// 	pathToUser := filepath.Join(conf.RootDirectory, username, formData.SubmissionName)
+	// 	os.MkdirAll(pathToUser, os.ModePerm)
+	// 	filepath := filepath.Join(pathToUser, file.Name)
+	// 	Base64ToFileSystem(file.File, filepath)
+	//
+	// 	formData.Files[i].File = ""
+	// 	formData.Files[i].Path = filepath
+	// 	formData.Files[i].CreatedBy = username
+	// 	formData.Files[i].UploadDate = time.Now().Format(time.RFC1123)
+	//
+	// }
 
 	/*Save to boltdb*/
 
@@ -90,8 +149,8 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
-	formData.ID = int(nextID)
-	dataByte, err := json.Marshal(formData)
+	submission.ID = int(nextID)
+	dataByte, err := json.Marshal(submission)
 	if err != nil {
 		log.Println(err)
 	}
@@ -101,6 +160,9 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 	tx.Commit()
+
+	byt, _ := json.MarshalIndent(submission, "", "\t")
+	log.Println(string(byt))
 
 	response := map[string]string{}
 	response["message"] = "Upload Success"
@@ -149,21 +211,21 @@ func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 
 	submissionData.Status = formData.Status
 
-	for i, file := range formData.Files {
-		pathToUser := filepath.Join(conf.RootDirectory, username, formData.SubmissionName)
-		os.MkdirAll(pathToUser, os.ModePerm)
-		filepath := filepath.Join(pathToUser, file.Name)
-		Base64ToFileSystem(file.File, filepath)
+	// for i, file := range formData.Files {
+	// 	pathToUser := filepath.Join(conf.RootDirectory, username, formData.SubmissionName)
+	// 	os.MkdirAll(pathToUser, os.ModePerm)
+	// 	filepath := filepath.Join(pathToUser, file.Name)
+	// 	Base64ToFileSystem(file.File, filepath)
+	//
+	// 	oldFile := formData.Files[i]
+	// 	oldFile.File = ""
+	// 	oldFile.Path = filepath
+	// 	oldFile.CreatedBy = username
+	// 	oldFile.UploadDate = time.Now().Format(time.RFC1123)
+	// 	submissionData.Files = append(submissionData.Files, oldFile)
 
-		oldFile := formData.Files[i]
-		oldFile.File = ""
-		oldFile.Path = filepath
-		oldFile.CreatedBy = username
-		oldFile.UploadDate = time.Now().Format(time.RFC1123)
-		submissionData.Files = append(submissionData.Files, oldFile)
-
-	}
-
+	// }
+	//
 	/*Save to boltdb*/
 
 	tx, err := conf.DB.Begin(true)

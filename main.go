@@ -83,9 +83,7 @@ func main() {
 	router.Get("/api/submissions/:submissionID", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.GetSubmissionInfoHandler))
 	router.Post("/api/submissions/:submissionID", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.UpdateSubmissionHandler))
 
-	router.Get("/", commonHandlers.ThenFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./ui/build/index.html")
-	}))
+	router.Get("/", commonHandlers.ThenFunc(web.HomePageHandler))
 
 	fileServer := http.FileServer(http.Dir("./ui/build/static"))
 	router.GET("/static/*filepath", func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -116,9 +114,7 @@ func main() {
 		uploadedFileServer.ServeHTTP(w, r)
 	})
 
-	router.NotFound = commonHandlers.ThenFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./ui/build/index.html")
-	})
+	router.NotFound = commonHandlers.ThenFunc(web.HomePageHandler)
 
 	PORT := os.Getenv("PORT")
 	if PORT == "" {

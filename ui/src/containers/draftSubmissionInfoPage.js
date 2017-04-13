@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import Nav from '../components/nav.js';
 // import FileSelect from '../components/fileSelect.js';
-import {inject} from "mobx-react";
+import {observer, inject} from "mobx-react";
+import moment from "moment";
 
 
 import Form from "react-jsonschema-form";
@@ -75,12 +76,15 @@ function CustomFieldTemplate(props) {
   );
 }
 
-@inject("MainStore")
-class NewSubmissionPage extends Component {
-  state = {files:[]}
+@inject("MainStore") @observer
+class DraftSubmissionInfoPage extends Component {
+  state = {files:[],showSuccessMessage:false,showErrorMessage:false}
   constructor(props){
     super(props)
-    this.newFile = this.newFile.bind(this)
+  }
+
+  componentDidMount(){
+    this.props.MainStore.getSubmissionInfo(this.props.match.params.submissionID)
   }
 
 
@@ -96,6 +100,7 @@ class NewSubmissionPage extends Component {
 
     response.formData = data.formData;
 
+    console.log(response)
     console.log(JSON.stringify(response))
 
     this.props.MainStore.submitFormToServer(response,()=>{
@@ -110,24 +115,30 @@ class NewSubmissionPage extends Component {
   render() {
     let {state} = this;
 
+    let submissionInfo = this.props.MainStore.SubmissionInfo;
+    console.log(submissionInfo)
+    console.log(submissionInfo.submissionName)
+
     return (
       <section className="">
         <Nav/>
         <section className="tc pt5">
-          <section className="pt5 dib w-100 w-70-m w-50-l ">
-            <div className="pv3 ">
-              <span className="navy w-100 f3">
-                New Submission
-              </span>
+          <section className="pt5 dib w-100 w-70-m w-50-l tl">
+            <div className="pv3">
+              <h1 className="navy w-100 mv2">{submissionInfo.submissionName}</h1>
             </div>
-            <div className="pv3 tl" >
-              <label className="pv2 dib">
-                Submission Name
-              </label>
-              <input
-                type="text"
-                className="form-control "
-                ref="submissionName"/>
+
+            <div className="pv2">
+              <strong>status: </strong>
+              <span className="navy">{submissionInfo.status}</span>
+            </div>
+            <div className="pv2">
+              <div className="w-100 w-50-ns dib ">
+                <small>Created: {moment(submissionInfo.created).format("h:mma, MM-DD-YYYY")}</small>
+              </div>
+              <div className="w-100 w-50-ns dib ">
+                <small>Modified: {moment(submissionInfo.lastModified).format("h:mma, MM-DD-YYYY")}</small>
+              </div>
             </div>
             <Form
               schema={schema}
@@ -174,4 +185,4 @@ class NewSubmissionPage extends Component {
   }
 }
 
-export default NewSubmissionPage;
+export default DraftSubmissionInfoPage;

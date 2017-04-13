@@ -3,8 +3,9 @@ import Nav from '../components/nav.js';
 import {Link} from 'react-router-dom';
 import AuthService from '../utils/auth0.js';
 import {inject,observer} from "mobx-react";
-
+import moment from "moment";
 var fileImageRepresentation = require("../assets/files.png")
+
 
 @inject("MainStore") @observer
 class UploadsPage extends Component {
@@ -17,7 +18,7 @@ class UploadsPage extends Component {
     let userSubmissions = submissions.map(function(fileData, key){
       console.log(fileData)
       return (
-        <Link to={"/submissions/"+fileData.id} key={key} className="link navy">
+        <Link to={"/submissions/"+fileData.status+"/"+fileData.id} key={key} className="link navy">
         <div className="shadow-4 grow mv2 h4" >
           {/** Upload Item **/}
           <div className="dib w-30 v-top tc h-100 fl">
@@ -25,11 +26,18 @@ class UploadsPage extends Component {
               <img src={fileImageRepresentation} className="w3 h3 dib v-mid" alt="file representative logo"/>
             </div>
           </div><div className="dib w-70 h-100 v-top bl b--light-gray pa3">
-          <div>
-            <small className="fr pa2 bg-navy white-80">{fileData.status}</small>
-          </div>
-            <h3 className="navy mv1 ">{fileData.submissionName} </h3>
-            <div><small>Number of Files: {fileData.files.length}</small></div>
+              <div>
+                <small className="fr pa2 bg-navy white-80">{fileData.status}</small>
+              </div>
+              <h3 className="navy mv1 ">{fileData.submissionName} </h3>
+              <div>
+                <div className=" pv1">
+                  <small>created on:&nbsp;&nbsp;&nbsp;{moment(fileData.created).format("h:mma, MM-DD-YYYY")}</small>
+                </div>
+                <div className=" pv1">
+                  <small>modified on:&nbsp;&nbsp;{moment(fileData.lastModified).format("h:mma, MM-DD-YYYY")}</small>
+                </div>
+              </div>
           </div>
           {/** End Upload Item **/}
         </div>

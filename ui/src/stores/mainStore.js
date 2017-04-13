@@ -3,7 +3,7 @@ import AuthService from '../utils/auth0.js';
 
 class  mainStore {
   @observable Submissions = []
-  @observable SubmissionInfo = {files:[]}
+  @observable SubmissionInfo = {formData:[]}
 
   @action submitFormToServer = async(formData,callback)=>{
     console.log(formData)
