@@ -1,63 +1,13 @@
 import React, { Component } from 'react';
 import Nav from '../components/nav.js';
 // import FileSelect from '../components/fileSelect.js';
-import {inject} from "mobx-react";
+import {inject, observer} from "mobx-react";
 
 
 import Form from "react-jsonschema-form";
 
 //This is a dirty and quick workaround, because using setState prevents the form from submitting.
 var STATUS = ""
-
-const schema = {
-  "type": "object",
-  "required": [
-    "firstName",
-    "lastName"
-  ],
-  "properties": {
-    "firstName": {
-      "type": "string",
-      "title": "First name"
-    },
-    "lastName": {
-      "type": "string",
-      "title": "Last name"
-    },
-    "age": {
-      "type": "integer",
-      "title": "Age"
-    },
-    "bio": {
-      "type": "string",
-      "title": "Bio"
-    },
-    "password": {
-      "type": "string",
-      "title": "Password",
-      "minLength": 3
-    }
-  }
-};
-
-const uiSchema = {
-  "firstName": {
-    "ui:autofocus": true
-  },
-  "age": {
-    "ui:widget": "updown"
-  },
-  "bio": {
-    "ui:widget": "textarea"
-  },
-  "password": {
-    "ui:widget": "password",
-    "ui:help": "Hint: Make it strong!"
-  },
-  "date": {
-    "ui:widget": "alt-datetime"
-  }
-};
 
 const log = (type) => console.log.bind(console, type);
 
@@ -75,14 +25,16 @@ function CustomFieldTemplate(props) {
   );
 }
 
-@inject("MainStore")
+@inject("MainStore") @observer
 class NewSubmissionPage extends Component {
   state = {files:[]}
   constructor(props){
     super(props)
-    this.newFile = this.newFile.bind(this)
   }
 
+  componentDidMount(){
+    this.props.MainStore.getWorkspace(this.props.match.params.workspaceID)
+  }
 
   submitForm(data){
     this.setState({showSuccessMessage:false})
@@ -109,6 +61,7 @@ class NewSubmissionPage extends Component {
 
   render() {
     let {state} = this;
+    let {CurrentWorkspace} = this.props.MainStore;
 
     return (
       <section className="">
@@ -116,8 +69,11 @@ class NewSubmissionPage extends Component {
         <section className="tc pt5">
           <section className="pt5 dib w-100 w-70-m w-50-l ">
             <div className="pv3 ">
-              <span className="navy w-100 f3">
+              <span className="navy w-100 f3 db">
                 New Submission
+              </span>
+              <span className="db">
+                {CurrentWorkspace.name?"("+CurrentWorkspace.name+")":""}
               </span>
             </div>
             <div className="pv3 tl" >
@@ -130,8 +86,8 @@ class NewSubmissionPage extends Component {
                 ref="submissionName"/>
             </div>
             <Form
-              schema={schema}
-              uiSchema={uiSchema}
+              schema={CurrentWorkspace.jsonschema}
+              uiSchema={CurrentWorkspace.uischema}
               onError={log("errors")}
               FieldTemplate={CustomFieldTemplate}
               onSubmit={this.submitForm.bind(this)}
@@ -153,7 +109,7 @@ class NewSubmissionPage extends Component {
                   <input
                     type="submit"
                     ref={(btn) => {this.submitButton=btn;}}
-                    className="hidden"/>
+                    className="hidden dn"/>
                 </Form>
 
                 <div className="pv3 tr">

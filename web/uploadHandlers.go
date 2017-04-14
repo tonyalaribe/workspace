@@ -33,37 +33,6 @@ type Files struct {
 	UploadDate string `json:"uploadDate"`
 }
 
-const JSONSchema = `{
-  "type": "object",
-  "required": [
-    "firstName",
-    "lastName"
-  ],
-  "properties": {
-    "firstName": {
-      "type": "string",
-      "title": "First name"
-    },
-    "lastName": {
-      "type": "string",
-      "title": "Last name"
-    },
-    "age": {
-      "type": "integer",
-      "title": "Age"
-    },
-    "bio": {
-      "type": "string",
-      "title": "Bio"
-    },
-    "password": {
-      "type": "string",
-      "title": "Password",
-      "minLength": 3
-    }
-  }
-}`
-
 func Base64ToFileSystem(b64 string, filepath string) {
 	byt, err := base64.StdEncoding.DecodeString(strings.Split(b64, "base64,")[1])
 	if err != nil {
@@ -79,6 +48,9 @@ func Base64ToFileSystem(b64 string, filepath string) {
 func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.Context().Value("username").(string)
 
+	httprouterParams := r.Context().Value("params").(httprouter.Params)
+	workspaceID := httprouterParams.ByName("workspaceID")
+
 	submission := SubmissionData{}
 	err := json.NewDecoder(r.Body).Decode(&submission)
 	if err != nil {
@@ -87,13 +59,25 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 
 	conf := config.Get()
 
-	schema := make(map[string]interface{})
-	err = json.Unmarshal([]byte(JSONSchema), &schema)
+	var workspaceInfoByte []byte
+	conf.DB.Update(func(tx *bolt.Tx) error {
+		workspacesBucket, err := tx.CreateBucketIfNotExists([]byte(config.WORKSPACES_BUCKET))
+		if err != nil {
+			log.Println(err)
+		}
+		workspaceInfoByte = workspacesBucket.Get([]byte(workspaceID))
+
+		return nil
+	})
+
+	workspaceInfo := make(map[string]interface{})
+	err = json.Unmarshal(workspaceInfoByte, &workspaceInfo)
 	if err != nil {
 		log.Println(err)
 	}
-	log.Printf("%+v", schema)
+	// log.Printf("%+v", workspaceInfo)
 
+	schema := workspaceInfo["jsonschema"].(map[string]interface{})
 	for k, v := range submission.FormData {
 		schemaObject := schema["properties"].(map[string]interface{})[k].(map[string]interface{})
 		switch schemaObject["type"] {
@@ -132,35 +116,40 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	// }
 
 	/*Save to boltdb*/
+	err = conf.DB.Update(func(tx *bolt.Tx) error {
 
-	tx, err := conf.DB.Begin(true)
+		workspaceBucket, err := tx.CreateBucketIfNotExists([]byte(workspaceID))
+		if err != nil {
+			log.Println(err)
+		}
+
+		userBucket, err := workspaceBucket.CreateBucketIfNotExists([]byte(username))
+		if err != nil {
+			log.Println(err)
+		}
+
+		nextID, err := userBucket.NextSequence()
+		if err != nil {
+			log.Println(err)
+		}
+
+		submission.ID = int(nextID)
+		dataByte, err := json.Marshal(submission)
+		if err != nil {
+			log.Println(err)
+		}
+
+		err = userBucket.Put(itob(int(nextID)), dataByte)
+		if err != nil {
+			log.Println(err)
+		}
+
+		return nil
+	})
+
 	if err != nil {
 		log.Println(err)
 	}
-	defer tx.Rollback()
-
-	bucket, err := tx.CreateBucketIfNotExists([]byte(username))
-	if err != nil {
-		log.Println(err)
-	}
-
-	nextID, err := bucket.NextSequence()
-	if err != nil {
-		log.Println(err)
-	}
-
-	submission.ID = int(nextID)
-	dataByte, err := json.Marshal(submission)
-	if err != nil {
-		log.Println(err)
-	}
-
-	err = bucket.Put(itob(int(nextID)), dataByte)
-	if err != nil {
-		log.Println(err)
-	}
-	tx.Commit()
-
 	byt, _ := json.MarshalIndent(submission, "", "\t")
 	log.Println(string(byt))
 
@@ -179,6 +168,7 @@ func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.Context().Value("username").(string)
 
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
+
 	submissionID, err := strconv.Atoi(httprouterParams.ByName("submissionID"))
 	if err != nil {
 		log.Println(err)
@@ -264,13 +254,20 @@ func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 func GetMySubmissionsHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.Context().Value("username").(string)
 
+	httprouterParams := r.Context().Value("params").(httprouter.Params)
+	workspaceID := httprouterParams.ByName("workspaceID")
+	log.Println(workspaceID)
+
 	submissionData := []SubmissionData{}
 
 	conf := config.Get()
 
 	var err error
 	err = conf.DB.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(username))
+
+		workspaceBucket := tx.Bucket([]byte(workspaceID))
+
+		b := workspaceBucket.Bucket([]byte(username))
 
 		c := b.Cursor()
 
@@ -303,17 +300,24 @@ func GetMySubmissionsHandler(w http.ResponseWriter, r *http.Request) {
 func GetSubmissionInfoHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.Context().Value("username").(string)
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
+
+	workspaceID := httprouterParams.ByName("workspaceID")
+	log.Println(workspaceID)
+
 	submissionID, err := strconv.Atoi(httprouterParams.ByName("submissionID"))
 	if err != nil {
 		log.Println(err)
 	}
+
+	log.Println(r.URL.String())
 
 	submissionData := SubmissionData{}
 
 	conf := config.Get()
 
 	err = conf.DB.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(username))
+		workspaceBucket := tx.Bucket([]byte(workspaceID))
+		b := workspaceBucket.Bucket([]byte(username))
 
 		err = json.Unmarshal(b.Get(itob(submissionID)), &submissionData)
 		if err != nil {

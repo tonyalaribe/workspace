@@ -10,15 +10,17 @@ var fileImageRepresentation = require("../assets/files.png")
 @inject("MainStore") @observer
 class UploadsPage extends Component {
   componentDidMount(){
-    this.props.MainStore.getMySubmissions()
+    // console.log(this.props)
+    this.props.MainStore.getWorkspace(this.props.match.params.workspaceID).then(()=>this.props.MainStore.getMySubmissions())
+
   }
   render() {
     let submissions = this.props.MainStore.Submissions
-
+    let {CurrentWorkspace} = this.props.MainStore
     let userSubmissions = submissions.map(function(fileData, key){
       console.log(fileData)
       return (
-        <Link to={"/submissions/"+fileData.status+"/"+fileData.id} key={key} className="link navy">
+        <Link to={"/workspaces/"+CurrentWorkspace.id+"/submissions/"+fileData.status+"/"+fileData.id} key={key} className="link navy">
         <div className="shadow-4 grow mv2 h4" >
           {/** Upload Item **/}
           <div className="dib w-30 v-top tc h-100 fl">

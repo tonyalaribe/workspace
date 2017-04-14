@@ -17,10 +17,10 @@ class App extends Component {
     return (
       <Router>
         <section>
-          <ProtectedRoute exact path="/" component={UploadsPage}/>
-          <ProtectedRoute path="/new_submission" component={NewSubmissionPage}/>
-          <ProtectedRoute path="/submissions/draft/:submissionID" component={DraftSubmissionInfoPage}/>
-          <ProtectedRoute path="/submissions/published/:submissionID" component={PublishedSubmissionInfoPage}/>
+          <ProtectedRoute exact path="/workspaces/:workspaceID/" component={UploadsPage}/>
+          <ProtectedRoute path="/workspaces/:workspaceID/new_submission" component={NewSubmissionPage}/>
+          <ProtectedRoute path="/workspaces/:workspaceID/submissions/draft/:submissionID" component={DraftSubmissionInfoPage}/>
+          <ProtectedRoute path="/workspaces/:workspaceID/submissions/published/:submissionID" component={PublishedSubmissionInfoPage}/>
           <Route path="/login" component={LoginPage}/>
         </section>
       </Router>
