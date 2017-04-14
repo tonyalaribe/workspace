@@ -10,56 +10,6 @@ import Form from "react-jsonschema-form";
 //This is a dirty and quick workaround, because using setState prevents the form from submitting.
 var STATUS = ""
 
-const schema = {
-  "type": "object",
-  "required": [
-    "firstName",
-    "lastName"
-  ],
-  "properties": {
-    "firstName": {
-      "type": "string",
-      "title": "First name"
-    },
-    "lastName": {
-      "type": "string",
-      "title": "Last name"
-    },
-    "age": {
-      "type": "integer",
-      "title": "Age"
-    },
-    "bio": {
-      "type": "string",
-      "title": "Bio"
-    },
-    "password": {
-      "type": "string",
-      "title": "Password",
-      "minLength": 3
-    }
-  }
-};
-
-const uiSchema = {
-  "firstName": {
-    "ui:autofocus": true
-  },
-  "age": {
-    "ui:widget": "updown"
-  },
-  "bio": {
-    "ui:widget": "textarea"
-  },
-  "password": {
-    "ui:widget": "password",
-    "ui:help": "Hint: Make it strong!"
-  },
-  "date": {
-    "ui:widget": "alt-datetime"
-  }
-};
-
 const log = (type) => console.log.bind(console, type);
 
 
@@ -84,7 +34,10 @@ class DraftSubmissionInfoPage extends Component {
   }
 
   componentDidMount(){
-    this.props.MainStore.getSubmissionInfo(this.props.match.params.submissionID)
+    this.props.MainStore.getWorkspace(this.props.match.params.workspaceID).then(()=>{
+      this.props.MainStore.getSubmissionInfo(this.props.match.params.submissionID)
+    })
+
   }
 
 
@@ -115,9 +68,9 @@ class DraftSubmissionInfoPage extends Component {
   render() {
     let {state} = this;
 
-    let submissionInfo = this.props.MainStore.SubmissionInfo;
-    console.log(submissionInfo)
-    console.log(submissionInfo.submissionName)
+    let {CurrentWorkspace,SubmissionInfo} = this.props.MainStore;
+
+    let jsonschema = CurrentWorkspace.jsonschema;
 
     return (
       <section className="">
@@ -125,24 +78,25 @@ class DraftSubmissionInfoPage extends Component {
         <section className="tc pt5">
           <section className="pt5 dib w-100 w-70-m w-50-l tl">
             <div className="pv3">
-              <h1 className="navy w-100 mv2">{submissionInfo.submissionName}</h1>
+              <h1 className="navy w-100 mv2">{SubmissionInfo.submissionName}</h1>
             </div>
 
             <div className="pv2">
               <strong>status: </strong>
-              <span className="navy">{submissionInfo.status}</span>
+              <span className="navy">{SubmissionInfo.status}</span>
             </div>
             <div className="pv2">
               <div className="w-100 w-50-ns dib ">
-                <small>Created: {moment(submissionInfo.created).format("h:mma, MM-DD-YYYY")}</small>
+                <small>Created: {moment(SubmissionInfo.created).format("h:mma, MM-DD-YYYY")}</small>
               </div>
               <div className="w-100 w-50-ns dib ">
-                <small>Modified: {moment(submissionInfo.lastModified).format("h:mma, MM-DD-YYYY")}</small>
+                <small>Modified: {moment(SubmissionInfo.lastModified).format("h:mma, MM-DD-YYYY")}</small>
               </div>
             </div>
             <Form
-              schema={schema}
-              uiSchema={uiSchema}
+              schema={CurrentWorkspace.jsonschema}
+              uiSchema={CurrentWorkspace.uischema}
+              formData={SubmissionInfo.formData}
               onError={log("errors")}
               FieldTemplate={CustomFieldTemplate}
               onSubmit={this.submitForm.bind(this)}
@@ -164,7 +118,7 @@ class DraftSubmissionInfoPage extends Component {
                   <input
                     type="submit"
                     ref={(btn) => {this.submitButton=btn;}}
-                    className="hidden"/>
+                    className="hidden dn"/>
                 </Form>
 
                 <div className="pv3 tr">

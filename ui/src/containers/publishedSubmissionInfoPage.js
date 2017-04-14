@@ -15,8 +15,10 @@ class PublishedSubmissionInfoPage extends Component {
   }
 
   componentDidMount(){
-    this.props.MainStore.getWorkspace(this.props.match.params.workspaceID)
-    this.props.MainStore.getSubmissionInfo(this.props.match.params.submissionID)
+    this.props.MainStore.getWorkspace(this.props.match.params.workspaceID).then(()=>{
+      this.props.MainStore.getSubmissionInfo(this.props.match.params.submissionID)
+    })
+
   }
   render() {
     let {state} = this;
