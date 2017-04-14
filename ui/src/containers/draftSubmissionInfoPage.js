@@ -47,8 +47,7 @@ class DraftSubmissionInfoPage extends Component {
     console.log(data)
     let response = {};
     response.status = STATUS;
-    response.submissionName = this.refs.submissionName.value;
-    response.created = Date.now();
+
     response.lastModified = Date.now();
 
     response.formData = data.formData;
@@ -56,10 +55,9 @@ class DraftSubmissionInfoPage extends Component {
     console.log(response)
     console.log(JSON.stringify(response))
 
-    this.props.MainStore.submitFormToServer(response,()=>{
+    this.props.MainStore.updateFormOnServer(this.props.match.params.submissionID,response,()=>{
 
-      this.setState({showSuccessMessage:true,files:[]})
-      this.refs.submissionName.value = ""
+      this.setState({showSuccessMessage:true})
 
     })
 

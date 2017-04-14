@@ -85,7 +85,7 @@ func main() {
 	router.Post("/api/workspaces/:workspaceID/new_submission", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.NewFormSubmissionHandler))
 	router.Get("/api/workspaces/:workspaceID/submissions", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.GetMySubmissionsHandler))
 	router.Get("/api/workspaces/:workspaceID/submissions/:submissionID", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.GetSubmissionInfoHandler))
-	router.Post("/api/workspaces/:workspaceID/submissions/:submissionID", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.UpdateSubmissionHandler))
+	router.Put("/api/workspaces/:workspaceID/submissions/:submissionID", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.UpdateSubmissionHandler))
 
 	router.Get("/", commonHandlers.ThenFunc(web.HomePageHandler))
 

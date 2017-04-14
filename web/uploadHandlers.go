@@ -169,17 +169,25 @@ func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 
+	workspaceID := httprouterParams.ByName("workspaceID")
+
 	submissionID, err := strconv.Atoi(httprouterParams.ByName("submissionID"))
 	if err != nil {
 		log.Println(err)
 	}
+	log.Println(submissionID)
 
 	submissionData := SubmissionData{}
 
 	conf := config.Get()
 
 	err = conf.DB.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(username))
+		workspacesBucket := tx.Bucket([]byte(workspaceID))
+		if err != nil {
+			log.Println(err)
+		}
+
+		b := workspacesBucket.Bucket([]byte(username))
 
 		err = json.Unmarshal(b.Get(itob(submissionID)), &submissionData)
 		if err != nil {
@@ -200,6 +208,8 @@ func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	submissionData.Status = formData.Status
+	submissionData.LastModified = formData.LastModified
+	submissionData.FormData = formData.FormData
 
 	// for i, file := range formData.Files {
 	// 	pathToUser := filepath.Join(conf.RootDirectory, username, formData.SubmissionName)
@@ -218,27 +228,32 @@ func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	//
 	/*Save to boltdb*/
 
-	tx, err := conf.DB.Begin(true)
-	if err != nil {
-		log.Println(err)
-	}
-	defer tx.Rollback()
+	err = conf.DB.Update(func(tx *bolt.Tx) error {
+		workspacesBucket, err := tx.CreateBucketIfNotExists([]byte(workspaceID))
+		if err != nil {
+			log.Println(err)
+		}
 
-	bucket, err := tx.CreateBucketIfNotExists([]byte(username))
-	if err != nil {
-		log.Println(err)
-	}
+		bucket, err := workspacesBucket.CreateBucketIfNotExists([]byte(username))
+		if err != nil {
+			log.Println(err)
+		}
 
-	dataByte, err := json.Marshal(submissionData)
-	if err != nil {
-		log.Println(err)
-	}
+		dataByte, err := json.Marshal(submissionData)
+		if err != nil {
+			log.Println(err)
+		}
 
-	err = bucket.Put(itob(submissionID), dataByte)
+		err = bucket.Put(itob(submissionID), dataByte)
+		if err != nil {
+			log.Println(err)
+		}
+		return nil
+	})
+
 	if err != nil {
 		log.Println(err)
 	}
-	tx.Commit()
 
 	response := map[string]string{}
 	response["message"] = "Upload Success"
@@ -302,7 +317,7 @@ func GetSubmissionInfoHandler(w http.ResponseWriter, r *http.Request) {
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 
 	workspaceID := httprouterParams.ByName("workspaceID")
-	log.Println(workspaceID)
+	// log.Println(workspaceID)
 
 	submissionID, err := strconv.Atoi(httprouterParams.ByName("submissionID"))
 	if err != nil {

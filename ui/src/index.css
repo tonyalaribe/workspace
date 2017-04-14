@@ -15,6 +15,11 @@ fieldset{
   border-width:1px;
 }
 
+.form-control {
+  padding:.8rem 1rem;
+  width:100%;
+  border-width:1px;
+}
 select.form-control {
   padding:.8rem 1rem;
   background:transparent;

@@ -62,7 +62,7 @@ class  mainStore {
     let authToken = AuthService.getToken()
 
     const response = await fetch("/api/workspaces/"+this.CurrentWorkspace.id+"/submissions/"+submissionID,{
-      method: 'POST',
+      method: 'PUT',
       body: JSON.stringify(formData),
       mode: 'cors',
       headers: {
