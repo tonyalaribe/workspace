@@ -16,7 +16,13 @@ type Config struct {
 	DB                *bolt.DB
 }
 
-var config Config
+var (
+	config Config
+)
+
+const (
+	WORKSPACES_BUCKET = "workspaces_bucket"
+)
 
 //Using Init not init, so i can manually determine when the content of config are initalized, as opposed to initializing whenever the package is imported (initialization should happen at app startup, which is only when imported by the main.go file).
 func Init() {

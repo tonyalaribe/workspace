@@ -3,3 +3,29 @@ body {
   padding: 0;
   font-family: sans-serif;
 }
+
+fieldset{
+  border:0;
+  padding:0;
+}
+
+.form-control[type="text"] {
+  padding:.8rem 1rem;
+  width:100%;
+  border-width:1px;
+}
+
+.form-control {
+  padding:.8rem 1rem;
+  width:100%;
+  border-width:1px;
+}
+select.form-control {
+  padding:.8rem 1rem;
+  background:transparent;
+  width:100%;
+}
+
+input.form-control{
+  border-color:rgba( 0, 0, 0, .3 );
+}

@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import Nav from '../components/nav.js';
 // import FileSelect from '../components/fileSelect.js';
-import {inject, observer} from 'mobx-react';
+import {observer, inject} from 'mobx-react';
+import moment from 'moment';
 
 import Form from 'react-jsonschema-form';
 
@@ -36,11 +37,17 @@ function CustomFieldTemplate(props) {
 
 @inject('MainStore')
 @observer
-class NewSubmissionPage extends Component {
-  state = {files: []};
+class DraftSubmissionInfoPage extends Component {
+  state = {files: [], showSuccessMessage: false, showErrorMessage: false};
 
   componentDidMount() {
-    this.props.MainStore.getWorkspace(this.props.match.params.workspaceID);
+    this.props.MainStore
+      .getWorkspace(this.props.match.params.workspaceID)
+      .then(() => {
+        this.props.MainStore.getSubmissionInfo(
+          this.props.match.params.submissionID,
+        );
+      });
   }
 
   submitForm(data) {
@@ -49,50 +56,65 @@ class NewSubmissionPage extends Component {
     console.log(data);
     let response = {};
     response.status = STATUS;
-    response.submissionName = this.refs.submissionName.value;
-    response.created = Date.now();
+
     response.lastModified = Date.now();
 
     response.formData = data.formData;
 
+    console.log(response);
     console.log(JSON.stringify(response));
 
-    this.props.MainStore.submitFormToServer(response, () => {
-      this.setState({showSuccessMessage: true, files: []});
-      this.refs.submissionName.value = '';
-    });
+    this.props.MainStore.updateFormOnServer(
+      this.props.match.params.submissionID,
+      response,
+      () => {
+        this.setState({showSuccessMessage: true});
+      },
+    );
   }
 
   render() {
     let {state} = this;
-    let {CurrentWorkspace} = this.props.MainStore;
+
+    let {CurrentWorkspace, SubmissionInfo} = this.props.MainStore;
 
     return (
       <section className="">
         <Nav />
         <section className="tc pt5">
-          <section className="pt5 dib w-100 w-70-m w-50-l ">
-            <div className="pv3 ">
-              <span className="navy w-100 f3 db">
-                New Submission
-              </span>
-              <span className="db">
-                {CurrentWorkspace.name ? '(' + CurrentWorkspace.name + ')' : ''}
-              </span>
+          <section className="pt5 dib w-100 w-70-m w-50-l tl">
+            <div className="pv3">
+              <h1 className="navy w-100 mv2">
+                {SubmissionInfo.submissionName}
+              </h1>
             </div>
-            <div className="pv3 tl">
-              <label className="pv2 dib">
-                Submission Name
-              </label>
-              <input
-                type="text"
-                className="form-control "
-                ref="submissionName"
-              />
+
+            <div className="pv2">
+              <strong>status: </strong>
+              <span className="navy">{SubmissionInfo.status}</span>
+            </div>
+            <div className="pv2">
+              <div className="w-100 w-50-ns dib ">
+                <small>
+                  Created:
+                  {' '}
+                  {moment(SubmissionInfo.created).format('h:mma, MM-DD-YYYY')}
+                </small>
+              </div>
+              <div className="w-100 w-50-ns dib ">
+                <small>
+                  Modified:
+                  {' '}
+                  {moment(SubmissionInfo.lastModified).format(
+                    'h:mma, MM-DD-YYYY',
+                  )}
+                </small>
+              </div>
             </div>
             <Form
               schema={CurrentWorkspace.jsonschema}
               uiSchema={CurrentWorkspace.uischema}
+              formData={SubmissionInfo.formData}
               onError={log('errors')}
               FieldTemplate={CustomFieldTemplate}
               onSubmit={this.submitForm.bind(this)}
@@ -151,4 +173,4 @@ class NewSubmissionPage extends Component {
   }
 }
 
-export default NewSubmissionPage;
+export default DraftSubmissionInfoPage;
