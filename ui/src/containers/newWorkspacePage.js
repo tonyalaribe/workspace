@@ -8,7 +8,7 @@ import {inject, observer} from 'mobx-react';
 class NewWorkspacePage extends Component {
   state = {};
 
-  submitFormToServer() {
+  submitWorkspaceFormToServer() {
     this.setState({showSuccessMessage: false});
     let workspace = {};
     workspace.name = this.refs.workspaceName.value;
@@ -46,17 +46,17 @@ class NewWorkspacePage extends Component {
                 ref="workspaceName"
               />
             </div>
-            <div className="pv3 tl">
+            <div className="pv3 tl z-1">
               <label className="pv2 dib">
                 JSON Schema
               </label>
               <textarea
                 type="text"
-                className="form-control w-100 h5"
-                ref="jsonSchema z-1"
+                className="form-control w-100 h5  z-1"
+                ref="jsonSchema"
               />
             </div>
-            <div className="pv3 tl">
+            <div className="pv3 tl z-1">
               <label className="pv2 dib">
                 UI Schema
               </label>
@@ -83,7 +83,7 @@ class NewWorkspacePage extends Component {
             <div className="pv3 tr">
               <button
                 className="pa3 bg-navy grow shadow-4  bw0 white-80 hover-white ml2 pointer"
-                onClick={this.submitFormToServer.bind(this)}
+                onClick={this.submitWorkspaceFormToServer.bind(this)}
               >
                 publish
               </button>
