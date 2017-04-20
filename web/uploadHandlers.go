@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -33,16 +35,26 @@ type Files struct {
 	UploadDate string `json:"uploadDate"`
 }
 
-func Base64ToFileSystem(b64 string, filepath string) {
+func Base64ToFileSystem(b64 string, location string) string {
+	if len(strings.Split(b64, "base64,")) < 2 {
+		return b64
+	}
 	byt, err := base64.StdEncoding.DecodeString(strings.Split(b64, "base64,")[1])
 	if err != nil {
 		log.Println(err)
+		//Cant decode string, so its probably an already processed url.
+		return b64
 	}
 
-	err = ioutil.WriteFile(filepath, byt, 0644)
+	meta := strings.Split(b64, "base64,")[0]
+	filename := strings.Replace(strings.Split(meta, "name=")[1], ";", "", -1)
+
+	fullPath := filepath.Join(location, filename)
+	err = ioutil.WriteFile(fullPath, byt, 0644)
 	if err != nil {
 		log.Println(err)
 	}
+	return fullPath
 }
 
 func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
@@ -56,6 +68,7 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	log.Printf("%+v", submission)
 
 	conf := config.Get()
 
@@ -75,16 +88,26 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
-	// log.Printf("%+v", workspaceInfo)
+	log.Printf("%+v", workspaceInfo)
 
 	schema := workspaceInfo["jsonschema"].(map[string]interface{})
+
 	for k, v := range submission.FormData {
+		log.Printf("key: %+v, value: %+v", k, "v")
 		schemaObject := schema["properties"].(map[string]interface{})[k].(map[string]interface{})
-		switch schemaObject["type"] {
+		log.Println(schemaObject)
+		switch schemaObject["type"].(string) {
 		case "string":
-			switch schemaObject["format"] {
-			case "data-uri":
+			log.Println("processing a string type")
+			log.Println(schemaObject["format"].(string))
+			switch schemaObject["format"].(string) {
+			case "data-uri", "data-url":
 				//file formatting
+				log.Println("data-uri processing")
+				pathToSubmission := filepath.Join(conf.RootDirectory, username, submission.SubmissionName)
+				os.MkdirAll(pathToSubmission, os.ModePerm)
+				fullPath := Base64ToFileSystem(v.(string), pathToSubmission)
+				submission.FormData[k] = fullPath
 				break
 			default:
 				submission.FormData[k] = v.(string)
@@ -97,6 +120,8 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 			log.Printf("%+v", schemaObject)
 		}
 	}
+
+	log.Println(submission)
 
 	// formData.CreatedBy = username
 	// formData.CreationDate = time.Now().Format(time.RFC1123)

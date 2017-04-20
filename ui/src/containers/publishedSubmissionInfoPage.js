@@ -25,12 +25,32 @@ class PublishedSubmissionInfoPage extends Component {
     let formFields = Object.keys(
       jsonschema.properties,
     ).reduce((previous, current) => {
+      let value;
+      console.log(jsonschema.properties[current])
+
+      switch(jsonschema.properties[current].type){
+        case "string":
+        console.log("type string")
+        console.log(jsonschema.properties[current].format)
+          switch (jsonschema.properties[current].format){
+            case "data-url":
+              value = <a target="_blank" href={"/"+SubmissionInfo.formData[current]}>{SubmissionInfo.formData[current]}</a>
+              break
+            default:
+              value = SubmissionInfo.formData[current]
+              break
+          }
+          break;
+        default:
+          value = SubmissionInfo.formData[current]
+          break
+      }
       previous.push(
         <div className="pv2" key={current}>
           <strong className="pa1 dib">
             {jsonschema.properties[current].title}: &nbsp;&nbsp;
           </strong>
-          <span className="pa1 dib">{SubmissionInfo.formData[current]}</span>
+          <span className="pa1 dib">{value}</span>
         </div>,
       );
       return previous;

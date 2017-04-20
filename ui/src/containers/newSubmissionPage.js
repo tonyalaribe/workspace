@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import Nav from '../components/nav.js';
+import FileWidget from '../components/fileWidget.js';
 // import FileSelect from '../components/fileSelect.js';
 import {inject, observer} from 'mobx-react';
 
@@ -9,6 +10,13 @@ import Form from 'react-jsonschema-form';
 var STATUS = '';
 
 const log = type => console.log.bind(console, type);
+
+
+
+const widgets = {
+  FileWidget: FileWidget,
+};
+
 
 function CustomFieldTemplate(props) {
   const {
@@ -33,6 +41,8 @@ function CustomFieldTemplate(props) {
     </div>
   );
 }
+
+
 
 @inject('MainStore')
 @observer
@@ -96,6 +106,7 @@ class NewSubmissionPage extends Component {
               onError={log('errors')}
               FieldTemplate={CustomFieldTemplate}
               onSubmit={this.submitForm.bind(this)}
+              widgets={widgets}
               ref={form => {
                 this.form = form;
               }}
