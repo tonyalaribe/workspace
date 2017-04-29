@@ -29,14 +29,6 @@ class Nav extends Component {
         <div className="dib pa2 fr pr5">
           {CurrentWorkspace.id
             ? <Link
-                to={'/workspaces/' + CurrentWorkspace.id + '/new_submission'}
-                className="white-70  link pa2 ba hover-white"
-              >
-                New Submission
-              </Link>
-            : ''}
-          {CurrentWorkspace.id
-            ? <Link
                 to={'/workspaces/' + CurrentWorkspace.id + '/'}
                 className="white-70  link pa2 mh2 hover-white"
               >

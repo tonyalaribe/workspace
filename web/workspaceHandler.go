@@ -33,15 +33,23 @@ func CreateWorkspaceHandler(w http.ResponseWriter, r *http.Request) {
 	workspaceData.Created = int(time.Now().UnixNano() / 1000000) //Get the time since epoch in milli seconds (javascript date compatible)
 
 	conf := config.Get()
-
 	tx, err := conf.DB.Begin(true)
 	if err != nil {
 		log.Println(err)
 	}
-
 	defer tx.Rollback()
 
-	bucket, err := tx.CreateBucketIfNotExists([]byte(config.WORKSPACES_BUCKET))
+	//Create the bucket where forms under this workspace would be stored.
+	individualWorkspace, err := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).CreateBucketIfNotExists([]byte(workspaceData.ID))
+	if err != nil {
+		log.Println(err)
+	}
+	_, err = individualWorkspace.CreateBucketIfNotExists([]byte(config.FORMS_METADATA))
+	if err != nil {
+		log.Println(err)
+	}
+
+	metadata_bucket, err := tx.CreateBucketIfNotExists([]byte(config.WORKSPACES_METADATA))
 	if err != nil {
 		log.Println(err)
 	}
@@ -51,7 +59,7 @@ func CreateWorkspaceHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
-	err = bucket.Put([]byte(workspaceData.ID), dataByte)
+	err = metadata_bucket.Put([]byte(workspaceData.ID), dataByte)
 	if err != nil {
 		log.Println(err)
 	}
@@ -73,7 +81,7 @@ func GetWorkspacesHandler(w http.ResponseWriter, r *http.Request) {
 
 	conf := config.Get()
 	conf.DB.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(config.WORKSPACES_BUCKET))
+		b := tx.Bucket([]byte(config.WORKSPACES_METADATA))
 		b.ForEach(func(_ []byte, v []byte) error {
 
 			workspace := WorkSpace{}
@@ -105,7 +113,7 @@ func GetWorkspaceBySlugHandler(w http.ResponseWriter, r *http.Request) {
 
 	conf := config.Get()
 	conf.DB.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(config.WORKSPACES_BUCKET))
+		b := tx.Bucket([]byte(config.WORKSPACES_METADATA))
 		workspaceByte = b.Get([]byte(workspaceID))
 		return nil
 	})

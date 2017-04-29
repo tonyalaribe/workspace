@@ -21,7 +21,7 @@ class ListOfForms extends Component {
       console.log(form);
       return (
         <Link
-          to={'workspaces/'+workspaceID+'/forms/' + form.id}
+          to={'/workspaces/'+workspaceID+'/forms/' + form.id}
           key={key}
           className="link navy"
         >

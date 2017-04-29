@@ -9,6 +9,7 @@ class NewFormPage extends Component {
   state = {};
 
   submitFormToServer() {
+    let workspaceID = this.props.match.params.workspaceID
     this.setState({showSuccessMessage: false});
     let form = {};
     form.name = this.refs.formName.value;
@@ -16,7 +17,7 @@ class NewFormPage extends Component {
     form.uischema = JSON.parse(this.refs.uiSchema.value);
     console.log(form);
 
-    this.props.MainStore.submitNewFormToServer(form, () => {
+    this.props.MainStore.submitNewFormToServer(workspaceID, form, () => {
       this.setState({showSuccessMessage: true});
       this.refs.formName.value = '';
       this.refs.jsonSchema.value = '';

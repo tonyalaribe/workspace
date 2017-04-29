@@ -11,11 +11,16 @@ var fileImageRepresentation = require('../assets/files.png');
 class UploadsPage extends Component {
   componentDidMount() {
     // console.log(this.props)
-    this.props.MainStore
-      .getWorkspace(this.props.match.params.workspaceID)
-      .then(() => this.props.MainStore.getMySubmissions());
+    let workspaceID = this.props.match.params.workspaceID
+    let formID = this.props.match.params.formID
+
+    this.props.MainStore.getMySubmissions(workspaceID, formID)
   }
   render() {
+
+    let workspaceID = this.props.match.params.workspaceID
+    let formID = this.props.match.params.formID
+
     let submissions = this.props.MainStore.Submissions;
     let {CurrentWorkspace} = this.props.MainStore;
     let userSubmissions = submissions.map(function(fileData, key) {
@@ -76,9 +81,16 @@ class UploadsPage extends Component {
         <Nav />
         <section className="tc pt5">
           <section className="pt4 dib w-100 w-70-m w-50-l tl">
-            <div className="pv3">
-              <span className="navy w-100">All Uploaded Files</span>
+            <div className="pv3 cf">
+              <Link
+                to={'/workspaces/'+workspaceID+'/forms/'+formID+'/new_submission'}
+                className="ph3 pv2 ba fr link navy dib grow"
+              >
+                New Submission
+              </Link>
+              <span className="navy w-100 v-btm">All Form Submissions</span>
             </div>
+
             <section>
               {userSubmissions}
             </section>

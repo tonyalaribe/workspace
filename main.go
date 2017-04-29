@@ -83,11 +83,13 @@ func main() {
 	router.Get("/api/workspaces/:workspaceID", commonHandlers.ThenFunc(web.GetWorkspaceBySlugHandler))
 
 	router.Get("/api/workspaces/:workspaceID/forms", commonHandlers.ThenFunc(web.GetFormsHandler))
+	router.Post("/api/workspaces/:workspaceID/new_form", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.CreateFormHandler))
 
-	router.Post("/api/workspaces/:workspaceID/new_submission", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.NewFormSubmissionHandler))
-	router.Get("/api/workspaces/:workspaceID/submissions", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.GetMySubmissionsHandler))
-	router.Get("/api/workspaces/:workspaceID/submissions/:submissionID", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.GetSubmissionInfoHandler))
-	router.Put("/api/workspaces/:workspaceID/submissions/:submissionID", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.UpdateSubmissionHandler))
+	router.Post("/api/workspaces/:workspaceID/forms/:formID/new_submission", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.NewFormSubmissionHandler))
+	router.Get("/api/workspaces/:workspaceID/forms/:formID/submissions", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.GetSubmissionsHandler))
+
+	router.Get("/api/workspaces/:workspaceID/forms/:formID/submissions/:submissionID", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.GetSubmissionInfoHandler))
+	router.Put("/api/workspaces/:workspaceID/forms/:formID/submissions/:submissionID", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.UpdateSubmissionHandler))
 
 	router.Get("/", commonHandlers.ThenFunc(web.HomePageHandler))
 

@@ -21,7 +21,9 @@ var (
 )
 
 const (
-	WORKSPACES_BUCKET = "workspaces_bucket"
+	FORMS_METADATA       = "forms_metadata"
+	WORKSPACES_METADATA  = "workspaces_metadata"
+	WORKSPACES_CONTAINER = "workspaces_container"
 )
 
 //Using Init not init, so i can manually determine when the content of config are initalized, as opposed to initializing whenever the package is imported (initialization should happen at app startup, which is only when imported by the main.go file).
@@ -35,6 +37,12 @@ func Init() {
 	if err != nil {
 		log.Println(err)
 	}
+	db.Update(func(tx *bolt.Tx) error {
+		tx.CreateBucketIfNotExists([]byte(WORKSPACES_METADATA))
+		tx.CreateBucketIfNotExists([]byte(WORKSPACES_CONTAINER))
+		return nil
+	})
+
 	log.Println(db.GoString())
 	config.DB = db
 }

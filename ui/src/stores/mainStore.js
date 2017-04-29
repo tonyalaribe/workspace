@@ -20,7 +20,7 @@ class mainStore {
     let authToken = AuthService.getToken();
 
     const response = await fetch(
-      '/api/workspaces/' + this.CurrentWorkspace.id + '/new_submission',
+      '/api/workspaces/' + this.CurrentWorkspace.id + '/new_form',
       {
         method: 'POST',
         body: JSON.stringify(formData),
@@ -164,10 +164,10 @@ class mainStore {
     });
   };
 
-  @action getMySubmissions = async () => {
+  @action getMySubmissions = async (workspaceID, formID) => {
     let authToken = AuthService.getToken();
     const response = await fetch(
-      '/api/workspaces/' + this.CurrentWorkspace.id + '/submissions',
+      '/api/workspaces/' + workspaceID + '/forms/' + formID + '/submissions',
       {
         method: 'GET',
         mode: 'cors',

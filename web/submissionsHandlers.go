@@ -62,6 +62,7 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
+	formID := httprouterParams.ByName("formID")
 
 	submission := SubmissionData{}
 	err := json.NewDecoder(r.Body).Decode(&submission)
@@ -72,25 +73,23 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 
 	conf := config.Get()
 
-	var workspaceInfoByte []byte
+	var formInfoByte []byte
 	conf.DB.Update(func(tx *bolt.Tx) error {
-		workspacesBucket, err := tx.CreateBucketIfNotExists([]byte(config.WORKSPACES_BUCKET))
-		if err != nil {
-			log.Println(err)
-		}
-		workspaceInfoByte = workspacesBucket.Get([]byte(workspaceID))
+		formMetaBucket := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).Bucket([]byte(workspaceID)).Bucket([]byte(config.FORMS_METADATA))
+
+		formInfoByte = formMetaBucket.Get([]byte(formID))
 
 		return nil
 	})
 
-	workspaceInfo := make(map[string]interface{})
-	err = json.Unmarshal(workspaceInfoByte, &workspaceInfo)
+	formInfo := make(map[string]interface{})
+	err = json.Unmarshal(formInfoByte, &formInfo)
 	if err != nil {
 		log.Println(err)
 	}
-	log.Printf("%+v", workspaceInfo)
+	log.Printf("%+v", formInfo)
 
-	schema := workspaceInfo["jsonschema"].(map[string]interface{})
+	schema := formInfo["jsonschema"].(map[string]interface{})
 
 	for k, v := range submission.FormData {
 		log.Printf("key: %+v, value: %+v", k, "v")
@@ -139,21 +138,19 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	// 	formData.Files[i].UploadDate = time.Now().Format(time.RFC1123)
 	//
 	// }
+	conf.DB.Update(func(tx *bolt.Tx) error {
+		formMetaBucket := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).Bucket([]byte(workspaceID)).Bucket([]byte(config.FORMS_METADATA))
 
+		formInfoByte = formMetaBucket.Get([]byte(formID))
+
+		return nil
+	})
 	/*Save to boltdb*/
 	err = conf.DB.Update(func(tx *bolt.Tx) error {
 
-		workspaceBucket, err := tx.CreateBucketIfNotExists([]byte(workspaceID))
-		if err != nil {
-			log.Println(err)
-		}
+		formBucket := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).Bucket([]byte(workspaceID)).Bucket([]byte(formID))
 
-		userBucket, err := workspaceBucket.CreateBucketIfNotExists([]byte(username))
-		if err != nil {
-			log.Println(err)
-		}
-
-		nextID, err := userBucket.NextSequence()
+		nextID, err := formBucket.NextSequence()
 		if err != nil {
 			log.Println(err)
 		}
@@ -164,7 +161,7 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 		}
 
-		err = userBucket.Put(itob(int(nextID)), dataByte)
+		err = formBucket.Put(itob(int(nextID)), dataByte)
 		if err != nil {
 			log.Println(err)
 		}
@@ -193,9 +190,8 @@ func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.Context().Value("username").(string)
 
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
-
 	workspaceID := httprouterParams.ByName("workspaceID")
-
+	//formID := httprouterParams.ByName("formID")
 	submissionID, err := strconv.Atoi(httprouterParams.ByName("submissionID"))
 	if err != nil {
 		log.Println(err)
@@ -203,9 +199,7 @@ func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println(submissionID)
 
 	submissionData := SubmissionData{}
-
 	conf := config.Get()
-
 	err = conf.DB.View(func(tx *bolt.Tx) error {
 		workspacesBucket := tx.Bucket([]byte(workspaceID))
 		if err != nil {
@@ -291,25 +285,22 @@ func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetMySubmissionsHandler(w http.ResponseWriter, r *http.Request) {
-	username := r.Context().Value("username").(string)
+func GetSubmissionsHandler(w http.ResponseWriter, r *http.Request) {
+	// username := r.Context().Value("username").(string)
 
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
-	log.Println(workspaceID)
+	formID := httprouterParams.ByName("formID")
+
+	log.Printf("workspaceID: %s; formID: %s", workspaceID, formID)
 
 	submissionData := []SubmissionData{}
-
 	conf := config.Get()
-
 	var err error
 	err = conf.DB.View(func(tx *bolt.Tx) error {
+		formBucket := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).Bucket([]byte(workspaceID)).Bucket([]byte(formID))
 
-		workspaceBucket := tx.Bucket([]byte(workspaceID))
-
-		b := workspaceBucket.Bucket([]byte(username))
-
-		c := b.Cursor()
+		c := formBucket.Cursor()
 
 		for k, v := c.Last(); k != nil; k, v = c.Prev() {
 			f := SubmissionData{}
@@ -338,28 +329,24 @@ func GetMySubmissionsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetSubmissionInfoHandler(w http.ResponseWriter, r *http.Request) {
-	username := r.Context().Value("username").(string)
+	// username := r.Context().Value("username").(string)
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
-
 	workspaceID := httprouterParams.ByName("workspaceID")
+	formID := httprouterParams.ByName("formID")
 	// log.Println(workspaceID)
 
 	submissionID, err := strconv.Atoi(httprouterParams.ByName("submissionID"))
 	if err != nil {
 		log.Println(err)
 	}
-
 	log.Println(r.URL.String())
 
 	submissionData := SubmissionData{}
-
 	conf := config.Get()
-
 	err = conf.DB.View(func(tx *bolt.Tx) error {
-		workspaceBucket := tx.Bucket([]byte(workspaceID))
-		b := workspaceBucket.Bucket([]byte(username))
+		formBucket := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).Bucket([]byte(workspaceID)).Bucket([]byte(formID))
 
-		err = json.Unmarshal(b.Get(itob(submissionID)), &submissionData)
+		err = json.Unmarshal(formBucket.Get(itob(submissionID)), &submissionData)
 		if err != nil {
 			log.Println(err)
 		}

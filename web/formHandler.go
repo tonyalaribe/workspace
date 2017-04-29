@@ -22,9 +22,9 @@ type Form struct {
 func CreateFormHandler(w http.ResponseWriter, r *http.Request) {
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
+	log.Println(workspaceID)
 
 	formData := Form{}
-
 	err := json.NewDecoder(r.Body).Decode(&formData)
 	if err != nil {
 		log.Println(err)
@@ -34,20 +34,20 @@ func CreateFormHandler(w http.ResponseWriter, r *http.Request) {
 	formData.ID = slugify.Marshal(formData.Name, true)
 
 	conf := config.Get()
-
 	tx, err := conf.DB.Begin(true)
 	if err != nil {
 		log.Println(err)
 	}
-
 	defer tx.Rollback()
 
-	workspacesBucket, err := tx.CreateBucketIfNotExists([]byte(config.WORKSPACES_BUCKET))
+	currentWorkspaceBucket := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).Bucket([]byte(workspaceID))
+
+	formsMetaDataBucket, err := currentWorkspaceBucket.CreateBucketIfNotExists([]byte(config.FORMS_METADATA))
 	if err != nil {
 		log.Println(err)
 	}
 
-	currentWorkspaceBucket, err := workspacesBucket.CreateBucketIfNotExists([]byte(workspaceID))
+	_, err = currentWorkspaceBucket.CreateBucketIfNotExists([]byte(formData.ID))
 	if err != nil {
 		log.Println(err)
 	}
@@ -57,7 +57,7 @@ func CreateFormHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
-	err = currentWorkspaceBucket.Put([]byte(formData.ID), dataByte)
+	err = formsMetaDataBucket.Put([]byte(formData.ID), dataByte)
 	if err != nil {
 		log.Println(err)
 	}
@@ -74,15 +74,18 @@ func CreateFormHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetFormsHandler(w http.ResponseWriter, r *http.Request) {
+	httprouterParams := r.Context().Value("params").(httprouter.Params)
+	workspaceID := httprouterParams.ByName("workspaceID")
+	log.Println(workspaceID)
 
-	forms := []WorkSpace{}
+	forms := []Form{}
 
 	conf := config.Get()
 	conf.DB.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(config.WORKSPACES_BUCKET))
+		b := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).Bucket([]byte(workspaceID)).Bucket([]byte(config.FORMS_METADATA))
 		b.ForEach(func(_ []byte, v []byte) error {
 
-			form := WorkSpace{}
+			form := Form{}
 			err := json.Unmarshal(v, &form)
 			if err != nil {
 				return err
@@ -104,6 +107,7 @@ func GetFormsHandler(w http.ResponseWriter, r *http.Request) {
 func GetFormBySlugHandler(w http.ResponseWriter, r *http.Request) {
 
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
+	workspaceID := httprouterParams.ByName("workspaceID")
 	formID := httprouterParams.ByName("formID")
 
 	log.Println(formID)
@@ -111,7 +115,7 @@ func GetFormBySlugHandler(w http.ResponseWriter, r *http.Request) {
 
 	conf := config.Get()
 	conf.DB.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(config.WORKSPACES_BUCKET))
+		b := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).Bucket([]byte(workspaceID)).Bucket([]byte(config.FORMS_METADATA))
 		formByte = b.Get([]byte(formID))
 		return nil
 	})
