@@ -9,18 +9,17 @@ class PublishedSubmissionInfoPage extends Component {
   state = {};
 
   componentDidMount() {
+    let {workspaceID, formID, submissionID} = this.props.match.params;
     this.props.MainStore
-      .getWorkspace(this.props.match.params.workspaceID)
+      .getFormInfo(workspaceID, formID)
       .then(() => {
-        this.props.MainStore.getSubmissionInfo(
-          this.props.match.params.submissionID,
-        );
+        this.props.MainStore.getSubmissionInfo(workspaceID, formID, submissionID);
       });
   }
   render() {
-    let {CurrentWorkspace, SubmissionInfo} = this.props.MainStore;
+    let {CurrentForm, SubmissionInfo} = this.props.MainStore;
 
-    let jsonschema = CurrentWorkspace.jsonschema;
+    let jsonschema = CurrentForm.jsonschema;
 
     let formFields = Object.keys(
       jsonschema.properties,
