@@ -18,7 +18,6 @@ class mainStore {
     console.log(formData);
 
     let authToken = AuthService.getToken();
-
     const response = await fetch(
       '/api/workspaces/' + workspaceID+ '/forms/' + formID + '/new_submission',
       {
@@ -41,14 +40,15 @@ class mainStore {
   };
 
 
-  @action updateFormOnServer = async (submissionID, formData, callback) => {
+  @action updateFormOnServer = async (workspaceID, formID, submissionID, formData, callback) => {
     console.log(formData);
 
     let authToken = AuthService.getToken();
-
     const response = await fetch(
       '/api/workspaces/' +
-        this.CurrentForm.id +
+        workspaceID+
+        '/forms/' +
+        formID +
         '/submissions/' +
         submissionID,
       {

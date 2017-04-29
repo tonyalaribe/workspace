@@ -192,11 +192,9 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
-	username := r.Context().Value("username").(string)
-
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
-	//formID := httprouterParams.ByName("formID")
+	formID := httprouterParams.ByName("formID")
 	submissionID, err := strconv.Atoi(httprouterParams.ByName("submissionID"))
 	if err != nil {
 		log.Println(err)
@@ -206,20 +204,14 @@ func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	submissionData := SubmissionData{}
 	conf := config.Get()
 	err = conf.DB.View(func(tx *bolt.Tx) error {
-		workspacesBucket := tx.Bucket([]byte(workspaceID))
-		if err != nil {
-			log.Println(err)
-		}
+		formBucket := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).Bucket([]byte(workspaceID)).Bucket([]byte(formID))
 
-		b := workspacesBucket.Bucket([]byte(username))
-
-		err = json.Unmarshal(b.Get(itob(submissionID)), &submissionData)
+		err = json.Unmarshal(formBucket.Get(itob(submissionID)), &submissionData)
 		if err != nil {
 			log.Println(err)
 		}
 
 		return nil
-
 	})
 	if err != nil {
 		log.Println(err)
@@ -252,23 +244,14 @@ func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	//
 	/*Save to boltdb*/
 
+	dataByte, err := json.Marshal(submissionData)
+	if err != nil {
+		log.Println(err)
+	}
 	err = conf.DB.Update(func(tx *bolt.Tx) error {
-		workspacesBucket, err := tx.CreateBucketIfNotExists([]byte(workspaceID))
-		if err != nil {
-			log.Println(err)
-		}
+		formBucket := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).Bucket([]byte(workspaceID)).Bucket([]byte(formID))
 
-		bucket, err := workspacesBucket.CreateBucketIfNotExists([]byte(username))
-		if err != nil {
-			log.Println(err)
-		}
-
-		dataByte, err := json.Marshal(submissionData)
-		if err != nil {
-			log.Println(err)
-		}
-
-		err = bucket.Put(itob(submissionID), dataByte)
+		err = formBucket.Put(itob(submissionID), dataByte)
 		if err != nil {
 			log.Println(err)
 		}

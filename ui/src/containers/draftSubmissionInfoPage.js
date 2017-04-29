@@ -56,21 +56,19 @@ class DraftSubmissionInfoPage extends Component {
   }
 
   submitForm(data) {
+    let {workspaceID, formID, submissionID} = this.props.match.params;
+
     this.setState({showSuccessMessage: false});
     console.log(this);
     console.log(data);
     let response = {};
     response.status = STATUS;
-
     response.lastModified = Date.now();
-
     response.formData = data.formData;
-
-    console.log(response);
     console.log(JSON.stringify(response));
 
     this.props.MainStore.updateFormOnServer(
-      this.props.match.params.submissionID,
+      workspaceID, formID, submissionID,
       response,
       () => {
         this.setState({showSuccessMessage: true});
