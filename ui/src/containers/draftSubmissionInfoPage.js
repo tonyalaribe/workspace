@@ -47,12 +47,11 @@ class DraftSubmissionInfoPage extends Component {
   state = {files: [], showSuccessMessage: false, showErrorMessage: false};
 
   componentDidMount() {
+    let {workspaceID, formID, submissionID} = this.props.match.params;
     this.props.MainStore
-      .getWorkspace(this.props.match.params.workspaceID)
+      .getFormInfo(workspaceID, formID)
       .then(() => {
-        this.props.MainStore.getSubmissionInfo(
-          this.props.match.params.submissionID,
-        );
+        this.props.MainStore.getSubmissionInfo(workspaceID, formID, submissionID);
       });
   }
 
@@ -82,7 +81,7 @@ class DraftSubmissionInfoPage extends Component {
   render() {
     let {state} = this;
 
-    let {CurrentWorkspace, SubmissionInfo} = this.props.MainStore;
+    let {CurrentForm, SubmissionInfo} = this.props.MainStore;
 
     return (
       <section className="">
@@ -118,8 +117,8 @@ class DraftSubmissionInfoPage extends Component {
               </div>
             </div>
             <Form
-              schema={CurrentWorkspace.jsonschema}
-              uiSchema={CurrentWorkspace.uischema}
+              schema={CurrentForm.jsonschema}
+              uiSchema={CurrentForm.uischema}
               formData={SubmissionInfo.formData}
               onError={log('errors')}
               FieldTemplate={CustomFieldTemplate}
