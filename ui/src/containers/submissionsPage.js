@@ -8,7 +8,7 @@ var fileImageRepresentation = require('../assets/files.png');
 
 @inject('MainStore')
 @observer
-class UploadsPage extends Component {
+class SubmissionsPage extends Component {
   componentDidMount() {
     // console.log(this.props)
     let workspaceID = this.props.match.params.workspaceID
@@ -22,14 +22,16 @@ class UploadsPage extends Component {
     let formID = this.props.match.params.formID
 
     let submissions = this.props.MainStore.Submissions;
-    let {CurrentWorkspace} = this.props.MainStore;
+
     let userSubmissions = submissions.map(function(fileData, key) {
       console.log(fileData);
       return (
         <Link
           to={
             '/workspaces/' +
-              CurrentWorkspace.id +
+              workspaceID  +
+              '/forms/'    +
+              formID        +
               '/submissions/' +
               fileData.status +
               '/' +
@@ -101,4 +103,4 @@ class UploadsPage extends Component {
   }
 }
 
-export default UploadsPage;
+export default SubmissionsPage;

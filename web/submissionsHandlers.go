@@ -92,14 +92,19 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	schema := formInfo["jsonschema"].(map[string]interface{})
 
 	for k, v := range submission.FormData {
-		log.Printf("key: %+v, value: %+v", k, "v")
+		log.Printf("key: %+v, value: %+v", k, v)
 		schemaObject := schema["properties"].(map[string]interface{})[k].(map[string]interface{})
 		log.Println(schemaObject)
 		switch schemaObject["type"].(string) {
 		case "string":
 			log.Println("processing a string type")
-			log.Println(schemaObject["format"].(string))
-			switch schemaObject["format"].(string) {
+			log.Println(schemaObject["format"])
+
+			itemFormat := ""
+			if schemaObject["format"] != nil {
+				itemFormat = schemaObject["format"].(string)
+			}
+			switch itemFormat {
 			case "data-uri", "data-url":
 				//file formatting
 				log.Println("data-uri processing")

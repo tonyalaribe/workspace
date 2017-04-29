@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {BrowserRouter as Router, Route} from 'react-router-dom';
 import NewSubmissionPage from './containers/newSubmissionPage.js';
-import UploadsPage from './containers/uploadsPage.js';
+import SubmissionsPage from './containers/submissionsPage.js';
 
 import ListOfForms from './containers/listOfForms.js';
 import NewFormPage from './containers/newFormPage';
@@ -53,15 +53,15 @@ class App extends Component {
           <ProtectedRoute
             exact
             path="/workspaces/:workspaceID/forms/:formID"
-            component={UploadsPage}
+            component={SubmissionsPage}
           />
 
           <ProtectedRoute
-            path="/workspaces/:workspaceID/submissions/draft/:submissionID"
+            path="/workspaces/:workspaceID/forms/:formID/submissions/draft/:submissionID"
             component={DraftSubmissionInfoPage}
           />
           <ProtectedRoute
-            path="/workspaces/:workspaceID/submissions/published/:submissionID"
+            path="/workspaces/:workspaceID/forms/:formID/submissions/published/:submissionID"
             component={PublishedSubmissionInfoPage}
           />
 

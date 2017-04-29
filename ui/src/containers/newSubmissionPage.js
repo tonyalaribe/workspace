@@ -54,20 +54,18 @@ class NewSubmissionPage extends Component {
   }
 
   submitForm(data) {
+    let {workspaceID, formID} = this.props.match.params;
+
     this.setState({showSuccessMessage: false});
-    console.log(this);
-    console.log(data);
     let response = {};
     response.status = STATUS;
     response.submissionName = this.refs.submissionName.value;
     response.created = Date.now();
     response.lastModified = Date.now();
-
     response.formData = data.formData;
-
     console.log(JSON.stringify(response));
 
-    this.props.MainStore.submitFormToServer(response, () => {
+    this.props.MainStore.submitFormToServer(workspaceID, formID, response, () => {
       this.setState({showSuccessMessage: true, files: []});
       this.refs.submissionName.value = '';
     });
@@ -148,7 +146,7 @@ class NewSubmissionPage extends Component {
               <button
                 className="pa3 bg-navy grow shadow-4  bw0 white-80 hover-white ml2 pointer"
                 onClick={() => {
-                  STATUS = 'publish';
+                  STATUS = 'published';
                   this.submitButton.click();
                 }}
               >

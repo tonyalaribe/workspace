@@ -14,13 +14,13 @@ class mainStore {
     uischema: {},
   };
 
-  @action submitFormToServer = async (formData, callback) => {
+  @action submitFormToServer = async (workspaceID, formID, formData, callback) => {
     console.log(formData);
 
     let authToken = AuthService.getToken();
 
     const response = await fetch(
-      '/api/workspaces/' + this.CurrentWorkspace.id + '/new_form',
+      '/api/workspaces/' + workspaceID+ '/forms/' + formID + '/new_submission',
       {
         method: 'POST',
         body: JSON.stringify(formData),
@@ -31,6 +31,7 @@ class mainStore {
         },
       },
     );
+
     const data = await response.json();
     /* required in strict mode to be allowed to update state: */
     runInAction('update state after fetching data', () => {
@@ -39,6 +40,7 @@ class mainStore {
     });
   };
 
+
   @action updateFormOnServer = async (submissionID, formData, callback) => {
     console.log(formData);
 
@@ -46,7 +48,7 @@ class mainStore {
 
     const response = await fetch(
       '/api/workspaces/' +
-        this.CurrentWorkspace.id +
+        this.CurrentForm.id +
         '/submissions/' +
         submissionID,
       {
@@ -187,12 +189,14 @@ class mainStore {
     });
   };
 
-  @action getSubmissionInfo = async submissionID => {
+  @action getSubmissionInfo = async (workspaceID, formID, submissionID) => {
     let authToken = AuthService.getToken();
 
     const response = await fetch(
       '/api/workspaces/' +
-        this.CurrentWorkspace.id +
+        workspaceID+
+        '/forms/'+
+        formID +
         '/submissions/' +
         submissionID,
       {
