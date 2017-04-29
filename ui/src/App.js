@@ -45,13 +45,17 @@ class App extends Component {
 
 
           <ProtectedRoute
-            path="/workspaces/:workspaceID/new_submission"
+            exact
+            path="/workspaces/:workspaceID/forms/:formID/new_submission"
             component={NewSubmissionPage}
           />
+
           <ProtectedRoute
+            exact
             path="/workspaces/:workspaceID/forms/:formID"
             component={UploadsPage}
           />
+
           <ProtectedRoute
             path="/workspaces/:workspaceID/submissions/draft/:submissionID"
             component={DraftSubmissionInfoPage}

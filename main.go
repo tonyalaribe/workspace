@@ -84,6 +84,7 @@ func main() {
 
 	router.Get("/api/workspaces/:workspaceID/forms", commonHandlers.ThenFunc(web.GetFormsHandler))
 	router.Post("/api/workspaces/:workspaceID/new_form", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.CreateFormHandler))
+	router.Get("/api/workspaces/:workspaceID/forms/:formID", commonHandlers.ThenFunc(web.GetFormBySlugHandler))
 
 	router.Post("/api/workspaces/:workspaceID/forms/:formID/new_submission", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.NewFormSubmissionHandler))
 	router.Get("/api/workspaces/:workspaceID/forms/:formID/submissions", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.GetSubmissionsHandler))

@@ -120,7 +120,7 @@ func GetFormBySlugHandler(w http.ResponseWriter, r *http.Request) {
 		return nil
 	})
 
-	form := WorkSpace{}
+	form := Form{}
 	err := json.Unmarshal(formByte, &form)
 	if err != nil {
 		log.Println(err)

@@ -50,7 +50,7 @@ class NewSubmissionPage extends Component {
   state = {files: []};
 
   componentDidMount() {
-    this.props.MainStore.getWorkspace(this.props.match.params.workspaceID);
+    this.props.MainStore.getFormInfo(this.props.match.params.workspaceID,this.props.match.params.formID);
   }
 
   submitForm(data) {
@@ -75,8 +75,8 @@ class NewSubmissionPage extends Component {
 
   render() {
     let {state} = this;
-    let {CurrentWorkspace} = this.props.MainStore;
-
+    let {CurrentForm} = this.props.MainStore;
+    console.log(CurrentForm)
     return (
       <section className="">
         <Nav />
@@ -87,7 +87,7 @@ class NewSubmissionPage extends Component {
                 New Submission
               </span>
               <span className="db">
-                {CurrentWorkspace.name ? '(' + CurrentWorkspace.name + ')' : ''}
+                {CurrentForm.name ? '(' + CurrentForm.name + ')' : ''}
               </span>
             </div>
             <div className="pv3 tl">
@@ -101,8 +101,8 @@ class NewSubmissionPage extends Component {
               />
             </div>
             <Form
-              schema={CurrentWorkspace.jsonschema}
-              uiSchema={CurrentWorkspace.uischema}
+              schema={CurrentForm.jsonschema}
+              uiSchema={CurrentForm.uischema}
               onError={log('errors')}
               FieldTemplate={CustomFieldTemplate}
               onSubmit={this.submitForm.bind(this)}

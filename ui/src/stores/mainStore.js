@@ -105,12 +105,12 @@ class mainStore {
     });
   };
 
-  @action getWorkspace = async workspaceID => {
-    this.CurrentWorkspace.id = workspaceID;
+  @action getFormInfo = async (workspaceID,formID) => {
+    this.CurrentForm.id = workspaceID;
 
     let authToken = AuthService.getToken();
 
-    const response = await fetch('/api/workspaces/' + workspaceID, {
+    const response = await fetch('/api/workspaces/' + workspaceID + '/forms/' + formID, {
       method: 'GET',
       mode: 'cors',
       headers: {
@@ -122,9 +122,11 @@ class mainStore {
     /* required in strict mode to be allowed to update state: */
     runInAction('update state after fetching data', () => {
       console.log(data);
-      this.CurrentWorkspace = data;
+      this.CurrentForm = data;
     });
   };
+
+
   @action getAllWorkspaces = async () => {
     let authToken = AuthService.getToken();
     const response = await fetch('/api/workspaces', {
