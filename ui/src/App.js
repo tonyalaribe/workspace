@@ -1,11 +1,18 @@
 import React, {Component} from 'react';
 import {BrowserRouter as Router, Route} from 'react-router-dom';
-import UploadsPage from './containers/uploadsPage.js';
-import ListOfWorkspaces from './containers/listOfWorkspaces.js';
-import NewWorkspacePage from './containers/newWorkspacePage';
 import NewSubmissionPage from './containers/newSubmissionPage.js';
+import UploadsPage from './containers/uploadsPage.js';
+
+import ListOfForms from './containers/listOfForms.js';
+import NewFormPage from './containers/newFormPage';
+
+import NewWorkspacePage from './containers/newWorkspacePage';
+import ListOfWorkspaces from './containers/listOfWorkspaces.js';
+
+
 import LoginPage from './containers/loginPage.js';
 import ProtectedRoute from './components/protectedRoute.js';
+
 import DraftSubmissionInfoPage from './containers/draftSubmissionInfoPage';
 import PublishedSubmissionInfoPage
   from './containers/publishedSubmissionInfoPage';
@@ -23,11 +30,25 @@ class App extends Component {
             path="/new_workspace"
             component={NewWorkspacePage}
           />
+
+
           <ProtectedRoute
             exact
             path="/workspaces/:workspaceID/"
             component={UploadsPage}
           />
+          <ProtectedRoute
+            exact
+            path="/workspaces/:workspaceID/forms"
+            component={ListOfForms}
+          />
+          <ProtectedRoute
+            exact
+            path="/workspaces/:workspaceID/new_form"
+            component={NewFormPage}
+          />
+
+
           <ProtectedRoute
             path="/workspaces/:workspaceID/new_submission"
             component={NewSubmissionPage}
@@ -40,6 +61,8 @@ class App extends Component {
             path="/workspaces/:workspaceID/submissions/published/:submissionID"
             component={PublishedSubmissionInfoPage}
           />
+
+
           <Route path="/login" component={LoginPage} />
         </section>
       </Router>

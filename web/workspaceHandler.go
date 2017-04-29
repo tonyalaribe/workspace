@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/boltdb/bolt"
 	"github.com/julienschmidt/httprouter"
@@ -12,11 +13,10 @@ import (
 )
 
 type WorkSpace struct {
-	Creator    string                 `json:"creator"`
-	ID         string                 `json:"id"`
-	Name       string                 `json:"name"`
-	JSONSchema map[string]interface{} `json:"jsonschema"`
-	UISchema   map[string]interface{} `json:"uischema"`
+	Creator string `json:"creator"`
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Created int    `json:"created"`
 }
 
 func CreateWorkspaceHandler(w http.ResponseWriter, r *http.Request) {
@@ -30,6 +30,7 @@ func CreateWorkspaceHandler(w http.ResponseWriter, r *http.Request) {
 
 	workspaceData.Creator = r.Context().Value("username").(string)
 	workspaceData.ID = slugify.Marshal(workspaceData.Name, true)
+	workspaceData.Created = int(time.Now().UnixNano() / 1000000) //Get the time since epoch in milli seconds (javascript date compatible)
 
 	conf := config.Get()
 
