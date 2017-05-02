@@ -67,10 +67,13 @@ class DraftSubmissionInfoPage extends Component {
     response.formData = data.formData;
     console.log(JSON.stringify(response));
 
+    this.props.MainStore.SubmissionInfo = response; //To prevent reverting to old value on form submit.
+
     this.props.MainStore.updateFormOnServer(
       workspaceID, formID, submissionID,
       response,
       () => {
+
         this.setState({showSuccessMessage: true});
       },
     );
