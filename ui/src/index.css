@@ -29,3 +29,13 @@ select.form-control {
 input.form-control{
   border-color:rgba( 0, 0, 0, .3 );
 }
+
+/*So the default title doesnt spoil the look of the form*/
+#root__title{
+  display:none;
+
+}
+
+label[for='root']{
+  display:none;
+}

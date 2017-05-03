@@ -3,6 +3,7 @@ import Nav from '../components/nav.js';
 import FileWidget from '../components/fileWidget.js';
 // import FileSelect from '../components/fileSelect.js';
 import {inject, observer} from 'mobx-react';
+import {toJS} from 'mobx';
 
 import Form from 'react-jsonschema-form';
 
@@ -99,8 +100,8 @@ class NewSubmissionPage extends Component {
               />
             </div>
             <Form
-              schema={CurrentForm.jsonschema}
-              uiSchema={CurrentForm.uischema}
+              schema={toJS(CurrentForm.jsonschema)}
+              uiSchema={toJS(CurrentForm.uischema)}
               onError={log('errors')}
               FieldTemplate={CustomFieldTemplate}
               onSubmit={this.submitForm.bind(this)}
@@ -153,6 +154,7 @@ class NewSubmissionPage extends Component {
                 publish
               </button>
             </div>
+            
           </section>
         </section>
       </section>
