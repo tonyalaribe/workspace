@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import Nav from '../components/nav.js';
 import FileWidget from '../components/fileWidget.js';
 // import FileSelect from '../components/fileSelect.js';
+import {toJS} from 'mobx';
 import {observer, inject} from 'mobx-react';
 import moment from 'moment';
 
@@ -118,9 +119,9 @@ class DraftSubmissionInfoPage extends Component {
               </div>
             </div>
             <Form
-              schema={CurrentForm.jsonschema}
-              uiSchema={CurrentForm.uischema}
-              formData={SubmissionInfo.formData}
+              schema={toJS(CurrentForm.jsonschema)}
+              uiSchema={toJS(CurrentForm.uischema)}
+              formData={toJS(SubmissionInfo.formData)}
               onError={log('errors')}
               FieldTemplate={CustomFieldTemplate}
               onSubmit={this.submitForm.bind(this)}

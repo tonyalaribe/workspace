@@ -9,17 +9,17 @@ fieldset{
   padding:0;
 }
 
-.form-control[type="text"] {
+.form-control[type="text"],.form-control[type="number"]  {
   padding:.8rem 1rem;
   width:100%;
   border-width:1px;
 }
 
 .form-control {
-  padding:.8rem 1rem;
   width:100%;
-  border-width:1px;
+  /*border-width:1px;*/
 }
+
 select.form-control {
   padding:.8rem 1rem;
   background:transparent;
@@ -38,4 +38,14 @@ input.form-control{
 
 label[for='root']{
   display:none;
+}
+
+.radio-inline{
+  padding-right: 1rem;
+  display:inline-block;
+
+}
+.radio-inline input[type=radio]{
+  margin-right: .3rem;
+  display: inline-block;
 }
