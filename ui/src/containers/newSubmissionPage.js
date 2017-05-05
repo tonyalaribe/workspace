@@ -12,12 +12,9 @@ var STATUS = '';
 
 const log = type => console.log.bind(console, type);
 
-
-
 const widgets = {
   FileWidget: FileWidget,
 };
-
 
 function CustomFieldTemplate(props) {
   const {
@@ -30,6 +27,7 @@ function CustomFieldTemplate(props) {
     errors,
     children,
   } = props;
+  console.log(props)
   return (
     <div className={classNames + ' pv2 tl'}>
       <label htmlFor={id} className="pv2 dib">
@@ -43,15 +41,16 @@ function CustomFieldTemplate(props) {
   );
 }
 
-
-
 @inject('MainStore')
 @observer
 class NewSubmissionPage extends Component {
   state = {files: []};
 
   componentDidMount() {
-    this.props.MainStore.getFormInfo(this.props.match.params.workspaceID,this.props.match.params.formID);
+    this.props.MainStore.getFormInfo(
+      this.props.match.params.workspaceID,
+      this.props.match.params.formID,
+    );
   }
 
   submitForm(data) {
@@ -66,16 +65,21 @@ class NewSubmissionPage extends Component {
     response.formData = data.formData;
     console.log(JSON.stringify(response));
 
-    this.props.MainStore.submitFormToServer(workspaceID, formID, response, () => {
-      this.setState({showSuccessMessage: true, files: []});
-      this.refs.submissionName.value = '';
-    });
+    this.props.MainStore.submitFormToServer(
+      workspaceID,
+      formID,
+      response,
+      () => {
+        this.setState({showSuccessMessage: true, files: []});
+        this.refs.submissionName.value = '';
+      },
+    );
   }
 
   render() {
     let {state} = this;
     let {CurrentForm} = this.props.MainStore;
-    console.log(CurrentForm)
+    console.log(CurrentForm);
     return (
       <section className="">
         <Nav />
@@ -154,7 +158,7 @@ class NewSubmissionPage extends Component {
                 publish
               </button>
             </div>
-            
+
           </section>
         </section>
       </section>

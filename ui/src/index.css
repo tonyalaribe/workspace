@@ -17,6 +17,7 @@ fieldset{
 
 .form-control {
   width:100%;
+  display:block;
   /*border-width:1px;*/
 }
 
@@ -48,4 +49,37 @@ label[for='root']{
 .radio-inline input[type=radio]{
   margin-right: .3rem;
   display: inline-block;
+}
+
+
+/*Hide labels for elements which dont need duplicate labels*/
+
+
+.field-object legend{
+  display: none;
+}
+/*End Hide labels */
+
+
+/* Change default behaviour from array add buttons which rely on glyphicons */
+i.glyphicon { display: none; }
+.btn-add::after { content: 'Add'; }
+.array-item-move-up::after { content: 'Move Up'; }
+.array-item-move-down::after { content: 'Move Down'; }
+.array-item-remove::after { content: 'Remove'; }
+
+/* End glypicon work */
+
+
+.array-item-list .array-item{
+  border-left:1px #999 solid;
+  padding-left: 6px;
+}
+
+.field-boolean>label{
+  display:none;
+}
+
+.field-boolean input[type=checkbox]{
+  margin-right:5px;
 }

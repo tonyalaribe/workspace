@@ -29,6 +29,7 @@ function CustomFieldTemplate(props) {
     errors,
     children,
   } = props;
+
   return (
     <div className={classNames + ' pv2 tl'}>
       <label htmlFor={id} className="pv2 dib">
