@@ -83,3 +83,11 @@ i.glyphicon { display: none; }
 .field-boolean input[type=checkbox]{
   margin-right:5px;
 }
+
+.btn{
+  padding: .7rem 1.2rem;
+  border:none;
+  background-color:#001B44;
+  color:rgba(255, 255, 255, 0.7);
+  box-shadow:2px 2px 8px 0 rgba( 0, 0, 0, .2 );
+}

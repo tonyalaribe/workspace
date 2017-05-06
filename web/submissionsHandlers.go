@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Jeffail/gabs"
 	"github.com/boltdb/bolt"
 	"github.com/julienschmidt/httprouter"
 	"gitlab.com/middlefront/workspace/config"
@@ -58,7 +59,8 @@ func Base64ToFileSystem(b64 string, location string) string {
 }
 
 func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
-	username := r.Context().Value("username").(string)
+	// username := r.Context().Value("username").(string)
+	username := "tonyalaribe"
 
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
@@ -82,27 +84,39 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 		return nil
 	})
 
-	formInfo := make(map[string]interface{})
-	err = json.Unmarshal(formInfoByte, &formInfo)
+	// formInfo := make(map[string]interface{})
+	// err = json.Unmarshal(formInfoByte, &formInfo)
+	// if err != nil {
+	// 	log.Println(err)
+	// }
+
+	formInfo, err := gabs.ParseJSON(formInfoByte)
 	if err != nil {
 		log.Println(err)
 	}
+
 	log.Printf("%+v", formInfo)
 
-	schema := formInfo["jsonschema"].(map[string]interface{})
+	// schema := formInfo["jsonschema"].(map[string]interface{})
+	schema := formInfo.Path("jsonschema")
 
 	for k, v := range submission.FormData {
 		log.Printf("key: %+v, value: %+v", k, v)
-		schemaObject := schema["properties"].(map[string]interface{})[k].(map[string]interface{})
+		// schemaObject := schema["properties"].(map[string]interface{})[k].(map[string]interface{})
+		schemaObject := schema.Path("properties").Search(k)
 		log.Println(schemaObject)
-		switch schemaObject["type"].(string) {
+
+		switch schemaObject.Path("type").Data().(string) {
 		case "string":
 			log.Println("processing a string type")
-			log.Println(schemaObject["format"])
+			log.Println(schemaObject.Path("format"))
 
 			itemFormat := ""
-			if schemaObject["format"] != nil {
-				itemFormat = schemaObject["format"].(string)
+			// if schemaObject["format"] != nil {
+			// 	itemFormat = schemaObject["format"].(string)
+			// }
+			if schemaObject.ExistsP("format") {
+				itemFormat = schemaObject.Path("format").Data().(string)
 			}
 			switch itemFormat {
 			case "data-uri", "data-url":
@@ -117,6 +131,23 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 				submission.FormData[k] = v.(string)
 			}
 
+		case "array":
+
+			switch schemaObject.Path("items.type").Data().(string) {
+			case "string":
+				switch schemaObject.Path("items.format").Data().(string) {
+				case "data-url":
+					items := []string{}
+					for _, item := range v.([]string) {
+						log.Println("data-uri processing")
+						pathToSubmission := filepath.Join(conf.RootDirectory, username, submission.SubmissionName)
+						os.MkdirAll(pathToSubmission, os.ModePerm)
+						fullPath := Base64ToFileSystem(item, pathToSubmission)
+						items = append(items, fullPath)
+					}
+					submission.FormData[k] = items
+				}
+			}
 		case "integer":
 			//Using type float64 due to compiler complaints when handling integer types
 			submission.FormData[k] = submission.FormData[k].(float64)

@@ -10,11 +10,9 @@ class PublishedSubmissionInfoPage extends Component {
 
   componentDidMount() {
     let {workspaceID, formID, submissionID} = this.props.match.params;
-    this.props.MainStore
-      .getFormInfo(workspaceID, formID)
-      .then(() => {
-        this.props.MainStore.getSubmissionInfo(workspaceID, formID, submissionID);
-      });
+    this.props.MainStore.getSubmissionInfo(workspaceID, formID, submissionID).then(()=>{
+      this.props.MainStore.getFormInfo(workspaceID, formID)
+    })
   }
   render() {
     let {CurrentForm, SubmissionInfo} = this.props.MainStore;
@@ -25,24 +23,49 @@ class PublishedSubmissionInfoPage extends Component {
       jsonschema.properties,
     ).reduce((previous, current) => {
       let value;
-      console.log(jsonschema.properties[current])
-
-      switch(jsonschema.properties[current].type){
-        case "string":
-        console.log("type string")
-        console.log(jsonschema.properties[current].format)
-          switch (jsonschema.properties[current].format){
-            case "data-url":
-              value = <a target="_blank" href={"/"+SubmissionInfo.formData[current]}>{SubmissionInfo.formData[current]}</a>
-              break
+      console.log(jsonschema.properties[current]);
+      console.log(SubmissionInfo)
+      switch (jsonschema.properties[current].type) {
+        case 'string':
+          console.log('type string');
+          console.log(jsonschema.properties[current].format);
+          switch (jsonschema.properties[current].format) {
+            case 'data-url':
+              value = (
+                <a
+                  target="_blank"
+                  href={'/' + SubmissionInfo.formData[current]}
+                >
+                  {SubmissionInfo.formData[current]}
+                </a>
+              );
+              break;
             default:
-              value = SubmissionInfo.formData[current]
-              break
+              value = SubmissionInfo.formData[current];
+              break;
           }
           break;
+        case 'array':
+          value = SubmissionInfo.formData[current].map(function(item) {
+            console.log(item);
+            console.log(jsonschema.properties[current]);
+            switch (jsonschema.properties[current].items.type) {
+              case 'string':
+                switch (jsonschema.properties[current].items.format) {
+                  case 'data-url':
+                    return <a target="_blank" href={'/' + item}>xxx</a>;
+                  default:
+                    return item;
+                }
+              default:
+                return item;
+            }
+          });
         default:
-          value = SubmissionInfo.formData[current]
-          break
+          console.log('type unknown');
+          console.log(jsonschema.properties[current]);
+          value = SubmissionInfo.formData[current];
+          break;
       }
       previous.push(
         <div className="pv2" key={current}>

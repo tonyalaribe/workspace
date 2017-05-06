@@ -44,7 +44,7 @@ function FilesInfo(props) {
     return null;
   }
   return (
-    <div className="file-info">
+    <div className="file-info cf">
       {filesInfo.map((fileInfo, key) => {
         const { name } = fileInfo;
         return (
@@ -64,7 +64,7 @@ function FilesInfo(props) {
 }
 
 export function dataURItoBlob(dataURI) {
-  console.log(dataURI)
+
   if (dataURI.split("base64,").length <2 ){
     return {
       blob:dataURI,
@@ -110,8 +110,6 @@ export function dataURItoBlob(dataURI) {
 
 
 function extractFileInfo(dataURLs) {
-  console.log("dataURLs")
-  console.log(dataURLs)
 
   return dataURLs
     .filter(dataURL => typeof dataURL !== "undefined")
@@ -161,7 +159,7 @@ class FileWidget extends Component {
   };
 
   render() {
-    console.log(this)
+
     const { multiple, id, readonly, disabled, autofocus } = this.props;
     const { filesInfo } = this.state;
     return (
