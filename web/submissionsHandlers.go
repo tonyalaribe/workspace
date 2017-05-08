@@ -59,8 +59,7 @@ func Base64ToFileSystem(b64 string, location string) string {
 }
 
 func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
-	// username := r.Context().Value("username").(string)
-	username := "tonyalaribe"
+	username := r.Context().Value("username").(string)
 
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
