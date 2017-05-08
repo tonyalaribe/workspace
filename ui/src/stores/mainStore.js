@@ -6,7 +6,7 @@ class mainStore {
   @observable AllWorkspaces = [];
   @observable AllForms = [];
 
-  @observable SubmissionInfo = {formData: []};
+  @observable SubmissionInfo = {};
   @observable CurrentForm= {
     jsonschema: {
       properties: {},

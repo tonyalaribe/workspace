@@ -138,11 +138,11 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 				switch schemaObject.Path("items.format").Data().(string) {
 				case "data-url":
 					items := []string{}
-					for _, item := range v.([]string) {
+					for _, item := range v.([]interface{}) {
 						log.Println("data-uri processing")
 						pathToSubmission := filepath.Join(conf.RootDirectory, username, submission.SubmissionName)
 						os.MkdirAll(pathToSubmission, os.ModePerm)
-						fullPath := Base64ToFileSystem(item, pathToSubmission)
+						fullPath := Base64ToFileSystem(item.(string), pathToSubmission)
 						items = append(items, fullPath)
 					}
 					submission.FormData[k] = items
@@ -153,6 +153,7 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 			submission.FormData[k] = submission.FormData[k].(float64)
 		default:
 			log.Printf("%+v", schemaObject)
+			submission.FormData[k] = submission.FormData[k].(string)
 		}
 	}
 

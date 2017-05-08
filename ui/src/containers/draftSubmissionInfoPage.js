@@ -61,19 +61,18 @@ class DraftSubmissionInfoPage extends Component {
     let {workspaceID, formID, submissionID} = this.props.match.params;
 
     this.setState({showSuccessMessage: false});
-    console.log(this);
-    console.log(data);
-    let response = {};
-    response.status = STATUS;
-    response.lastModified = Date.now();
-    response.formData = data.formData;
-    console.log(JSON.stringify(response));
 
-    this.props.MainStore.SubmissionInfo = response; //To prevent reverting to old value on form submit.
+    let req = {};
+    req.status = STATUS;
+    req.lastModified = Date.now();
+    req.formData = data.formData;
+    console.log(JSON.stringify(req));
+
+    this.props.MainStore.SubmissionInfo = req; //To prevent reverting to old value on form submit.
 
     this.props.MainStore.updateFormOnServer(
       workspaceID, formID, submissionID,
-      response,
+      req,
       () => {
 
         this.setState({showSuccessMessage: true});
@@ -86,6 +85,8 @@ class DraftSubmissionInfoPage extends Component {
 
     let {CurrentForm, SubmissionInfo} = this.props.MainStore;
 
+    console.log(toJS(SubmissionInfo))
+    console.log(toJS(SubmissionInfo.formData))
     return (
       <section className="">
         <Nav />
@@ -119,7 +120,8 @@ class DraftSubmissionInfoPage extends Component {
                 </small>
               </div>
             </div>
-            <Form
+            {/* Form does not rerender when after the formdata is retrieved from the server, so its now only being rendered after the data is retrieved from the server */}
+            {SubmissionInfo.formData?<Form
               schema={toJS(CurrentForm.jsonschema)}
               uiSchema={toJS(CurrentForm.uischema)}
               formData={toJS(SubmissionInfo.formData)}
@@ -152,7 +154,7 @@ class DraftSubmissionInfoPage extends Component {
                 }}
                 className="hidden dn"
               />
-            </Form>
+          </Form>:""}
 
             <div className="pv3 tr">
               <button

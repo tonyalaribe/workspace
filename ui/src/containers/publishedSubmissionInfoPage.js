@@ -33,7 +33,7 @@ class PublishedSubmissionInfoPage extends Component {
             case 'data-url':
               value = (
                 <a
-                  target="_blank"
+                  target="_blank" className="db link pa3 mv1 shadow-4 navy underline-hover"
                   href={'/' + SubmissionInfo.formData[current]}
                 >
                   {SubmissionInfo.formData[current]}
@@ -46,14 +46,14 @@ class PublishedSubmissionInfoPage extends Component {
           }
           break;
         case 'array':
-          value = SubmissionInfo.formData[current].map(function(item) {
+          value = SubmissionInfo.formData[current].map(function(item,i) {
             console.log(item);
             console.log(jsonschema.properties[current]);
             switch (jsonschema.properties[current].items.type) {
               case 'string':
                 switch (jsonschema.properties[current].items.format) {
                   case 'data-url':
-                    return <a target="_blank" href={'/' + item}>xxx</a>;
+                    return <a target="_blank" className="db link pa3 mv1 shadow-4 navy underline-hover" href={'/' + item} key={i}>{item}</a>;
                   default:
                     return item;
                 }
@@ -61,8 +61,10 @@ class PublishedSubmissionInfoPage extends Component {
                 return item;
             }
           });
+          break;
         default:
           console.log('type unknown');
+          console.log(jsonschema.properties[current].type)
           console.log(jsonschema.properties[current]);
           value = SubmissionInfo.formData[current];
           break;
