@@ -15,7 +15,6 @@ class mainStore {
   };
 
   @action submitFormToServer = async (workspaceID, formID, formData, callback) => {
-    console.log(formData);
 
     let authToken = AuthService.getToken();
     const response = await fetch(
@@ -41,8 +40,6 @@ class mainStore {
 
 
   @action updateFormOnServer = async (workspaceID, formID, submissionID, formData, callback) => {
-    console.log(formData);
-
     let authToken = AuthService.getToken();
     const response = await fetch(
       '/api/workspaces/' +
@@ -212,7 +209,6 @@ class mainStore {
     console.log(data)
     /* required in strict mode to be allowed to update state: */
     runInAction('update state after fetching data', () => {
-      console.log(data);
       this.SubmissionInfo = data;
     });
   };

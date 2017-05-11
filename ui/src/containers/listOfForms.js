@@ -9,8 +9,6 @@ class ListOfForms extends Component {
   componentDidMount() {
     let workspaceID = this.props.match.params.workspaceID
     this.props.MainStore.getAllForms(workspaceID);
-
-    console.log(this)
   }
   render() {
     let {MainStore} = this.props;
@@ -18,7 +16,6 @@ class ListOfForms extends Component {
     let workspaceID = this.props.match.params.workspaceID
 
     let AllForms = MainStore.AllForms.map(function(form, key) {
-      console.log(form);
       return (
         <Link
           to={'/workspaces/'+workspaceID+'/forms/' + form.id}

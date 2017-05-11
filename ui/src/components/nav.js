@@ -19,7 +19,6 @@ class Nav extends Component {
     });
   }
   render() {
-    console.log(this.state.profile);
     return (
       <nav className="bg-navy w-100 fixed shadow-4 pa3 ph4 white-80 dib z-3">
         <Link to="/" className="pa2 dib link white-80 hover-white">

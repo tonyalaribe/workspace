@@ -24,7 +24,7 @@ class SubmissionsPage extends Component {
     let submissions = this.props.MainStore.Submissions;
 
     let userSubmissions = submissions.map(function(fileData, key) {
-      console.log(fileData);
+
       return (
         <Link
           to={

@@ -13,7 +13,6 @@ class ListOfWorkspaces extends Component {
     let {MainStore} = this.props;
 
     let AllWorkspaces = MainStore.AllWorkspaces.map(function(workspace, key) {
-      console.log(workspace);
       return (
         <Link
           to={'/workspaces/' + workspace.id}

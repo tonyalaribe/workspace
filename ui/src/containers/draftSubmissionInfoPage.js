@@ -66,7 +66,7 @@ class DraftSubmissionInfoPage extends Component {
     req.status = STATUS;
     req.lastModified = Date.now();
     req.formData = data.formData;
-    console.log(JSON.stringify(req));
+    // console.log(JSON.stringify(req));
 
     this.props.MainStore.SubmissionInfo = req; //To prevent reverting to old value on form submit.
 
@@ -85,8 +85,6 @@ class DraftSubmissionInfoPage extends Component {
 
     let {CurrentForm, SubmissionInfo} = this.props.MainStore;
 
-    console.log(toJS(SubmissionInfo))
-    console.log(toJS(SubmissionInfo.formData))
     return (
       <section className="">
         <Nav />

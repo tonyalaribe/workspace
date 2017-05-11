@@ -33,7 +33,7 @@ class PublishedSubmissionInfoPage extends Component {
             case 'data-url':
               value = (
                 <a
-                  target="_blank" className="db link pa3 mv1 shadow-4 navy underline-hover"
+                  target="_blank" className="db link pa3 mv1 shadow-4 navy underline-hover overflow-hidden"
                   href={'/' + SubmissionInfo.formData[current]}
                 >
                   {SubmissionInfo.formData[current]}
@@ -53,7 +53,7 @@ class PublishedSubmissionInfoPage extends Component {
               case 'string':
                 switch (jsonschema.properties[current].items.format) {
                   case 'data-url':
-                    return <a target="_blank" className="db link pa3 mv1 shadow-4 navy underline-hover" href={'/' + item} key={i}>{item}</a>;
+                    return <a target="_blank" className="db link pa3 mv1 shadow-4 navy underline-hover overflow-hidden" href={'/' + item} key={i}>{item}</a>;
                   default:
                     return item;
                 }
@@ -74,7 +74,7 @@ class PublishedSubmissionInfoPage extends Component {
           <strong className="pa1 dib">
             {jsonschema.properties[current].title}: &nbsp;&nbsp;
           </strong>
-          <span className="pa1 dib">{value}</span>
+          <div className="pa1 dib w-100">{value}</div>
         </div>,
       );
       return previous;

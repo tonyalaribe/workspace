@@ -141,8 +141,6 @@ class FileWidget extends Component {
   constructor(props) {
     super(props);
     const {value} = props;
-    console.log("constructor props", props)
-    console.log("constructor value", value)
     const values = Array.isArray(value) ? value : [value];
     this.state = {values, filesInfo: extractFileInfo(values)};
   }
@@ -154,10 +152,18 @@ class FileWidget extends Component {
   onChange = event => {
     const {multiple, onChange} = this.props;
     processFiles(event.target.files).then(filesInfo => {
-      const state = {
-        values: filesInfo.map(fileInfo => fileInfo.dataURL),
-        filesInfo,
-      };
+      var state;
+      if (multiple) {
+        state = {
+          values: this.state.values.concat(filesInfo.map(fileInfo => fileInfo.dataURL)),
+          filesInfo:this.state.filesInfo.concat(filesInfo),
+        };
+      } else {
+        state = {
+          values: filesInfo.map(fileInfo => fileInfo.dataURL),
+          filesInfo,
+        };
+      }
       setState(this, state, () => {
         if (multiple) {
           onChange(state.values);
@@ -166,6 +172,7 @@ class FileWidget extends Component {
         }
       });
     });
+
   };
 
   render() {
