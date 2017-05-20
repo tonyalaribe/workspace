@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import {GetFileRepresentativeImage} from '../utils/representativeImages.js';
-//import {  setState } from "../../utils";
 
 function addNameToDataURL(dataURL, name) {
   return dataURL.replace(';base64', `;name=${name};base64`);
@@ -137,9 +136,6 @@ class FileWidget extends Component {
     let {values,filesInfo} = this.state;
     console.log(index)
     console.log(values[index])
-    // this.setState({values:values.splice(index, 1), filesInfo:filesInfo.splice(index, 1)})
-
-    console.log({values:values, filesInfo:filesInfo})
 
     let newValues = values
     newValues.splice(index, 1)
@@ -147,7 +143,6 @@ class FileWidget extends Component {
     let newFilesInfo = filesInfo
     newFilesInfo.splice(index, 1)
 
-    console.log({values:newValues, filesInfo:newFilesInfo})
     this.setState({values:newValues, filesInfo:newFilesInfo})
 
   }

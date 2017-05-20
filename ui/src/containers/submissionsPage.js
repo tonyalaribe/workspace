@@ -14,16 +14,32 @@ class SubmissionsPage extends Component {
     let workspaceID = this.props.match.params.workspaceID
     let formID = this.props.match.params.formID
 
+    this.props.MainStore.getAllWorkspaces();
     this.props.MainStore.getMySubmissions(workspaceID, formID)
   }
   render() {
 
     let workspaceID = this.props.match.params.workspaceID
     let formID = this.props.match.params.formID
+    let {MainStore} = this.props;
 
-    let submissions = this.props.MainStore.Submissions;
 
-    let userSubmissions = submissions.map(function(fileData, key) {
+    let AllWorkspaces = MainStore.AllWorkspaces.map(function(workspace, key) {
+      let workspaceURL = '/workspaces/' + workspace.id
+      return (
+        <Link
+          to={workspaceURL}
+          key={key}
+          className="link navy"
+        >
+          <div className={" grow pa1 "+(window.location.pathname.startsWith(workspaceURL)?"bg-light-gray":"")}>
+            <span className="navy  ">{workspace.name}</span>
+          </div>
+        </Link>
+      );
+    });
+
+    let userSubmissions = MainStore.Submissions.map(function(fileData, key) {
 
       return (
         <Link
@@ -78,12 +94,19 @@ class SubmissionsPage extends Component {
       );
     });
     console.log(AuthService.loggedIn());
+
+
     return (
       <section className="">
         <Nav />
         <section className="tc pt5">
-          <section className="pt4 dib w-100 w-70-m w-50-l tl">
-            <div className="pv3 cf">
+
+          <section className="pt4 dib w-100 w-80-m w-60-l tl">
+            <div className="w-30 dib v-top pv3 pr3">
+              <h3 className="bb dib pa1">Workspaces</h3>
+              {AllWorkspaces}
+            </div><div className="w-70 dib v-top">
+              <div className="pv3 cf">
               <Link
                 to={'/workspaces/'+workspaceID+'/forms/'+formID+'/new_submission'}
                 className="ph3 pv2 ba fr link navy dib grow"
@@ -96,6 +119,7 @@ class SubmissionsPage extends Component {
             <section>
               {userSubmissions}
             </section>
+          </div>
           </section>
         </section>
       </section>

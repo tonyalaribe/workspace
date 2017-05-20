@@ -9,11 +9,31 @@ class ListOfForms extends Component {
   componentDidMount() {
     let workspaceID = this.props.match.params.workspaceID
     this.props.MainStore.getAllForms(workspaceID);
+    this.props.MainStore.getAllWorkspaces();
+  }
+  componentWillUpdate(nextProps, nextState){
+    if (this.props.location.pathname!==nextProps.location.pathname){
+      this.props.MainStore.getAllForms(nextProps.match.params.workspaceID);
+    }
   }
   render() {
     let {MainStore} = this.props;
-
     let workspaceID = this.props.match.params.workspaceID
+
+    let AllWorkspaces = MainStore.AllWorkspaces.map(function(workspace, key) {
+      let workspaceURL = '/workspaces/' + workspace.id
+      return (
+        <Link
+          to={workspaceURL}
+          key={key}
+          className="link navy"
+        >
+          <div className={" grow pa1 "+(workspaceURL===window.location.pathname?"bg-light-gray":"")}>
+            <span className="navy  ">{workspace.name}</span>
+          </div>
+        </Link>
+      );
+    });
 
     let AllForms = MainStore.AllForms.map(function(form, key) {
       return (
@@ -35,23 +55,30 @@ class ListOfForms extends Component {
       );
     });
 
+
     return (
       <section className="">
         <Nav />
         <section className="tc pt5">
-          <section className="pt4 dib w-100 w-70-m w-50-l tl">
-            <div className="pv3 cf">
-              <Link
-                to={'/workspaces/'+workspaceID+'/new_form'}
-                className="ph3 pv2 ba fr link navy dib grow"
-              >
-                New Forms
-              </Link>
-              <span className="navy w-100 v-btm">All Available Forms</span>
+
+          <section className="pt4 dib w-100 w-80-m w-60-l tl">
+            <div className="w-30 dib v-top pv3 pr3">
+              <h3 className="bb dib pa1">Workspaces</h3>
+              {AllWorkspaces}
+            </div><div className="w-70 dib v-top">
+              <div className="pv3 cf">
+                <Link
+                  to={'/workspaces/'+workspaceID+'/new_form'}
+                  className="ph3 pv2 ba fr link navy dib grow"
+                >
+                  New Forms
+                </Link>
+                <span className="navy w-100 v-btm">All Available Forms</span>
+              </div>
+              <section>
+                {AllForms}
+              </section>
             </div>
-            <section>
-              {AllForms}
-            </section>
           </section>
         </section>
       </section>
