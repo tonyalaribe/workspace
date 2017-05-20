@@ -16,9 +16,7 @@ class PublishedSubmissionInfoPage extends Component {
   }
   render() {
     let {CurrentForm, SubmissionInfo} = this.props.MainStore;
-
     let jsonschema = CurrentForm.jsonschema;
-
     let formFields = Object.keys(
       jsonschema.properties,
     ).reduce((previous, current) => {
@@ -46,26 +44,23 @@ class PublishedSubmissionInfoPage extends Component {
           }
           break;
         case 'array':
-          value = SubmissionInfo.formData[current].map(function(item,i) {
-            console.log(item);
-            console.log(jsonschema.properties[current]);
-            switch (jsonschema.properties[current].items.type) {
-              case 'string':
-                switch (jsonschema.properties[current].items.format) {
-                  case 'data-url':
-                    return <a target="_blank" className="db link pa3 mv1 shadow-4 navy underline-hover overflow-hidden" href={'/' + item} key={i}>{item}</a>;
-                  default:
-                    return item;
-                }
-              default:
-                return item;
-            }
-          });
+          if (SubmissionInfo.formData[current]){
+            value = SubmissionInfo.formData[current].map(function(item,i) {
+              switch (jsonschema.properties[current].items.type) {
+                case 'string':
+                  switch (jsonschema.properties[current].items.format) {
+                    case 'data-url':
+                      return <a target="_blank" className="db link pa3 mv1 shadow-4 navy underline-hover overflow-hidden" href={'/' + item} key={i}>{item}</a>;
+                    default:
+                      return item;
+                  }
+                default:
+                  return item;
+              }
+            });
+          }
           break;
         default:
-          console.log('type unknown');
-          console.log(jsonschema.properties[current].type)
-          console.log(jsonschema.properties[current]);
           value = SubmissionInfo.formData[current];
           break;
       }

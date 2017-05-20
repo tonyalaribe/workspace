@@ -37,9 +37,7 @@ function processFiles(files) {
 }
 
 function FilesInfo(props) {
-  const {filesInfo} = props;
-  console.log(props)
-  console.log(filesInfo)
+  const {filesInfo,removeFile} = props;
   if (filesInfo.length === 0) {
     return null;
   }
@@ -51,7 +49,7 @@ function FilesInfo(props) {
           <div className="pr1 pb1 w-25 fl" key={key}>
             <div className="h-100 ba b--black-20 tc pa2">
               <div>
-                <a className="dib  link pointer navy">x</a>
+                <a onClick={()=>removeFile(key)} className="dib  link pointer navy">x</a>
               </div>
               <img
                 src={GetFileRepresentativeImage(name)}
@@ -75,11 +73,6 @@ export function dataURItoBlob(dataURI) {
       blob: dataURI,
       name: dataURI,
     };
-    // console.log("not a base64 file")
-    // console.log({
-    //   blob:dataURI,
-    //   name:dataURI
-    // })
   }
   // Split metadata from data
   const splitted = dataURI.split(',');
@@ -119,12 +112,6 @@ function extractFileInfo(dataURLs) {
     .filter(dataURL => typeof dataURL !== 'undefined')
     .map(dataURL => {
       const {blob, name} = dataURItoBlob(dataURL);
-
-      console.log({
-        name: name,
-        size: blob.size,
-        type: blob.type,
-      });
       return {
         name: name,
         size: blob.size,
@@ -143,6 +130,26 @@ class FileWidget extends Component {
     const {value} = props;
     const values = Array.isArray(value) ? value : [value];
     this.state = {values, filesInfo: extractFileInfo(values)};
+    this.removeFile = this.removeFile.bind(this)
+  }
+
+  removeFile(index){
+    let {values,filesInfo} = this.state;
+    console.log(index)
+    console.log(values[index])
+    // this.setState({values:values.splice(index, 1), filesInfo:filesInfo.splice(index, 1)})
+
+    console.log({values:values, filesInfo:filesInfo})
+
+    let newValues = values
+    newValues.splice(index, 1)
+
+    let newFilesInfo = filesInfo
+    newFilesInfo.splice(index, 1)
+
+    console.log({values:newValues, filesInfo:newFilesInfo})
+    this.setState({values:newValues, filesInfo:newFilesInfo})
+
   }
 
   // shouldComponentUpdate(nextProps, nextState) {
@@ -201,7 +208,7 @@ class FileWidget extends Component {
             className="dn"
           />
       </div>
-        <FilesInfo filesInfo={filesInfo} />
+        <FilesInfo filesInfo={filesInfo} removeFile={this.removeFile} />
       </div>
     );
   }
