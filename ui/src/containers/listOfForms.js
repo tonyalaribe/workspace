@@ -28,7 +28,7 @@ class ListOfForms extends Component {
           key={key}
           className="link navy"
         >
-          <div className={" grow pa1 "+(workspaceURL===window.location.pathname?"bg-light-gray":"")}>
+          <div className={" grow pa1 "+(window.location.pathname.startsWith(workspaceURL)?"bg-light-gray":"")}>
             <span className="navy  ">{workspace.name}</span>
           </div>
         </Link>
