@@ -10,7 +10,9 @@ class Nav extends Component {
     super(props, context);
     this.state = {
       profile: AuthService.getProfile(),
+      showDropdown:false,
     };
+    console.log(this.state)
 
     // listen to profile_updated events to update internal state
     AuthService.emitter.on('profile_updated', newProfile => {
@@ -18,24 +20,47 @@ class Nav extends Component {
       this.setState({profile: newProfile});
     });
   }
+  componentDidMount(){
+    this.props.MainStore.getAllWorkspaces();
+  }
   render() {
+    let {MainStore} = this.props;
+
+    let AllWorkspaces = MainStore.AllWorkspaces.map(function(workspace, key) {
+      let workspaceURL = '/workspaces/' + workspace.id
+      return (
+        <Link
+          to={workspaceURL}
+          key={key}
+          className={"db ph4 pv2 link navy hover-bg-light-gray "+(window.location.pathname.startsWith(workspaceURL)?"bg-light-gray":"")}
+        >
+            <span className="navy  ">{workspace.name}</span>
+        </Link>
+      );
+    });
+
     return (
       <nav className="bg-navy w-100 fixed shadow-4 pa3 ph4 white-80 dib z-3">
         <Link to="/" className="pa2 dib link white-80 hover-white">
           Workspace
         </Link>
-        <div className="dib pa2 fr pr5">
-          <span className="pa1 pl4 dib">
-            {this.state.profile.username}
-            :
-            <Link
-              to="/"
-              onClick={AuthService.logout}
-              className="white-90 hover-white dib ph1 link"
-            >
-              logout
-            </Link>
-          </span>
+        <div className="dib  fr  w5">
+          <Link className="dib pv2 ph4 pointer white-80 link hover-white" to="/">home</Link>
+          <div className="dib relative">
+            <a className="db pa2 pointer" onClick={()=>this.setState({showDropdown:!this.state.showDropdown})}>☰ {this.state.profile.username}</a>
+            <div className={"bg-white absolute shadow-4 pv3 right-0 "+(this.state.showDropdown?"dib":"dn")} style={{width:"12rem"}}>
+                {AllWorkspaces}
+
+                <Link
+                  to="/"
+                  onClick={AuthService.logout}
+                  className="db pv2 ph4 link navy hover-bg-light-gray mt3"
+                >
+                  logout
+                </Link>
+            </div>
+          </div>
+
         </div>
       </nav>
     );

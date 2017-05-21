@@ -11,11 +11,18 @@ var fileImageRepresentation = require('../assets/files.png');
 class SubmissionsPage extends Component {
   componentDidMount() {
     // console.log(this.props)
+
     let workspaceID = this.props.match.params.workspaceID
     let formID = this.props.match.params.formID
 
-    this.props.MainStore.getAllWorkspaces();
+    this.props.MainStore.getAllForms(workspaceID);
     this.props.MainStore.getMySubmissions(workspaceID, formID)
+  }
+  componentWillUpdate(nextProps, nextState){
+    if (this.props.location.pathname!==nextProps.location.pathname){
+      let {workspaceID, formID} = nextProps.match.params;
+      this.props.MainStore.getMySubmissions(workspaceID, formID)
+    }
   }
   render() {
 
@@ -24,16 +31,16 @@ class SubmissionsPage extends Component {
     let {MainStore} = this.props;
 
 
-    let AllWorkspaces = MainStore.AllWorkspaces.map(function(workspace, key) {
-      let workspaceURL = '/workspaces/' + workspace.id
+    let AllForms = MainStore.AllForms.map(function(form, key) {
+      let formURL = '/workspaces/'+workspaceID+'/forms/' + form.id
       return (
         <Link
-          to={workspaceURL}
+          to={formURL}
           key={key}
           className="link navy"
         >
-          <div className={" grow pa1 "+(window.location.pathname.startsWith(workspaceURL)?"bg-light-gray":"")}>
-            <span className="navy  ">{workspace.name}</span>
+          <div className={" grow pa1 "+(window.location.pathname.startsWith(formURL)?"bg-light-gray":"")}>
+            <span className="navy  ">{form.name}</span>
           </div>
         </Link>
       );
@@ -103,8 +110,8 @@ class SubmissionsPage extends Component {
 
           <section className="pt4 dib w-100 w-80-m w-60-l tl">
             <div className="w-30 dib v-top pv3 pr3">
-              <h3 className="bb dib pa1">Workspaces</h3>
-              {AllWorkspaces}
+              <h3 className="bb dib pa1">Forms</h3>
+              {AllForms}
             </div><div className="w-70 dib v-top">
               <div className="pv3 cf">
               <Link
