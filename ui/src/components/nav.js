@@ -12,11 +12,9 @@ class Nav extends Component {
 			profile: AuthService.getProfile(),
 			showDropdown: false
 		};
-		console.log(this.state);
 
 		// listen to profile_updated events to update internal state
 		AuthService.emitter.on("profile_updated", newProfile => {
-			console.log("profile updated");
 			this.setState({ profile: newProfile });
 		});
 	}
@@ -24,20 +22,14 @@ class Nav extends Component {
 		this.props.MainStore.getAllWorkspaces();
 	}
 	render() {
-		let { MainStore,workspaceID } = this.props;
-    let currentWorkspace = {};
+		let { MainStore, workspaceID } = this.props;
+		let currentWorkspace = {};
 
-		console.log(this.props);
-    if (workspaceID&&MainStore.AllWorkspaces.length>0){
-      currentWorkspace = MainStore.AllWorkspaces.find(function(workspace){
-        console.log(workspace)
-        console.log(workspaceID)
-        if (workspace.id === workspaceID){
-          return workspace
-        }
-      })
-    }
-    console.log(currentWorkspace)
+		if (workspaceID && MainStore.AllWorkspaces.length > 0) {
+			currentWorkspace = MainStore.AllWorkspaces.find(function(workspace) {
+				return workspace.id === workspaceID;
+			});
+		}
 
 		let AllWorkspaces = MainStore.AllWorkspaces.map(function(workspace, key) {
 			let workspaceURL = "/workspaces/" + workspace.id;
@@ -56,12 +48,11 @@ class Nav extends Component {
 				</Link>
 			);
 		});
-    console.log(currentWorkspace)
 
 		return (
 			<nav className="bg-navy w-100 fixed shadow-4 pa3 ph4 white-80 dib z-3">
 				<Link to="/" className="pa2 dib link white-80 hover-white">
-					{currentWorkspace.name?currentWorkspace.name:"Workspace"}
+					{currentWorkspace.name ? currentWorkspace.name : "Workspace"}
 				</Link>
 				<div className="dib  fr  w5">
 					<Link

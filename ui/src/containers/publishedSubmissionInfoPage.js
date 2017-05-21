@@ -17,6 +17,7 @@ class PublishedSubmissionInfoPage extends Component {
   render() {
     let {CurrentForm, SubmissionInfo} = this.props.MainStore;
     let jsonschema = CurrentForm.jsonschema;
+    
     let formFields = Object.keys(
       jsonschema.properties,
     ).reduce((previous, current) => {
@@ -75,9 +76,10 @@ class PublishedSubmissionInfoPage extends Component {
       return previous;
     }, []);
 
+    let {workspaceID} = this.props.match.params;
     return (
       <section className="">
-        <Nav />
+        <Nav workspaceID={workspaceID} />
         <section className="tc pt5">
           <section className="pt4 dib w-100 w-70-m w-50-l tl">
             <div className="pv3">

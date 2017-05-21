@@ -12,7 +12,6 @@ class NewWorkspacePage extends Component {
     this.setState({showSuccessMessage: false});
     let workspace = {};
     workspace.name = this.refs.workspaceName.value;
-    console.log(workspace);
 
     this.props.MainStore.submitNewWorkspaceToServer(workspace, () => {
       this.setState({showSuccessMessage: true});
@@ -23,7 +22,7 @@ class NewWorkspacePage extends Component {
     let {state} = this;
 
     return (
-      <section className="">
+      <section>
         <Nav />
         <section className="tc pt5">
           <section className="pt5 dib w-100 w-70-m w-50-l ">
@@ -42,7 +41,6 @@ class NewWorkspacePage extends Component {
                 ref="workspaceName"
               />
             </div>
-
 
             <div className="pv3">
               {state.showSuccessMessage

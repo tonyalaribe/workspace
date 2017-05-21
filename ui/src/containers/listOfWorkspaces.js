@@ -33,7 +33,7 @@ class ListOfWorkspaces extends Component {
     });
 
     return (
-      <section className="">
+      <section >
         <Nav />
         <section className="tc pt5">
           <section className="pt4 dib w-100 w-70-m w-50-l tl">

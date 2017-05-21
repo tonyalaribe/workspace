@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import Nav from "../components/nav.js";
 import { Link } from "react-router-dom";
-import AuthService from "../utils/auth0.js";
 import { inject, observer } from "mobx-react";
 import moment from "moment";
 var fileImageRepresentation = require("../assets/files.png");
@@ -10,11 +9,11 @@ var fileImageRepresentation = require("../assets/files.png");
 @observer
 class SubmissionsPage extends Component {
 	componentDidMount() {
-		let workspaceID = this.props.match.params.workspaceID;
-		let formID = this.props.match.params.formID;
+		let {workspaceID,formID} = this.props.match.params.workspaceID;
 
-		this.props.MainStore.getAllForms(workspaceID);
-		this.props.MainStore.getMySubmissions(workspaceID, formID);
+    let {MainStore} = this.props;
+		MainStore.getAllForms(workspaceID);
+		MainStore.getMySubmissions(workspaceID, formID);
 	}
 	componentWillUpdate(nextProps, nextState) {
 		if (this.props.location.pathname !== nextProps.location.pathname) {
@@ -23,7 +22,7 @@ class SubmissionsPage extends Component {
 		}
 	}
 	render() {
-		let workspaceID = this.props.match.params.workspaceID;
+		let { workspaceID } = this.props.match.params;
 		let formID = this.props.match.params.formID;
 		let { MainStore } = this.props;
 
@@ -98,11 +97,9 @@ class SubmissionsPage extends Component {
 				</Link>
 			);
 		});
-		console.log(AuthService.loggedIn());
-
 		return (
-			<section className="">
-				<Nav workspaceID={workspaceID}/>
+			<section >
+				<Nav workspaceID={workspaceID} />
 				<section className="tc pt5">
 
 					<section className="pt4 dib w-100 w-80-m w-60-l tl">
