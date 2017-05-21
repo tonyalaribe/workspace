@@ -58,7 +58,7 @@ class ListOfForms extends Component {
 
     return (
       <section className="">
-        <Nav />
+        <Nav workspaceID={workspaceID}/>
         <section className="tc pt5">
 
           <section className="pt4 dib w-100 w-80-m w-60-l tl">
