@@ -70,6 +70,11 @@ class NewSubmissionPage extends Component {
 			() => {
 				this.setState({ showSuccessMessage: true, files: [] });
 				this.refs.submissionName.value = "";
+				setTimeout(() => {
+					window.requestAnimationFrame(() => {
+						this.props.history.push("/workspaces/" + workspaceID + "/forms/" + formID);
+					});
+				}, 1000);
 			}
 		);
 	}

@@ -16,9 +16,20 @@ class NewWorkspacePage extends Component {
     this.props.MainStore.submitNewWorkspaceToServer(workspace, () => {
       this.setState({showSuccessMessage: true});
       this.refs.workspaceName.value = '';
+      setTimeout(()=>{
+        window.requestAnimationFrame(
+          window.requestAnimationFrame(
+            ()=>{
+              this.props.history.push("/")
+            }
+          )
+        )
+      }, 1000);
+
     });
   }
   render() {
+    console.log(this.props)
     let {state} = this;
 
     return (

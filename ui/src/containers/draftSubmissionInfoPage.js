@@ -63,7 +63,6 @@ class DraftSubmissionInfoPage extends Component {
 		req.status = STATUS;
 		req.lastModified = Date.now();
 		req.formData = data.formData;
-		// console.log(JSON.stringify(req));
 
 		this.props.MainStore.SubmissionInfo = req; //To prevent reverting to old value on form submit.
 
@@ -74,6 +73,12 @@ class DraftSubmissionInfoPage extends Component {
 			req,
 			() => {
 				this.setState({ showSuccessMessage: true });
+				setTimeout(() => {
+					window.requestAnimationFrame(() => {
+						this.props.history.push("/workspaces/" + workspaceID + "/forms/" + formID);
+					});
+				}, 1000);
+
 			}
 		);
 	}

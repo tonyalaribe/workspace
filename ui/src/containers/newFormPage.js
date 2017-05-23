@@ -22,6 +22,13 @@ class NewFormPage extends Component {
 			this.refs.formName.value = "";
 			this.refs.jsonSchema.value = "";
 			this.refs.uiSchema.value = "";
+			setTimeout(()=>{
+					window.requestAnimationFrame(
+						()=>{
+							this.props.history.push("/workspaces/"+workspaceID)
+						}
+					)
+			}, 1000);
 		});
 	}
 	render() {

@@ -9,18 +9,20 @@ var fileImageRepresentation = require("../assets/files.png");
 @observer
 class SubmissionsPage extends Component {
 	componentDidMount() {
-		let {workspaceID,formID} = this.props.match.params.workspaceID;
+		let { workspaceID, formID } = this.props.match.params;
 
-    let {MainStore} = this.props;
+		let { MainStore } = this.props;
 		MainStore.getAllForms(workspaceID);
 		MainStore.getMySubmissions(workspaceID, formID);
 	}
+
 	componentWillUpdate(nextProps, nextState) {
 		if (this.props.location.pathname !== nextProps.location.pathname) {
 			let { workspaceID, formID } = nextProps.match.params;
 			this.props.MainStore.getMySubmissions(workspaceID, formID);
 		}
 	}
+
 	render() {
 		let { workspaceID } = this.props.match.params;
 		let formID = this.props.match.params.formID;
@@ -98,7 +100,7 @@ class SubmissionsPage extends Component {
 			);
 		});
 		return (
-			<section >
+			<section>
 				<Nav workspaceID={workspaceID} />
 				<section className="tc pt5">
 
