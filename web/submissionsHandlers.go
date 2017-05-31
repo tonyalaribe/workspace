@@ -1,15 +1,10 @@
 package web
 
 import (
-	"encoding/base64"
 	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strconv"
-	"strings"
 
 	"github.com/Jeffail/gabs"
 	"github.com/boltdb/bolt"
@@ -36,31 +31,7 @@ type Files struct {
 	UploadDate string `json:"uploadDate"`
 }
 
-func Base64ToFileSystem(b64 string, location string) string {
-	if len(strings.Split(b64, "base64,")) < 2 {
-		return b64
-	}
-	byt, err := base64.StdEncoding.DecodeString(strings.Split(b64, "base64,")[1])
-	if err != nil {
-		log.Println(err)
-		//Cant decode string, so its probably an already processed url.
-		return b64
-	}
-
-	meta := strings.Split(b64, "base64,")[0]
-	filename := strings.Replace(strings.Split(meta, "name=")[1], ";", "", -1)
-
-	fullPath := filepath.Join(location, filename)
-	err = ioutil.WriteFile(fullPath, byt, 0644)
-	if err != nil {
-		log.Println(err)
-	}
-	return fullPath
-}
-
 func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
-	username := r.Context().Value("username").(string)
-
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
 	formID := httprouterParams.ByName("formID")
@@ -70,66 +41,54 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
-	log.Printf("%+v", submission)
 
 	conf := config.Get()
-
 	//Get the form metadata
 	var formInfoByte []byte
 	conf.DB.View(func(tx *bolt.Tx) error {
 		formMetaBucket := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).Bucket([]byte(workspaceID)).Bucket([]byte(config.FORMS_METADATA))
-
 		formInfoByte = formMetaBucket.Get([]byte(formID))
-
 		return nil
 	})
+
 	formInfo, err := gabs.ParseJSON(formInfoByte)
 	if err != nil {
 		log.Println(err)
 	}
-	log.Printf("%+v", formInfo)
 
-	// schema := formInfo["jsonschema"].(map[string]interface{})
 	schema := formInfo.Path("jsonschema")
-
 	for k, v := range submission.FormData {
 		schemaObject := schema.Path("properties").Search(k)
-
 		switch schemaObject.Path("type").Data().(string) {
 		case "string":
-
 			itemFormat := ""
-			// if schemaObject["format"] != nil {
-			// 	itemFormat = schemaObject["format"].(string)
-			// }
 			if schemaObject.ExistsP("format") {
 				itemFormat = schemaObject.Path("format").Data().(string)
 			}
 			switch itemFormat {
 			case "data-uri", "data-url":
-				//file formatting
-				pathToSubmission := filepath.Join(conf.RootDirectory, username, submission.SubmissionName)
-				os.MkdirAll(pathToSubmission, os.ModePerm)
-				fullPath := Base64ToFileSystem(v.(string), pathToSubmission)
-				submission.FormData[k] = fullPath
+				pathToItem, err := conf.FileManager.Save(submission.SubmissionName, workspaceID, v.(string))
+				if err != nil {
+					log.Println(err)
+				}
+				submission.FormData[k] = pathToItem
 				break
 			default:
 				submission.FormData[k] = v.(string)
 			}
 
 		case "array":
-
 			switch schemaObject.Path("items.type").Data().(string) {
 			case "string":
 				switch schemaObject.Path("items.format").Data().(string) {
 				case "data-url":
 					items := []string{}
 					for _, item := range v.([]interface{}) {
-						log.Println("data-uri processing")
-						pathToSubmission := filepath.Join(conf.RootDirectory, username, submission.SubmissionName)
-						os.MkdirAll(pathToSubmission, os.ModePerm)
-						fullPath := Base64ToFileSystem(item.(string), pathToSubmission)
-						items = append(items, fullPath)
+						pathToItem, err := conf.FileManager.Save(submission.SubmissionName, workspaceID, item.(string))
+						if err != nil {
+							log.Println(err)
+						}
+						items = append(items, pathToItem)
 					}
 					submission.FormData[k] = items
 				}
@@ -191,8 +150,6 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
-	username := r.Context().Value("username").(string)
-
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
 	formID := httprouterParams.ByName("formID")
@@ -249,19 +206,17 @@ func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 		switch schemaObject.Path("type").Data().(string) {
 		case "string":
 			itemFormat := ""
-			// if schemaObject["format"] != nil {
-			// 	itemFormat = schemaObject["format"].(string)
-			// }
 			if schemaObject.ExistsP("format") {
 				itemFormat = schemaObject.Path("format").Data().(string)
 			}
 			switch itemFormat {
 			case "data-uri", "data-url":
 				//file formatting
-				pathToSubmission := filepath.Join(conf.RootDirectory, username, newSubmission.SubmissionName)
-				os.MkdirAll(pathToSubmission, os.ModePerm)
-				fullPath := Base64ToFileSystem(v.(string), pathToSubmission)
-				oldSubmission.FormData[k] = fullPath
+				pathToItem, err := conf.FileManager.Save(newSubmission.SubmissionName, workspaceID, v.(string))
+				if err != nil {
+					log.Println(err)
+				}
+				oldSubmission.FormData[k] = pathToItem
 				break
 			default:
 				oldSubmission.FormData[k] = v.(string)
@@ -275,11 +230,11 @@ func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 				case "data-url":
 					items := []string{}
 					for _, item := range v.([]interface{}) {
-						log.Println("data-uri processing")
-						pathToSubmission := filepath.Join(conf.RootDirectory, username, newSubmission.SubmissionName)
-						os.MkdirAll(pathToSubmission, os.ModePerm)
-						fullPath := Base64ToFileSystem(item.(string), pathToSubmission)
-						items = append(items, fullPath)
+						pathToItem, err := conf.FileManager.Save(newSubmission.SubmissionName, workspaceID, item.(string))
+						if err != nil {
+							log.Println(err)
+						}
+						items = append(items, pathToItem)
 					}
 					oldSubmission.FormData[k] = items
 				}
@@ -322,8 +277,6 @@ func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetSubmissionsHandler(w http.ResponseWriter, r *http.Request) {
-	// username := r.Context().Value("username").(string)
-
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
 	formID := httprouterParams.ByName("formID")

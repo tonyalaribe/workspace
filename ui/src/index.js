@@ -4,6 +4,7 @@ import App from './App';
 import { Provider } from "mobx-react";
 import {MainStore} from "./stores/mainStore.js";
 import './index.css';
+import './assets/animate.css';
 
 ReactDOM.render(
   <Provider MainStore={MainStore}>

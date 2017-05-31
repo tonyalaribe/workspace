@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/boltdb/bolt"
+	"gitlab.com/middlefront/workspace/filePersistence"
 )
 
 type Config struct {
@@ -14,6 +15,11 @@ type Config struct {
 	BoltFile          string
 	SubmissionsBucket []byte
 	DB                *bolt.DB
+	FileManager       FileManager
+}
+
+type FileManager interface {
+	Save(name string, workspace string, b64Data string) (string, error)
 }
 
 var (
@@ -45,6 +51,9 @@ func Init() {
 
 	log.Println(db.GoString())
 	config.DB = db
+
+	config.FileManager = filePersistence.FilePersister{RootDirectory: config.RootDirectory}
+
 }
 
 func Get() *Config {
