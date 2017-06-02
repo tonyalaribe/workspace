@@ -71,8 +71,40 @@ func GetUserInfoFromToken(next http.Handler) http.Handler {
 			log.Println(err)
 		}
 
-		ctx := context.WithValue(r.Context(), "username", responseMap["username"].(string))
+		/* map[string]interface {}{"picture":"https://s.gravatar.com/avatar/b87d99b15e2a5bc064e7a0ad44cf1e24?s=480&r=pg&d=https%3A%2F%2Fcdn.auth0.com%2Favatars%2Fan.png", "nickname":"tonyalaribe",
+		    "updated_at":"2017-05-31T14:19:06.627Z",
+		    "identities":[]interface {}{map[string]interface {}{
+		    	"user_id":"58d3e3eec1002318c624c24d",
+		   	"provider":"auth0",
+		   	"connection":"Username-Password-Authentication",
+		   	"isSocial":false
+		   	}},
+		   	"email":"anthonyalaribe@gmail.com",
+		   	"name":"anthonyalaribe@gmail.com",
+		   	"email_verified":true,
+		   	"clientID":"yqZpzeiFgoapsnpczQHIz0t6XoZjvEjL", "user_id":"auth0|58d3e3eec1002318c624c24d", "created_at":"2017-03-23T15:04:14.544Z", "global_client_id":"KG2EO2ZSAH0qxSfaRB0Ru61sTKoFCqeF", "username":"tonyalaribe"}*/
+
+		username := responseMap["username"].(string)
+		user, err := User{}.Get(username)
+
+		if err != nil {
+			log.Println(err)
+			//User doesnt exist, so create the user in the local store
+			user.Username = responseMap["username"].(string)
+			user.Email = responseMap["email"].(string)
+			user.Name = responseMap["name"].(string)
+			user.ProviderUserID = responseMap["user_id"].(string)
+			err = user.Create()
+			if err != nil {
+				log.Println(err)
+			}
+		}
+
+		ctx := context.WithValue(r.Context(), "username", username)
+		ctx2 := context.WithValue(r.Context(), "user", user)
+
 		r = r.WithContext(ctx)
+		r = r.WithContext(ctx2)
 
 		next.ServeHTTP(w, r)
 	}

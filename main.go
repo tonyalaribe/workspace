@@ -69,7 +69,6 @@ func main() {
 			if len(secret) == 0 {
 				log.Fatal("AUTH0_CLIENT_SECRET is not set")
 			}
-
 			return secret, nil
 		},
 	})
@@ -79,19 +78,18 @@ func main() {
 	router := NewRouter()
 
 	router.Post("/api/new_workspace", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.CreateWorkspaceHandler))
-	router.Get("/api/workspaces", commonHandlers.ThenFunc(web.GetWorkspacesHandler))
-	router.Get("/api/workspaces/:workspaceID", commonHandlers.ThenFunc(web.GetWorkspaceBySlugHandler))
+	router.Get("/api/workspaces", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.GetWorkspacesHandler))
+	router.Get("/api/workspaces/:workspaceID", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.GetWorkspaceBySlugHandler))
 
-	router.Get("/api/workspaces/:workspaceID/forms", commonHandlers.ThenFunc(web.GetFormsHandler))
-	router.Post("/api/workspaces/:workspaceID/new_form", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.CreateFormHandler))
-	router.Get("/api/workspaces/:workspaceID/forms/:formID", commonHandlers.ThenFunc(web.GetFormBySlugHandler))
+	router.Get("/api/workspaces/:workspaceID/forms", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.GetFormsHandler))
+	router.Post("/api/workspaces/:workspaceID/new_form", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.CreateFormHandler))
+	router.Get("/api/workspaces/:workspaceID/forms/:formID", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.GetFormBySlugHandler))
 
 	router.Post("/api/workspaces/:workspaceID/forms/:formID/new_submission", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.NewFormSubmissionHandler))
-	// router.Post("/api/workspaces/:workspaceID/forms/:formID/new_submission", commonHandlers.ThenFunc(web.NewFormSubmissionHandler))
 
-	router.Get("/api/workspaces/:workspaceID/forms/:formID/submissions", commonHandlers.ThenFunc(web.GetSubmissionsHandler))
+	router.Get("/api/workspaces/:workspaceID/forms/:formID/submissions", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.GetSubmissionsHandler))
 
-	router.Get("/api/workspaces/:workspaceID/forms/:formID/submissions/:submissionID", commonHandlers.ThenFunc(web.GetSubmissionInfoHandler))
+	router.Get("/api/workspaces/:workspaceID/forms/:formID/submissions/:submissionID", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.GetSubmissionInfoHandler))
 	router.Put("/api/workspaces/:workspaceID/forms/:formID/submissions/:submissionID", commonHandlers.Append(authMiddleware.Handler, web.GetUserInfoFromToken).ThenFunc(web.UpdateSubmissionHandler))
 
 	router.Get("/", commonHandlers.ThenFunc(web.HomePageHandler))
