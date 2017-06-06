@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/Jeffail/gabs"
 )
 
 // Middlewares
@@ -65,35 +67,27 @@ func GetUserInfoFromToken(next http.Handler) http.Handler {
 			log.Println(err)
 		}
 
-		responseMap := make(map[string]interface{})
-		err = json.NewDecoder(res.Body).Decode(&responseMap)
+		jsonDecoder := json.NewDecoder(res.Body)
+
+		responseObject, err := gabs.ParseJSONDecoder(jsonDecoder)
 		if err != nil {
 			log.Println(err)
 		}
 
-		/* map[string]interface {}{"picture":"https://s.gravatar.com/avatar/b87d99b15e2a5bc064e7a0ad44cf1e24?s=480&r=pg&d=https%3A%2F%2Fcdn.auth0.com%2Favatars%2Fan.png", "nickname":"tonyalaribe",
-		    "updated_at":"2017-05-31T14:19:06.627Z",
-		    "identities":[]interface {}{map[string]interface {}{
-		    	"user_id":"58d3e3eec1002318c624c24d",
-		   	"provider":"auth0",
-		   	"connection":"Username-Password-Authentication",
-		   	"isSocial":false
-		   	}},
-		   	"email":"anthonyalaribe@gmail.com",
-		   	"name":"anthonyalaribe@gmail.com",
-		   	"email_verified":true,
-		   	"clientID":"yqZpzeiFgoapsnpczQHIz0t6XoZjvEjL", "user_id":"auth0|58d3e3eec1002318c624c24d", "created_at":"2017-03-23T15:04:14.544Z", "global_client_id":"KG2EO2ZSAH0qxSfaRB0Ru61sTKoFCqeF", "username":"tonyalaribe"}*/
+		log.Println(responseObject)
+		username := responseObject.Path("username").Data().(string)
 
-		username := responseMap["username"].(string)
 		user, err := User{}.Get(username)
-
+		log.Printf("%#v", user)
 		if err != nil {
 			log.Println(err)
 			//User doesnt exist, so create the user in the local store
-			user.Username = responseMap["username"].(string)
-			user.Email = responseMap["email"].(string)
-			user.Name = responseMap["name"].(string)
-			user.ProviderUserID = responseMap["user_id"].(string)
+			user.Username = responseObject.Path("username").Data().(string)
+			user.Email = responseObject.Path("email").Data().(string)
+			user.Name = responseObject.Path("name").Data().(string)
+			user.ProviderUserID = responseObject.Path("user_id").Data().(string)
+			user.Roles = responseObject.Path("app_metadata.roles").Data().([]string)
+			log.Printf("%#v", user)
 			err = user.Create()
 			if err != nil {
 				log.Println(err)

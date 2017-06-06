@@ -9,6 +9,7 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/julienschmidt/httprouter"
 	"github.com/metal3d/go-slugify"
+	"github.com/mikespook/gorbac"
 	"gitlab.com/middlefront/workspace/config"
 )
 
@@ -76,6 +77,8 @@ func CreateWorkspaceHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetWorkspacesHandler(w http.ResponseWriter, r *http.Request) {
+	user := r.Context().Value("user").(User)
+	log.Printf("%#v", user)
 
 	workspaces := []WorkSpace{}
 
@@ -96,8 +99,16 @@ func GetWorkspacesHandler(w http.ResponseWriter, r *http.Request) {
 		return nil
 	})
 
+	finalWorkspaces := []WorkSpace{}
+	for _, v := range workspaces {
+		workspacePermissionString := "view-" + v.ID
+		workspacePermission := gorbac.NewStdPermission(workspacePermissionString)
+		if gorbac.AnyGranted(conf.RolesManager, user.Roles, workspacePermission, nil) {
+			finalWorkspaces = append(finalWorkspaces, v)
+		}
+	}
 	w.Header().Set("Content-type", "application/json")
-	err := json.NewEncoder(w).Encode(workspaces)
+	err := json.NewEncoder(w).Encode(finalWorkspaces)
 	if err != nil {
 		log.Println(err)
 	}
