@@ -2,32 +2,16 @@ import React, {Component} from 'react';
 import Nav from '../components/nav.js';
 import {inject, observer} from 'mobx-react';
 import {Link} from 'react-router-dom';
-import Modal from '../components/modal.js';
 
 
 @inject('MainStore')
 @observer
 class ListOfWorkspaces extends Component {
-  constructor () {
-    super();
-    this.state = {
-      showModal: false
-    };
-
-    this.handleOpenModal = this.handleOpenModal.bind(this);
-    this.handleCloseModal = this.handleCloseModal.bind(this);
-  }
 
   componentDidMount() {
     this.props.MainStore.getAllWorkspaces();
   }
-  handleOpenModal () {
-    this.setState({ showModal: true });
-  }
 
-  handleCloseModal () {
-    this.setState({ showModal: false });
-  }
 
   render() {
     let {MainStore} = this.props;
@@ -66,8 +50,7 @@ class ListOfWorkspaces extends Component {
                 >
                   New Workspace
                 </Link>
-                <a href="#" className="dib link pa2 navy" onClick={this.handleOpenModal}>⚙ &nbsp;settings</a>
-                <Modal openModal={this.state.showModal} closeModal={this.handleCloseModal}/>
+
               </div>
             </div>
             <section>

@@ -23,13 +23,14 @@ type WorkSpace struct {
 func CreateWorkspaceHandler(w http.ResponseWriter, r *http.Request) {
 
 	workspaceData := WorkSpace{}
+	user := r.Context().Value("user").(User)
 
 	err := json.NewDecoder(r.Body).Decode(&workspaceData)
 	if err != nil {
 		log.Println(err)
 	}
 
-	workspaceData.Creator = r.Context().Value("username").(string)
+	workspaceData.Creator = user.Username
 	workspaceData.ID = slugify.Marshal(workspaceData.Name, true)
 	workspaceData.Created = int(time.Now().UnixNano() / 1000000) //Get the time since epoch in milli seconds (javascript date compatible)
 
@@ -65,6 +66,28 @@ func CreateWorkspaceHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 	tx.Commit()
+
+	spectator := gorbac.NewStdRole(workspaceData.ID + "-spectator")
+	spectator.Assign(gorbac.NewStdPermission("view-" + workspaceData.ID))
+	conf.RolesManager.Add(spectator)
+
+	editor := gorbac.NewStdRole(workspaceData.ID + "-editor")
+	editor.Assign(gorbac.NewStdPermission("edit-" + workspaceData.ID))
+	conf.RolesManager.Add(editor)
+
+	supervisor := gorbac.NewStdRole(workspaceData.ID + "-supervisor")
+	supervisor.Assign(gorbac.NewStdPermission("approve-" + workspaceData.ID))
+	conf.RolesManager.Add(supervisor)
+
+	admin := gorbac.NewStdRole(workspaceData.ID + "-admin")
+	admin.Assign(gorbac.NewStdPermission("admin-" + workspaceData.ID))
+	conf.RolesManager.Add(admin)
+
+	conf.RolesManager.SetParent(workspaceData.ID+"-editor", workspaceData.ID+"-spectator")
+	conf.RolesManager.SetParent(workspaceData.ID+"-supervisor", workspaceData.ID+"-editor")
+	conf.RolesManager.SetParent(workspaceData.ID+"-admin", workspaceData.ID+"-supervisor")
+
+	conf.RolesManager.SetParent("superadmin", workspaceData.ID+"-admin")
 
 	message := make(map[string]interface{})
 	message["code"] = 200
@@ -109,6 +132,58 @@ func GetWorkspacesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-type", "application/json")
 	err := json.NewEncoder(w).Encode(finalWorkspaces)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func GetWorkspaceUsersAndRolesHandler(w http.ResponseWriter, r *http.Request) {
+	// user := r.Context().Value("user").(User)
+	// log.Printf("%#v", user)
+	workspaceID := r.URL.Query().Get("w")
+
+	workspace := WorkSpace{}
+	users := []User{}
+
+	conf := config.Get()
+	conf.DB.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(config.USERS_BUCKET))
+		b.ForEach(func(_ []byte, v []byte) error {
+
+			user := User{}
+			err := json.Unmarshal(v, &user)
+			if err != nil {
+				return err
+			}
+			users = append(users, user)
+
+			return nil
+		})
+
+		w := tx.Bucket([]byte(config.WORKSPACES_METADATA))
+		wByte := w.Get([]byte(workspaceID))
+		err := json.Unmarshal(wByte, &workspace)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	log.Println(users)
+	finalUsers := []User{}
+	for _, u := range users {
+		log.Println(u)
+		workspacePermissionString := "view-" + workspace.ID
+		log.Println(workspacePermissionString)
+		workspacePermission := gorbac.NewStdPermission(workspacePermissionString)
+
+		if gorbac.AnyGranted(conf.RolesManager, u.Roles, workspacePermission, nil) {
+			log.Println("granted final users access")
+			finalUsers = append(finalUsers, u)
+		}
+	}
+
+	w.Header().Set("Content-type", "application/json")
+	err := json.NewEncoder(w).Encode(finalUsers)
 	if err != nil {
 		log.Println(err)
 	}

@@ -2,17 +2,38 @@ import React, { Component } from "react";
 import Nav from "../components/nav.js";
 import { inject, observer } from "mobx-react";
 import { Link } from "react-router-dom";
+import Modal from '../components/modal.js';
 
 @inject("MainStore")
 @observer
 class ListOfForms extends Component {
+	constructor () {
+		super();
+		this.state = {
+			showModal: false
+		};
+
+		this.handleOpenModal = this.handleOpenModal.bind(this);
+		this.handleCloseModal = this.handleCloseModal.bind(this);
+	}
+
 	componentDidMount() {
 		let {workspaceID} = this.props.match.params;
 
 		let {MainStore} = this.props;
     MainStore.getAllForms(workspaceID);
 		MainStore.getAllWorkspaces();
+
+
 	}
+	handleOpenModal () {
+		this.setState({ showModal: true });
+	}
+
+	handleCloseModal () {
+		this.setState({ showModal: false });
+	}
+
 	componentWillUpdate(nextProps, nextState) {
 		if (this.props.location.pathname !== nextProps.location.pathname) {
 			this.props.MainStore.getAllForms(nextProps.match.params.workspaceID);
@@ -69,13 +90,18 @@ class ListOfForms extends Component {
 							{AllWorkspaces}
 						</div><div className="w-70 dib v-top">
 							<div className="pv3 cf">
-								<Link
-									to={"/workspaces/" + workspaceID + "/new_form"}
-									className="ph3 pv2 ba fr link navy dib grow"
-								>
-									New Forms
-								</Link>
+								<div className=" fr ">
+										<Link
+										to={"/workspaces/" + workspaceID + "/new_form"}
+										className="ph3 pv2 ba link navy dib grow"
+									>
+										New Forms
+									</Link>
+									<a href="#" className="dib link pa2 navy" onClick={this.handleOpenModal}>⚙ &nbsp;settings</a>
+									<Modal openModal={this.state.showModal} closeModal={this.handleCloseModal}/>
+								</div>
 								<span className="navy w-100 v-btm">All Available Forms</span>
+
 							</div>
 							<section>
 								{AllForms}

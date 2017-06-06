@@ -33,8 +33,6 @@ func SetupSuperAdmin(w http.ResponseWriter, r *http.Request) {
 
 	byteReader := bytes.NewReader(patchObject.Bytes())
 
-	log.Println(adminUser.ProviderUserID)
-	log.Println(adminUser)
 	req, err := http.NewRequest("PATCH", "https://emikra.auth0.com/api/v2/users/"+adminUser.ProviderUserID, byteReader)
 	if err != nil {
 		log.Println(err)
@@ -69,6 +67,17 @@ func SetupSuperAdmin(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("%#v", user)
 	err = user.Create()
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func UsersAndWorkspaceRoles(w http.ResponseWriter, r *http.Request) {
+	users, err := User{}.GetAll()
+	if err != nil {
+		log.Println(err)
+	}
+	err = json.NewEncoder(w).Encode(users)
 	if err != nil {
 		log.Println(err)
 	}
@@ -115,4 +124,33 @@ func (user User) Get(username string) (User, error) {
 		return existingUser, err
 	}
 	return existingUser, nil
+}
+
+func (user User) GetAll() ([]User, error) {
+	conf := config.Get()
+	users := []User{}
+
+	err := conf.DB.View(func(tx *bolt.Tx) error {
+		usersBucket := tx.Bucket([]byte(config.USERS_BUCKET))
+		err := usersBucket.ForEach(func(k []byte, v []byte) error {
+			user := User{}
+			err := json.Unmarshal(v, &user)
+			if err != nil {
+				log.Println(err)
+			}
+			users = append(users, user)
+
+			return nil
+		})
+		if err != nil {
+			log.Println(err)
+		}
+		return nil
+	})
+
+	if err != nil {
+		return users, err
+	}
+
+	return users, nil
 }

@@ -61,24 +61,19 @@ func GetUserInfoFromToken(next http.Handler) http.Handler {
 		}
 
 		req.Header.Set("Content-type", "application/json")
-
 		res, err := client.Do(req)
 		if err != nil {
 			log.Println(err)
 		}
 
 		jsonDecoder := json.NewDecoder(res.Body)
-
 		responseObject, err := gabs.ParseJSONDecoder(jsonDecoder)
 		if err != nil {
 			log.Println(err)
 		}
 
-		log.Println(responseObject)
 		username := responseObject.Path("username").Data().(string)
-
 		user, err := User{}.Get(username)
-		log.Printf("%#v", user)
 		if err != nil {
 			log.Println(err)
 			//User doesnt exist, so create the user in the local store
@@ -93,13 +88,8 @@ func GetUserInfoFromToken(next http.Handler) http.Handler {
 				log.Println(err)
 			}
 		}
-
-		ctx := context.WithValue(r.Context(), "username", username)
-		ctx2 := context.WithValue(r.Context(), "user", user)
-
+		ctx := context.WithValue(r.Context(), "user", user)
 		r = r.WithContext(ctx)
-		r = r.WithContext(ctx2)
-
 		next.ServeHTTP(w, r)
 	}
 
