@@ -21,25 +21,25 @@ class permissionsStore {
 			});
 		};
 
-// @action submitNewWorkspaceToServer = async (workspace, callback) => {
-// 	let authToken = AuthService.getToken();
-//
-// 	const response = await fetch("/api/new_workspace", {
-// 		method: "POST",
-// 		body: JSON.stringify(workspace),
-// 		mode: "cors",
-// 		headers: {
-// 			"Content-type": "application/json",
-// 			authorization: "Bearer " + authToken
-// 		}
-// 	});
-// 	const data = await response.json();
-// 	/* required in strict mode to be allowed to update state: */
-// 	runInAction("update state after fetching data", () => {
-// 		console.log(data);
-// 		callback();
-// 	});
-// };
+	@action updateUserWorkspacePermissions = async (workspaceiD,permissions, callback) => {
+		let authToken = AuthService.getToken();
+
+		const response = await fetch("/api/workspaces/:workspaceID/permissions", {
+			method: "POST",
+			body: JSON.stringify(permissions),
+			mode: "cors",
+			headers: {
+				"Content-type": "application/json",
+				authorization: "Bearer " + authToken
+			}
+		});
+		const data = await response.json();
+		/* required in strict mode to be allowed to update state: */
+		runInAction("update state after fetching data", () => {
+			console.log(data);
+			callback();
+		});
+	};
 
 }
 

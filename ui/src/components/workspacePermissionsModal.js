@@ -5,9 +5,25 @@ import { withRouter } from 'react-router'
 @inject('MainStore','PermissionsStore')
 @observer
 class modal extends Component {
+  constructor(props){
+    super(props)
+    this.AddCollaborator = this.AddCollaborator.bind(this)
+  }
   componentDidMount(){
     console.log(this.props.match.params.workspaceID)
     this.props.PermissionsStore.getWorkspaceUsersAndRoles(this.props.match.params.workspaceID)
+  }
+  AddCollaborator(){
+    let permissions = {}
+    permissions.email = this.refs.email.value
+    permissions.role = this.refs.role.value
+    console.log(permissions)
+
+    let {PermissionsStore,match, closeModal} = this.props
+
+    PermissionsStore.updateUserWorkspacePermissions(match.params.workspaceID, permissions, ()=>{
+      closeModal()
+    })
   }
   render(){
     let {openModal,closeModal} = this.props;
@@ -41,25 +57,37 @@ class modal extends Component {
                       </small>
                     </div>
                     <div className="dib fr ">
-                      <select>
-                        <option>Spectator (can view)</option>
-                        <option>can edit</option>
-                      </select>
+                      {
+                        user.CurrentRoleString=="superadmin"?
+                        <div>
+                          <span>superadmin</span>
+                        </div>
+                        :
+                        <select>
+                          <option>Spectator (can view)</option>
+                          <option>can edit</option>
+                        </select>
+                      }
                     </div>
                   </div>)
                 })
 
               }
 
-                <div className="pv3 ph2 mv3  bt bb bw-tiny b--light-gray bg-near-white">
+                <div className="pv3 ph2 mv3  bt bb bw-tiny b--light-gray bg-near-white cf">
                   <div className="dib">
-                    <input type="" className="pv2 ph3 w-100" />
+                    <input type="email" className="pv2 ph3 w-100" placeholder="email" ref="email"/>
                   </div>
                   <div className="dib fr ">
-                    <select>
-                      <option>Spectator (can view)</option>
-                      <option>can edit</option>
+                    <select ref="role">
+                      <option value="spectator">Spectator (can view)</option>
+                      <option value="editor">Editor (can edit)</option>
+                      <option value="supervisor">Supervisor (can approve)</option>
+                      <option value="admin">Admin (admin)</option>
                     </select>
+                  </div>
+                  <div className="pv2 tr">
+                    <button className="bg-navy bw0 shadow-4 pv2 ph3 white-80 grow" onClick={this.AddCollaborator}>add collaborator</button>
                   </div>
                 </div>
 

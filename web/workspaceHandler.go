@@ -175,10 +175,18 @@ func GetWorkspaceUsersAndRolesHandler(w http.ResponseWriter, r *http.Request) {
 		workspacePermissionString := "view-" + workspace.ID
 		log.Println(workspacePermissionString)
 		workspacePermission := gorbac.NewStdPermission(workspacePermissionString)
-
-		if gorbac.AnyGranted(conf.RolesManager, u.Roles, workspacePermission, nil) {
-			log.Println("granted final users access")
-			finalUsers = append(finalUsers, u)
+		//
+		// if gorbac.AnyGranted(conf.RolesManager, u.Roles, workspacePermission, nil) {
+		// 	log.Println("granted final users access")
+		// 	finalUsers = append(finalUsers, u)
+		// }
+		for _, v := range u.Roles {
+			if conf.RolesManager.IsGranted(v, workspacePermission, nil) {
+				log.Println("granted final users access")
+				u.CurrentRoleString = v
+				finalUsers = append(finalUsers, u)
+				continue
+			}
 		}
 	}
 
