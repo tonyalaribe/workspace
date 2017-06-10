@@ -71,8 +71,9 @@ func GetUserInfoFromToken(next http.Handler) http.Handler {
 		if err != nil {
 			log.Println(err)
 		}
-
+		log.Println(responseObject.String())
 		username := responseObject.Path("username").Data().(string)
+
 		user, err := User{}.Get(username)
 		if err != nil {
 			log.Println(err)
@@ -81,7 +82,9 @@ func GetUserInfoFromToken(next http.Handler) http.Handler {
 			user.Email = responseObject.Path("email").Data().(string)
 			user.Name = responseObject.Path("name").Data().(string)
 			user.ProviderUserID = responseObject.Path("user_id").Data().(string)
-			user.Roles = responseObject.Path("app_metadata.roles").Data().([]string)
+			if responseObject.ExistsP("app_metadata.roles") {
+				user.Roles = responseObject.Path("app_metadata.roles").Data().([]string)
+			}
 			log.Printf("%#v", user)
 			err = user.Create()
 			if err != nil {
