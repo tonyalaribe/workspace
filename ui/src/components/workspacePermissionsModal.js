@@ -10,14 +10,12 @@ class modal extends Component {
     this.AddCollaborator = this.AddCollaborator.bind(this)
   }
   componentDidMount(){
-    console.log(this.props.match.params.workspaceID)
     this.props.PermissionsStore.getWorkspaceUsersAndRoles(this.props.match.params.workspaceID)
   }
   AddCollaborator(){
     let permissions = {}
     permissions.email = this.refs.email.value
     permissions.role = this.refs.role.value
-    console.log(permissions)
 
     let {PermissionsStore,match, closeModal} = this.props
 
@@ -40,13 +38,14 @@ class modal extends Component {
           <div>
             <div className="w-20 dib fl br1 ph2 pv3">
               <a className="dib pv2 ph3 hover-bg-light-gray w-100">permissions</a>
-
             </div>
             <div className="w-80 dib fl ph2 pv3">
               <h4 className="ma0 pv2 pb3 fw4 ph2">who has access</h4>
               <div>
 
                 {WorkspaceUsers.map(function(user, key){
+                  let roleComponents = user.CurrentRoleString.split("-")
+                  let roleLevel = roleComponents[roleComponents.length -1]
                   return (<div className="pv3 ph2 bt bb bw-tiny b--light-gray" key={key}>
                     <div className="dib">
                       <span className="db">
@@ -58,14 +57,16 @@ class modal extends Component {
                     </div>
                     <div className="dib fr ">
                       {
-                        user.CurrentRoleString=="superadmin"?
+                        user.CurrentRoleString==="superadmin"?
                         <div>
                           <span>superadmin</span>
                         </div>
                         :
-                        <select>
-                          <option>Spectator (can view)</option>
-                          <option>can edit</option>
+                        <select defaultValue={roleLevel}>
+                          <option value="spectator"  >Spectator (can view)</option>
+                          <option value="editor">Editor (can edit)</option>
+                          <option value="supervisor">Supervisor (can approve)</option>
+                          <option value="admin" >Admin (admin)</option>
                         </select>
                       }
                     </div>

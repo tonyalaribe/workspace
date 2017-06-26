@@ -152,7 +152,6 @@ class mainStore {
 		const data = await response.json();
 		/* required in strict mode to be allowed to update state: */
 		runInAction("update state after fetching data", () => {
-			console.log(data);
 			this.AllWorkspaces.replace(data);
 		});
 	};
