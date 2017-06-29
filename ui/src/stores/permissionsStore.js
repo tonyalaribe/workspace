@@ -36,6 +36,7 @@ class permissionsStore {
 		const data = await response.json();
 		/* required in strict mode to be allowed to update state: */
 		runInAction("update state after fetching data", () => {
+			permissionsStore.getWorkspaceUsersAndRoles(workspaceID)
 			console.log(data);
 			callback();
 		});

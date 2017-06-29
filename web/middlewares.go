@@ -93,8 +93,10 @@ func GetUserInfoFromToken(next http.Handler) http.Handler {
 				log.Println(err)
 			}
 		}
-		ctx := context.WithValue(r.Context(), "user", user)
-		r = r.WithContext(ctx)
+
+		r = r.WithContext(context.WithValue(r.Context(), "user", user))
+		r = r.WithContext(context.WithValue(r.Context(), "username", user.Username))
+
 		next.ServeHTTP(w, r)
 	}
 

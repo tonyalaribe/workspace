@@ -1,0 +1,13 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/Jeffail/gabs",
+			"repository": "https://github.com/Jeffail/gabs",
+			"vcs": "git",
+			"revision": "9cef256b595a9e616eb6aec1da446529b7705613",
+			"branch": "master",
+			"notests": true
+		}
+	]
+}
