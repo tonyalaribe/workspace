@@ -173,7 +173,7 @@ class DraftSubmissionInfoPage extends Component {
 							<button
 								className="pa3 bg-navy grow shadow-4  bw0 white-80 hover-white ml2 pointer"
 								onClick={() => {
-									STATUS = "publish";
+									STATUS = "published";
 									this.submitButton.click();
 								}}
 							>
