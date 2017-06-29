@@ -197,7 +197,6 @@ func SetupSuperAdmin(w http.ResponseWriter, r *http.Request) {
 	}
 	user := User{}
 
-	// log.Println(responseObject.String())
 	user.Username = responseObject.Path("username").Data().(string)
 	user.Email = responseObject.Path("email").Data().(string)
 	user.Name = responseObject.Path("name").Data().(string)
@@ -208,7 +207,6 @@ func SetupSuperAdmin(w http.ResponseWriter, r *http.Request) {
 		user.Roles = append(user.Roles, v.(string))
 	}
 
-	log.Printf("%#v", user)
 	err = user.Create()
 	if err != nil {
 		log.Println(err)

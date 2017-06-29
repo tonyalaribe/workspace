@@ -101,8 +101,6 @@ func CreateWorkspaceHandler(w http.ResponseWriter, r *http.Request) {
 
 func GetWorkspacesHandler(w http.ResponseWriter, r *http.Request) {
 	user := r.Context().Value("user").(User)
-	log.Printf("%#v", user)
-
 	workspaces := []WorkSpace{}
 
 	conf := config.Get()
@@ -138,10 +136,7 @@ func GetWorkspacesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetWorkspaceUsersAndRolesHandler(w http.ResponseWriter, r *http.Request) {
-	// user := r.Context().Value("user").(User)
-	// log.Printf("%#v", user)
 	workspaceID := r.URL.Query().Get("w")
-
 	workspace := WorkSpace{}
 	users := []User{}
 
@@ -149,14 +144,12 @@ func GetWorkspaceUsersAndRolesHandler(w http.ResponseWriter, r *http.Request) {
 	conf.DB.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(config.USERS_BUCKET))
 		b.ForEach(func(_ []byte, v []byte) error {
-
 			user := User{}
 			err := json.Unmarshal(v, &user)
 			if err != nil {
 				return err
 			}
 			users = append(users, user)
-
 			return nil
 		})
 
@@ -171,18 +164,11 @@ func GetWorkspaceUsersAndRolesHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println(users)
 	finalUsers := []User{}
 	for _, u := range users {
-		log.Println(u)
 		workspacePermissionString := "view-" + workspace.ID
 		log.Println(workspacePermissionString)
 		workspacePermission := gorbac.NewStdPermission(workspacePermissionString)
-		//
-		// if gorbac.AnyGranted(conf.RolesManager, u.Roles, workspacePermission, nil) {
-		// 	log.Println("granted final users access")
-		// 	finalUsers = append(finalUsers, u)
-		// }
 		for _, v := range u.Roles {
 			if conf.RolesManager.IsGranted(v, workspacePermission, nil) {
-				log.Println("granted final users access")
 				u.CurrentRoleString = v
 				finalUsers = append(finalUsers, u)
 				continue
@@ -198,11 +184,8 @@ func GetWorkspaceUsersAndRolesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetWorkspaceBySlugHandler(w http.ResponseWriter, r *http.Request) {
-
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
-
-	log.Println(workspaceID)
 	workspaceByte := []byte{}
 
 	conf := config.Get()
@@ -219,7 +202,6 @@ func GetWorkspaceBySlugHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-type", "application/json")
-
 	err = json.NewEncoder(w).Encode(workspace)
 	if err != nil {
 		log.Println(err)

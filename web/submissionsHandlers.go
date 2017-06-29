@@ -108,9 +108,9 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 
 		return nil
 	})
+
 	/*Save to boltdb*/
 	err = conf.DB.Update(func(tx *bolt.Tx) error {
-
 		formBucket := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).Bucket([]byte(workspaceID)).Bucket([]byte(formID))
 
 		nextID, err := formBucket.NextSequence()
@@ -180,6 +180,7 @@ func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+
 	oldSubmission.Status = newSubmission.Status
 	oldSubmission.LastModified = newSubmission.LastModified
 	oldSubmission.FormData = newSubmission.FormData
@@ -201,7 +202,6 @@ func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	for k, v := range newSubmission.FormData {
 
 		schemaObject := schema.Path("properties").Search(k)
-		log.Println(schemaObject)
 
 		switch schemaObject.Path("type").Data().(string) {
 		case "string":
@@ -223,7 +223,6 @@ func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 		case "array":
-
 			switch schemaObject.Path("items.type").Data().(string) {
 			case "string":
 				switch schemaObject.Path("items.format").Data().(string) {
@@ -281,8 +280,6 @@ func GetSubmissionsHandler(w http.ResponseWriter, r *http.Request) {
 	workspaceID := httprouterParams.ByName("workspaceID")
 	formID := httprouterParams.ByName("formID")
 
-	log.Printf("workspaceID: %s; formID: %s", workspaceID, formID)
-
 	submissionData := []SubmissionData{}
 	conf := config.Get()
 	var err error
@@ -322,13 +319,11 @@ func GetSubmissionInfoHandler(w http.ResponseWriter, r *http.Request) {
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
 	formID := httprouterParams.ByName("formID")
-	// log.Println(workspaceID)
 
 	submissionID, err := strconv.Atoi(httprouterParams.ByName("submissionID"))
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println(r.URL.String())
 
 	submissionData := SubmissionData{}
 	conf := config.Get()
@@ -339,7 +334,6 @@ func GetSubmissionInfoHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println(err)
 		}
-
 		return nil
 
 	})

@@ -22,7 +22,6 @@ type Form struct {
 func CreateFormHandler(w http.ResponseWriter, r *http.Request) {
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
-	log.Println(workspaceID)
 
 	formData := Form{}
 	err := json.NewDecoder(r.Body).Decode(&formData)
@@ -76,7 +75,6 @@ func CreateFormHandler(w http.ResponseWriter, r *http.Request) {
 func GetFormsHandler(w http.ResponseWriter, r *http.Request) {
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
-	log.Println(workspaceID)
 
 	forms := []Form{}
 
@@ -110,7 +108,6 @@ func GetFormBySlugHandler(w http.ResponseWriter, r *http.Request) {
 	workspaceID := httprouterParams.ByName("workspaceID")
 	formID := httprouterParams.ByName("formID")
 
-	log.Println(formID)
 	formByte := []byte{}
 
 	conf := config.Get()

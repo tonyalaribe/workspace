@@ -71,7 +71,7 @@ func GetUserInfoFromToken(next http.Handler) http.Handler {
 		if err != nil {
 			log.Println(err)
 		}
-		log.Println(responseObject.String())
+
 		username := responseObject.Path("username").Data().(string)
 
 		user, err := User{}.Get(username)
