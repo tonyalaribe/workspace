@@ -18,7 +18,7 @@ func initConfig() {
 	viper.SetConfigName(".workspace") // name of config file (without extension)
 	viper.AddConfigPath(".")          // The apps root root directory as first search path
 	viper.AddConfigPath("$HOME")      // adding home directory as second search path
-	viper.AutomaticEnv()              // read in environment variables that match
+	// viper.AutomaticEnv()              // read in environment variables that match
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
@@ -37,18 +37,27 @@ func initConfig() {
 
 	switch persistenceType {
 	case "s3":
-		creds := credentials.NewEnvCredentials()
+		// creds := credentials.NewEnvCredentials()
+		creds := credentials.NewStaticCredentials(viper.GetString("AWS_ACCESS_KEY_ID"), viper.GetString("AWS_SECRET_ACCESS_KEY"), "")
 		credValue, err := creds.Get()
 		if err != nil {
 			log.Fatal(err)
 		}
 		log.Printf("%#v", credValue)
-		sess := session.New(&aws.Config{
+		awsConfig := &aws.Config{
 			Credentials: creds,
-		})
+			Region:      aws.String(viper.GetString("AWS_REGION")),
+		}
+		endpoint := viper.GetString("AWS_ENDPOINT")
+		if endpoint != "" {
+			awsConfig.Endpoint = aws.String(endpoint)
+			awsConfig.DisableSSL = aws.Bool(true)
+			awsConfig.S3ForcePathStyle = aws.Bool(true)
+		}
+		sess := session.New(awsConfig)
 		config.FileManager = filePersistence.S3Persister{
 			AWSSession: sess,
-			BucketName: "test-past3",
+			BucketName: viper.GetString("AWS_S3_BUCKET"),
 		}
 		break
 	case "local":
