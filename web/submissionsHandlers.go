@@ -46,7 +46,7 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	//Get the form metadata
 	var formInfoByte []byte
 	conf.DB.View(func(tx *bolt.Tx) error {
-		formMetaBucket := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).Bucket([]byte(workspaceID)).Bucket([]byte(config.FORMS_METADATA))
+		formMetaBucket := tx.Bucket([]byte(conf.WorkspacesContainer)).Bucket([]byte(workspaceID)).Bucket([]byte(conf.FormsMetadata))
 		formInfoByte = formMetaBucket.Get([]byte(formID))
 		return nil
 	})
@@ -102,7 +102,7 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	conf.DB.Update(func(tx *bolt.Tx) error {
-		formMetaBucket := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).Bucket([]byte(workspaceID)).Bucket([]byte(config.FORMS_METADATA))
+		formMetaBucket := tx.Bucket([]byte(conf.WorkspacesContainer)).Bucket([]byte(workspaceID)).Bucket([]byte(conf.FormsMetadata))
 
 		formInfoByte = formMetaBucket.Get([]byte(formID))
 
@@ -111,7 +111,7 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 
 	/*Save to boltdb*/
 	err = conf.DB.Update(func(tx *bolt.Tx) error {
-		formBucket := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).Bucket([]byte(workspaceID)).Bucket([]byte(formID))
+		formBucket := tx.Bucket([]byte(conf.WorkspacesContainer)).Bucket([]byte(workspaceID)).Bucket([]byte(formID))
 
 		nextID, err := formBucket.NextSequence()
 		if err != nil {
@@ -169,7 +169,7 @@ func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	oldSubmission := SubmissionData{}
 	conf := config.Get()
 	err = conf.DB.View(func(tx *bolt.Tx) error {
-		formBucket := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).Bucket([]byte(workspaceID)).Bucket([]byte(formID))
+		formBucket := tx.Bucket([]byte(conf.WorkspacesContainer)).Bucket([]byte(workspaceID)).Bucket([]byte(formID))
 
 		err = json.Unmarshal(formBucket.Get(itob(submissionID)), &oldSubmission)
 		if err != nil {
@@ -188,7 +188,7 @@ func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	//Get the form meta data. SO
 	var formInfoByte []byte
 	conf.DB.View(func(tx *bolt.Tx) error {
-		formMetaBucket := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).Bucket([]byte(workspaceID)).Bucket([]byte(config.FORMS_METADATA))
+		formMetaBucket := tx.Bucket([]byte(conf.WorkspacesContainer)).Bucket([]byte(workspaceID)).Bucket([]byte(conf.FormsMetadata))
 
 		formInfoByte = formMetaBucket.Get([]byte(formID))
 		return nil
@@ -251,7 +251,7 @@ func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 	err = conf.DB.Update(func(tx *bolt.Tx) error {
-		formBucket := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).Bucket([]byte(workspaceID)).Bucket([]byte(formID))
+		formBucket := tx.Bucket([]byte(conf.WorkspacesContainer)).Bucket([]byte(workspaceID)).Bucket([]byte(formID))
 
 		err = formBucket.Put(itob(submissionID), dataByte)
 		if err != nil {
@@ -284,7 +284,7 @@ func GetSubmissionsHandler(w http.ResponseWriter, r *http.Request) {
 	conf := config.Get()
 	var err error
 	err = conf.DB.View(func(tx *bolt.Tx) error {
-		formBucket := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).Bucket([]byte(workspaceID)).Bucket([]byte(formID))
+		formBucket := tx.Bucket([]byte(conf.WorkspacesContainer)).Bucket([]byte(workspaceID)).Bucket([]byte(formID))
 
 		c := formBucket.Cursor()
 
@@ -328,7 +328,7 @@ func GetSubmissionInfoHandler(w http.ResponseWriter, r *http.Request) {
 	submissionData := SubmissionData{}
 	conf := config.Get()
 	err = conf.DB.View(func(tx *bolt.Tx) error {
-		formBucket := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).Bucket([]byte(workspaceID)).Bucket([]byte(formID))
+		formBucket := tx.Bucket([]byte(conf.WorkspacesContainer)).Bucket([]byte(workspaceID)).Bucket([]byte(formID))
 
 		err = json.Unmarshal(formBucket.Get(itob(submissionID)), &submissionData)
 		if err != nil {

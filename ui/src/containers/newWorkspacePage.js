@@ -29,7 +29,6 @@ class NewWorkspacePage extends Component {
     });
   }
   render() {
-    console.log(this.props)
     let {state} = this;
 
     return (

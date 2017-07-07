@@ -42,16 +42,16 @@ func CreateWorkspaceHandler(w http.ResponseWriter, r *http.Request) {
 	defer tx.Rollback()
 
 	//Create the bucket where forms under this workspace would be stored.
-	individualWorkspace, err := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).CreateBucketIfNotExists([]byte(workspaceData.ID))
+	individualWorkspace, err := tx.Bucket([]byte(conf.WorkspacesContainer)).CreateBucketIfNotExists([]byte(workspaceData.ID))
 	if err != nil {
 		log.Println(err)
 	}
-	_, err = individualWorkspace.CreateBucketIfNotExists([]byte(config.FORMS_METADATA))
+	_, err = individualWorkspace.CreateBucketIfNotExists([]byte(conf.FormsMetadata))
 	if err != nil {
 		log.Println(err)
 	}
 
-	metadata_bucket, err := tx.CreateBucketIfNotExists([]byte(config.WORKSPACES_METADATA))
+	metadata_bucket, err := tx.CreateBucketIfNotExists([]byte(conf.WorkspacesMetadata))
 	if err != nil {
 		log.Println(err)
 	}
@@ -105,7 +105,7 @@ func GetWorkspacesHandler(w http.ResponseWriter, r *http.Request) {
 
 	conf := config.Get()
 	conf.DB.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(config.WORKSPACES_METADATA))
+		b := tx.Bucket([]byte(conf.WorkspacesMetadata))
 		b.ForEach(func(_ []byte, v []byte) error {
 
 			workspace := WorkSpace{}
@@ -142,7 +142,7 @@ func GetWorkspaceUsersAndRolesHandler(w http.ResponseWriter, r *http.Request) {
 
 	conf := config.Get()
 	conf.DB.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(config.USERS_BUCKET))
+		b := tx.Bucket([]byte(conf.UsersBucket))
 		b.ForEach(func(_ []byte, v []byte) error {
 			user := User{}
 			err := json.Unmarshal(v, &user)
@@ -153,7 +153,7 @@ func GetWorkspaceUsersAndRolesHandler(w http.ResponseWriter, r *http.Request) {
 			return nil
 		})
 
-		w := tx.Bucket([]byte(config.WORKSPACES_METADATA))
+		w := tx.Bucket([]byte(conf.WorkspacesMetadata))
 		wByte := w.Get([]byte(workspaceID))
 		err := json.Unmarshal(wByte, &workspace)
 		if err != nil {
@@ -190,7 +190,7 @@ func GetWorkspaceBySlugHandler(w http.ResponseWriter, r *http.Request) {
 
 	conf := config.Get()
 	conf.DB.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(config.WORKSPACES_METADATA))
+		b := tx.Bucket([]byte(conf.WorkspacesMetadata))
 		workspaceByte = b.Get([]byte(workspaceID))
 		return nil
 	})

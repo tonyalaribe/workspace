@@ -39,9 +39,9 @@ func CreateFormHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer tx.Rollback()
 
-	currentWorkspaceBucket := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).Bucket([]byte(workspaceID))
+	currentWorkspaceBucket := tx.Bucket([]byte(conf.WorkspacesContainer)).Bucket([]byte(workspaceID))
 
-	formsMetaDataBucket, err := currentWorkspaceBucket.CreateBucketIfNotExists([]byte(config.FORMS_METADATA))
+	formsMetaDataBucket, err := currentWorkspaceBucket.CreateBucketIfNotExists([]byte(conf.FormsMetadata))
 	if err != nil {
 		log.Println(err)
 	}
@@ -80,7 +80,7 @@ func GetFormsHandler(w http.ResponseWriter, r *http.Request) {
 
 	conf := config.Get()
 	conf.DB.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).Bucket([]byte(workspaceID)).Bucket([]byte(config.FORMS_METADATA))
+		b := tx.Bucket([]byte(conf.WorkspacesContainer)).Bucket([]byte(workspaceID)).Bucket([]byte(conf.FormsMetadata))
 		b.ForEach(func(_ []byte, v []byte) error {
 
 			form := Form{}
@@ -112,7 +112,7 @@ func GetFormBySlugHandler(w http.ResponseWriter, r *http.Request) {
 
 	conf := config.Get()
 	conf.DB.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(config.WORKSPACES_CONTAINER)).Bucket([]byte(workspaceID)).Bucket([]byte(config.FORMS_METADATA))
+		b := tx.Bucket([]byte(conf.WorkspacesContainer)).Bucket([]byte(workspaceID)).Bucket([]byte(conf.FormsMetadata))
 		formByte = b.Get([]byte(formID))
 		return nil
 	})

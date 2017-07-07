@@ -17,23 +17,19 @@ class PublishedSubmissionInfoPage extends Component {
   render() {
     let {CurrentForm, SubmissionInfo} = this.props.MainStore;
     let jsonschema = CurrentForm.jsonschema;
-    
+
     let formFields = Object.keys(
       jsonschema.properties,
     ).reduce((previous, current) => {
       let value;
-      console.log(jsonschema.properties[current]);
-      console.log(SubmissionInfo)
       switch (jsonschema.properties[current].type) {
         case 'string':
-          console.log('type string');
-          console.log(jsonschema.properties[current].format);
           switch (jsonschema.properties[current].format) {
             case 'data-url':
               value = (
                 <a
                   target="_blank" className="db link pa3 mv1 shadow-4 navy underline-hover overflow-hidden"
-                  href={'/' + SubmissionInfo.formData[current]}
+                  href={ SubmissionInfo.formData[current]}
                 >
                   {SubmissionInfo.formData[current]}
                 </a>

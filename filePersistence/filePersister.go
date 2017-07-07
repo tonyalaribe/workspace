@@ -22,7 +22,7 @@ func (fp FilePersister) Save(name string, workspace string, b64Data string) (str
 		return "", err
 	}
 	fullPath := Base64ToFileSystem(b64Data, pathToSubmission)
-	return fullPath, nil
+	return filepath.Join("/", fullPath), nil
 }
 
 func Base64ToFileSystem(b64 string, location string) string {

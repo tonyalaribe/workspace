@@ -27,7 +27,7 @@ func (user User) Get(username string) (User, error) {
 	existingUser := User{}
 
 	err := conf.DB.View(func(tx *bolt.Tx) error {
-		usersBucket := tx.Bucket([]byte(config.USERS_BUCKET))
+		usersBucket := tx.Bucket([]byte(conf.UsersBucket))
 		userByte = usersBucket.Get([]byte(username))
 		return nil
 	})
@@ -37,7 +37,6 @@ func (user User) Get(username string) (User, error) {
 	}
 
 	err = json.Unmarshal(userByte, &existingUser)
-	log.Println(existingUser)
 	if err != nil {
 		return existingUser, err
 	}
@@ -49,7 +48,7 @@ func (user User) GetByEmail(email string) (User, error) {
 	result := User{}
 
 	err := conf.DB.View(func(tx *bolt.Tx) error {
-		usersBucket := tx.Bucket([]byte(config.USERS_BUCKET))
+		usersBucket := tx.Bucket([]byte(conf.UsersBucket))
 
 		c := usersBucket.Cursor()
 
@@ -77,7 +76,7 @@ func (user User) GetAll() ([]User, error) {
 	users := []User{}
 
 	err := conf.DB.View(func(tx *bolt.Tx) error {
-		usersBucket := tx.Bucket([]byte(config.USERS_BUCKET))
+		usersBucket := tx.Bucket([]byte(conf.UsersBucket))
 		err := usersBucket.ForEach(func(k []byte, v []byte) error {
 			user := User{}
 			err := json.Unmarshal(v, &user)
@@ -109,7 +108,7 @@ func (user User) Create() error {
 	}
 
 	err = conf.DB.Update(func(tx *bolt.Tx) error {
-		usersBucket := tx.Bucket([]byte(config.USERS_BUCKET))
+		usersBucket := tx.Bucket([]byte(conf.UsersBucket))
 		err := usersBucket.Put([]byte(user.Username), userByte)
 		return err
 	})
