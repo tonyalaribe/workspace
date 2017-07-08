@@ -8,6 +8,7 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/mikespook/gorbac"
+	"gitlab.com/middlefront/workspace/storage"
 )
 
 type Config struct {
@@ -21,12 +22,8 @@ type Config struct {
 	BoltFile          string
 	SubmissionsBucket []byte
 	DB                *bolt.DB
-	FileManager       FileManager
+	FileManager       storage.FileManager
 	RolesManager      *gorbac.RBAC
-}
-
-type FileManager interface {
-	Save(name string, workspace string, b64Data string) (string, error)
 }
 
 var (

@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"gitlab.com/middlefront/workspace/filePersistence"
+	"gitlab.com/middlefront/workspace/storage/file"
+	"gitlab.com/middlefront/workspace/storage/s3"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -55,13 +56,15 @@ func initConfig() {
 			awsConfig.S3ForcePathStyle = aws.Bool(true)
 		}
 		sess := session.New(awsConfig)
-		config.FileManager = filePersistence.S3Persister{
+		config.FileManager = s3.Persister{
 			AWSSession: sess,
 			BucketName: viper.GetString("AWS_S3_BUCKET"),
 		}
 		break
 	case "local":
-		config.FileManager = filePersistence.FilePersister{RootDirectory: config.RootDirectory}
+		config.FileManager = file.Persister{
+			RootDirectory: config.RootDirectory,
+		}
 		break
 	default:
 		log.Fatal("unknown storage Type: " + persistenceType)

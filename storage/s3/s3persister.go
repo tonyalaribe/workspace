@@ -1,4 +1,4 @@
-package filePersistence
+package s3
 
 import (
 	"bytes"
@@ -15,13 +15,13 @@ import (
 )
 
 // Persister is an implementation of the File Persister
-type S3Persister struct {
+type Persister struct {
 	AWSSession *session.Session
 	BucketName string
 }
 
 // Save persists data to a loader.
-func (fp S3Persister) Save(name string, workspace string, b64Data string) (string, error) {
+func (fp Persister) Save(name string, workspace string, b64Data string) (string, error) {
 	pathToSubmission := filepath.Join(workspace, name)
 	err := os.MkdirAll(pathToSubmission, os.ModePerm)
 	if err != nil {

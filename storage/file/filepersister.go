@@ -1,4 +1,4 @@
-package filePersistence
+package file
 
 import (
 	"encoding/base64"
@@ -10,12 +10,12 @@ import (
 )
 
 // FilePersister is an implementation of the File Persister
-type FilePersister struct {
+type Persister struct {
 	RootDirectory string
 }
 
 // Save persists data to a loader.
-func (fp FilePersister) Save(name string, workspace string, b64Data string) (string, error) {
+func (fp Persister) Save(name string, workspace string, b64Data string) (string, error) {
 	pathToSubmission := filepath.Join(fp.RootDirectory, workspace, name)
 	err := os.MkdirAll(pathToSubmission, os.ModePerm)
 	if err != nil {
