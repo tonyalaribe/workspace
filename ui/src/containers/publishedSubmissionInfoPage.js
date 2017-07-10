@@ -47,7 +47,7 @@ class PublishedSubmissionInfoPage extends Component {
                 case 'string':
                   switch (jsonschema.properties[current].items.format) {
                     case 'data-url':
-                      return <a target="_blank" className="db link pa3 mv1 shadow-4 navy underline-hover overflow-hidden" href={'/' + item} key={i}>{item}</a>;
+                      return <a target="_blank" className="db link pa3 mv1 shadow-4 navy underline-hover overflow-hidden" href={item} key={i}>{item}</a>;
                     default:
                       return item;
                   }
