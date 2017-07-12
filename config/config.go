@@ -2,8 +2,6 @@ package config
 
 import (
 	"log"
-	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -11,6 +9,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/boltdb/bolt"
 	"github.com/mikespook/gorbac"
+	"gitlab.com/middlefront/workspace/database"
+	"gitlab.com/middlefront/workspace/database/boltdb"
 	"gitlab.com/middlefront/workspace/storage"
 	"gitlab.com/middlefront/workspace/storage/file"
 	"gitlab.com/middlefront/workspace/storage/s3"
@@ -37,6 +37,9 @@ type Config struct {
 	AWSRegion          string
 	AWSEndpoint        string
 	AWSS3BucketName    string
+
+	DatabaseType string
+	Database     database.Database
 }
 
 var (
@@ -46,7 +49,7 @@ var (
 //Using Init not init, so i can manually determine when the content of config are initalized, as opposed to initializing whenever the package is imported (initialization should happen at app startup, which is only when imported by the main.go file).
 func Init(c Config) {
 	config = c
-
+	config.SubmissionsBucket = []byte("submissions")
 	switch config.PersistenceType {
 	case "s3":
 		// creds := credentials.NewEnvCredentials()
@@ -81,23 +84,17 @@ func Init(c Config) {
 		log.Fatal("unknown storage Type: " + config.PersistenceType)
 	}
 
-	config.BoltFile = filepath.Join(config.RootDirectory, "workspace.db")
-	config.SubmissionsBucket = []byte("submissions")
-
-	os.MkdirAll(config.RootDirectory, os.ModePerm)
-	db, err := bolt.Open(config.BoltFile, 0600, &bolt.Options{Timeout: 3 * time.Second})
-	if err != nil {
-		log.Println(err)
+	switch config.DatabaseType {
+	case "boltdb":
+		db, err := boltdb.New(config.RootDirectory, config.WorkspacesMetadata, config.WorkspacesContainer, config.UsersBucket, config.FormsMetadata)
+		if err != nil {
+			log.Println(err)
+		}
+		config.Database = database.Database(db)
+		break
+	default:
+		log.Fatal("unknown database type: " + config.DatabaseType)
 	}
-	db.Update(func(tx *bolt.Tx) error {
-		tx.CreateBucketIfNotExists([]byte(config.WorkspacesMetadata))
-		tx.CreateBucketIfNotExists([]byte(config.WorkspacesContainer))
-		tx.CreateBucketIfNotExists([]byte(config.UsersBucket))
-		return nil
-	})
-
-	log.Println(db.GoString())
-	config.DB = db
 
 	config.RolesManager = GenerateRolesInstance()
 	defer SavePermissions()

@@ -71,6 +71,8 @@ func initConfig() {
 	config.AWSEndpoint = viper.GetString("AWS_ENDPOINT")
 	config.AWSS3BucketName = viper.GetString("AWS_S3_BUCKET")
 
+	config.DatabaseType = viper.GetString("database-type")
+
 	conf.Init(config)
 
 }

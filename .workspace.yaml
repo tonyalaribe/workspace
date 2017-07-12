@@ -1,3 +1,5 @@
+database-type: boltdb 
+
 persistence-type: local
 root-directory: data
 # persistence-type: s3

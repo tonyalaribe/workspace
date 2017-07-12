@@ -11,6 +11,7 @@ import (
 	"github.com/metal3d/go-slugify"
 	"github.com/mikespook/gorbac"
 	"gitlab.com/middlefront/workspace/config"
+	"gitlab.com/middlefront/workspace/database"
 )
 
 type WorkSpace struct {
@@ -22,7 +23,7 @@ type WorkSpace struct {
 
 func CreateWorkspaceHandler(w http.ResponseWriter, r *http.Request) {
 
-	workspaceData := WorkSpace{}
+	workspaceData := database.WorkSpace{}
 	user := r.Context().Value("user").(User)
 
 	err := json.NewDecoder(r.Body).Decode(&workspaceData)
@@ -33,39 +34,13 @@ func CreateWorkspaceHandler(w http.ResponseWriter, r *http.Request) {
 	workspaceData.Creator = user.Username
 	workspaceData.ID = slugify.Marshal(workspaceData.Name, true)
 	workspaceData.Created = int(time.Now().UnixNano() / 1000000) //Get the time since epoch in milli seconds (javascript date compatible)
-
 	conf := config.Get()
-	tx, err := conf.DB.Begin(true)
-	if err != nil {
-		log.Println(err)
-	}
-	defer tx.Rollback()
+	////// Persist workspace
 
-	//Create the bucket where forms under this workspace would be stored.
-	individualWorkspace, err := tx.Bucket([]byte(conf.WorkspacesContainer)).CreateBucketIfNotExists([]byte(workspaceData.ID))
+	err = conf.Database.CreateWorkspace(workspaceData)
 	if err != nil {
 		log.Println(err)
 	}
-	_, err = individualWorkspace.CreateBucketIfNotExists([]byte(conf.FormsMetadata))
-	if err != nil {
-		log.Println(err)
-	}
-
-	metadata_bucket, err := tx.CreateBucketIfNotExists([]byte(conf.WorkspacesMetadata))
-	if err != nil {
-		log.Println(err)
-	}
-
-	dataByte, err := json.Marshal(workspaceData)
-	if err != nil {
-		log.Println(err)
-	}
-
-	err = metadata_bucket.Put([]byte(workspaceData.ID), dataByte)
-	if err != nil {
-		log.Println(err)
-	}
-	tx.Commit()
 
 	spectator := gorbac.NewStdRole(workspaceData.ID + "-spectator")
 	spectator.Assign(gorbac.NewStdPermission("view-" + workspaceData.ID))
@@ -101,26 +76,16 @@ func CreateWorkspaceHandler(w http.ResponseWriter, r *http.Request) {
 
 func GetWorkspacesHandler(w http.ResponseWriter, r *http.Request) {
 	user := r.Context().Value("user").(User)
-	workspaces := []WorkSpace{}
 
 	conf := config.Get()
-	conf.DB.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(conf.WorkspacesMetadata))
-		b.ForEach(func(_ []byte, v []byte) error {
 
-			workspace := WorkSpace{}
-			err := json.Unmarshal(v, &workspace)
-			if err != nil {
-				return err
-			}
-			workspaces = append(workspaces, workspace)
+	//Get Workspaces
+	workspaces, err := conf.Database.GetWorkspaces()
+	if err != nil {
+		log.Println(err)
+	}
 
-			return nil
-		})
-		return nil
-	})
-
-	finalWorkspaces := []WorkSpace{}
+	finalWorkspaces := []database.WorkSpace{}
 	for _, v := range workspaces {
 		workspacePermissionString := "view-" + v.ID
 		workspacePermission := gorbac.NewStdPermission(workspacePermissionString)
@@ -129,7 +94,7 @@ func GetWorkspacesHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	w.Header().Set("Content-type", "application/json")
-	err := json.NewEncoder(w).Encode(finalWorkspaces)
+	err = json.NewEncoder(w).Encode(finalWorkspaces)
 	if err != nil {
 		log.Println(err)
 	}
@@ -161,6 +126,7 @@ func GetWorkspaceUsersAndRolesHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		return nil
 	})
+
 	log.Println(users)
 	finalUsers := []User{}
 	for _, u := range users {
