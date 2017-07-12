@@ -1,4 +1,4 @@
-package web
+package boltdb
 
 import "encoding/binary"
 

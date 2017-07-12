@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/boltdb/bolt"
 	"github.com/julienschmidt/httprouter"
 	"github.com/metal3d/go-slugify"
 	"github.com/mikespook/gorbac"
@@ -24,7 +23,7 @@ type WorkSpace struct {
 func CreateWorkspaceHandler(w http.ResponseWriter, r *http.Request) {
 
 	workspaceData := database.WorkSpace{}
-	user := r.Context().Value("user").(User)
+	user := r.Context().Value("user").(database.User)
 
 	err := json.NewDecoder(r.Body).Decode(&workspaceData)
 	if err != nil {
@@ -75,10 +74,8 @@ func CreateWorkspaceHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetWorkspacesHandler(w http.ResponseWriter, r *http.Request) {
-	user := r.Context().Value("user").(User)
-
+	user := r.Context().Value("user").(database.User)
 	conf := config.Get()
-
 	//Get Workspaces
 	workspaces, err := conf.Database.GetWorkspaces()
 	if err != nil {
@@ -102,33 +99,11 @@ func GetWorkspacesHandler(w http.ResponseWriter, r *http.Request) {
 
 func GetWorkspaceUsersAndRolesHandler(w http.ResponseWriter, r *http.Request) {
 	workspaceID := r.URL.Query().Get("w")
-	workspace := WorkSpace{}
-	users := []User{}
 
 	conf := config.Get()
-	conf.DB.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(conf.UsersBucket))
-		b.ForEach(func(_ []byte, v []byte) error {
-			user := User{}
-			err := json.Unmarshal(v, &user)
-			if err != nil {
-				return err
-			}
-			users = append(users, user)
-			return nil
-		})
+	workspace, users, err := conf.Database.GetWorkspaceUsersAndRoles(workspaceID)
 
-		w := tx.Bucket([]byte(conf.WorkspacesMetadata))
-		wByte := w.Get([]byte(workspaceID))
-		err := json.Unmarshal(wByte, &workspace)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-
-	log.Println(users)
-	finalUsers := []User{}
+	finalUsers := []database.User{}
 	for _, u := range users {
 		workspacePermissionString := "view-" + workspace.ID
 		log.Println(workspacePermissionString)
@@ -141,9 +116,8 @@ func GetWorkspaceUsersAndRolesHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-
 	w.Header().Set("Content-type", "application/json")
-	err := json.NewEncoder(w).Encode(finalUsers)
+	err = json.NewEncoder(w).Encode(finalUsers)
 	if err != nil {
 		log.Println(err)
 	}
@@ -152,17 +126,9 @@ func GetWorkspaceUsersAndRolesHandler(w http.ResponseWriter, r *http.Request) {
 func GetWorkspaceBySlugHandler(w http.ResponseWriter, r *http.Request) {
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
-	workspaceByte := []byte{}
 
 	conf := config.Get()
-	conf.DB.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(conf.WorkspacesMetadata))
-		workspaceByte = b.Get([]byte(workspaceID))
-		return nil
-	})
-
-	workspace := WorkSpace{}
-	err := json.Unmarshal(workspaceByte, &workspace)
+	workspace, err := conf.Database.GetWorkspaceBySlug(workspaceID)
 	if err != nil {
 		log.Println(err)
 	}

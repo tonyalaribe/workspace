@@ -74,6 +74,49 @@ func (boltDBProvider *BoltDBProvider) GetWorkspaces() ([]database.WorkSpace, err
 	return workspaces, nil
 }
 
-func GetWorkspaceUsersAndRoles() {
+func (boltDBProvider *BoltDBProvider) GetWorkspaceBySlug(workspaceID string) (database.WorkSpace, error) {
+	workspaceByte := []byte{}
+	workspace := database.WorkSpace{}
 
+	boltDBProvider.db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(boltDBProvider.WorkspacesMetadata))
+		workspaceByte = b.Get([]byte(workspaceID))
+		return nil
+	})
+
+	err := json.Unmarshal(workspaceByte, &workspace)
+	if err != nil {
+		log.Println(err)
+		return workspace, err
+	}
+
+	return workspace, nil
+}
+
+func (boltDBProvider *BoltDBProvider) GetWorkspaceUsersAndRoles(workspaceID string) (database.WorkSpace, []database.User, error) {
+	workspace := database.WorkSpace{}
+	users := []database.User{}
+
+	boltDBProvider.db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(boltDBProvider.UsersBucket))
+		b.ForEach(func(_ []byte, v []byte) error {
+			user := database.User{}
+			err := json.Unmarshal(v, &user)
+			if err != nil {
+				return err
+			}
+			users = append(users, user)
+			return nil
+		})
+
+		w := tx.Bucket([]byte(boltDBProvider.WorkspacesMetadata))
+		wByte := w.Get([]byte(workspaceID))
+		err := json.Unmarshal(wByte, &workspace)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+
+	return workspace, users, nil
 }

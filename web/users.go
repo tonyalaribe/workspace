@@ -7,121 +7,14 @@ import (
 	"net/http"
 
 	"github.com/Jeffail/gabs"
-	"github.com/boltdb/bolt"
 	"github.com/julienschmidt/httprouter"
 	"gitlab.com/middlefront/workspace/config"
+	"gitlab.com/middlefront/workspace/database"
 )
 
-type User struct {
-	ProviderUserID    string
-	Username          string
-	Name              string
-	Email             string
-	Roles             []string
-	CurrentRoleString string
-}
-
-func (user User) Get(username string) (User, error) {
-	conf := config.Get()
-	var userByte []byte
-	existingUser := User{}
-
-	err := conf.DB.View(func(tx *bolt.Tx) error {
-		usersBucket := tx.Bucket([]byte(conf.UsersBucket))
-		userByte = usersBucket.Get([]byte(username))
-		return nil
-	})
-
-	if err != nil {
-		return existingUser, err
-	}
-
-	err = json.Unmarshal(userByte, &existingUser)
-	if err != nil {
-		return existingUser, err
-	}
-	return existingUser, nil
-}
-
-func (user User) GetByEmail(email string) (User, error) {
-	conf := config.Get()
-	result := User{}
-
-	err := conf.DB.View(func(tx *bolt.Tx) error {
-		usersBucket := tx.Bucket([]byte(conf.UsersBucket))
-
-		c := usersBucket.Cursor()
-
-		for k, v := c.First(); k != nil; k, v = c.Next() {
-			currUser := User{}
-			err := json.Unmarshal(v, &currUser)
-			if err != nil {
-				log.Println(err)
-			}
-			if currUser.Email == email {
-				result = currUser
-			}
-
-		}
-		return nil
-	})
-	if err != nil {
-		return result, err
-	}
-	return result, nil
-}
-
-func (user User) GetAll() ([]User, error) {
-	conf := config.Get()
-	users := []User{}
-
-	err := conf.DB.View(func(tx *bolt.Tx) error {
-		usersBucket := tx.Bucket([]byte(conf.UsersBucket))
-		err := usersBucket.ForEach(func(k []byte, v []byte) error {
-			user := User{}
-			err := json.Unmarshal(v, &user)
-			if err != nil {
-				log.Println(err)
-			}
-			users = append(users, user)
-
-			return nil
-		})
-		if err != nil {
-			log.Println(err)
-		}
-		return nil
-	})
-
-	if err != nil {
-		return users, err
-	}
-
-	return users, nil
-}
-
-func (user User) Create() error {
-	conf := config.Get()
-	userByte, err := json.Marshal(user)
-	if err != nil {
-		return err
-	}
-
-	err = conf.DB.Update(func(tx *bolt.Tx) error {
-		usersBucket := tx.Bucket([]byte(conf.UsersBucket))
-		err := usersBucket.Put([]byte(user.Username), userByte)
-		return err
-	})
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func UsersAndWorkspaceRoles(w http.ResponseWriter, r *http.Request) {
-	users, err := User{}.GetAll()
+	db := config.Get().Database
+	users, err := db.GetAllUsers()
 	if err != nil {
 		log.Println(err)
 	}
@@ -132,6 +25,8 @@ func UsersAndWorkspaceRoles(w http.ResponseWriter, r *http.Request) {
 }
 
 func ChangeUserWorkspacePermission(w http.ResponseWriter, r *http.Request) {
+	db := config.Get().Database
+
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
 	permissions := make(map[string]interface{})
@@ -140,13 +35,13 @@ func ChangeUserWorkspacePermission(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
-	user, err := User{}.GetByEmail(permissions["email"].(string))
+	user, err := db.GetUserByEmail(permissions["email"].(string))
 	if err != nil {
 		log.Println(err)
 	}
 	role := workspaceID + "-" + permissions["role"].(string)
 	user.Roles = append(user.Roles, role)
-	err = user.Create()
+	err = db.CreateUser(user)
 	if err != nil {
 		log.Println(err)
 	}
@@ -163,8 +58,9 @@ func ChangeUserWorkspacePermission(w http.ResponseWriter, r *http.Request) {
 
 func SetupSuperAdmin(w http.ResponseWriter, r *http.Request) {
 	conf := config.Get()
+	db := conf.Database
 	adminUsername := r.URL.Query().Get("u")
-	adminUser, err := User{}.Get(adminUsername)
+	adminUser, err := db.GetUser(adminUsername)
 	if err != nil {
 		log.Println(err)
 	}
@@ -194,8 +90,8 @@ func SetupSuperAdmin(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
-	user := User{}
 
+	user := database.User{}
 	user.Username = responseObject.Path("username").Data().(string)
 	user.Email = responseObject.Path("email").Data().(string)
 	user.Name = responseObject.Path("name").Data().(string)
@@ -206,7 +102,7 @@ func SetupSuperAdmin(w http.ResponseWriter, r *http.Request) {
 		user.Roles = append(user.Roles, v.(string))
 	}
 
-	err = user.Create()
+	err = db.CreateUser(user)
 	if err != nil {
 		log.Println(err)
 	}

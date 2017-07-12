@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"gitlab.com/middlefront/workspace/config"
+
 	"github.com/Jeffail/gabs"
 )
 
@@ -74,7 +76,8 @@ func GetUserInfoFromToken(next http.Handler) http.Handler {
 
 		username := responseObject.Path("username").Data().(string)
 
-		user, err := User{}.Get(username)
+		db := config.Get().Database
+		user, err := db.GetUser(username)
 		if err != nil {
 			log.Println(err)
 			//User doesnt exist, so create the user in the local store
@@ -88,7 +91,7 @@ func GetUserInfoFromToken(next http.Handler) http.Handler {
 				}
 			}
 			log.Printf("%#v", user)
-			err = user.Create()
+			err = db.CreateUser(user)
 			if err != nil {
 				log.Println(err)
 			}
