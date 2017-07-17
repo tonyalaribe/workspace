@@ -4,12 +4,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/metal3d/go-slugify"
-	"github.com/mikespook/gorbac"
-	"gitlab.com/middlefront/workspace/config"
+	"gitlab.com/middlefront/workspace/actions"
 	"gitlab.com/middlefront/workspace/database"
 )
 
@@ -30,40 +27,20 @@ func CreateWorkspaceHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
-	workspaceData.Creator = user.Username
-	workspaceData.ID = slugify.Marshal(workspaceData.Name, true)
-	workspaceData.Created = int(time.Now().UnixNano() / 1000000) //Get the time since epoch in milli seconds (javascript date compatible)
-	conf := config.Get()
-	////// Persist workspace
-
-	err = conf.Database.CreateWorkspace(workspaceData)
+	message := make(map[string]interface{})
+	err = actions.CreateWorkspace(workspaceData, user)
 	if err != nil {
 		log.Println(err)
+		message["code"] = http.StatusInternalServerError
+		message["message"] = err.Error()
+		w.WriteHeader(http.StatusOK)
+		err = json.NewEncoder(w).Encode(message)
+		if err != nil {
+			log.Println(err)
+		}
+		return
 	}
 
-	spectator := gorbac.NewStdRole(workspaceData.ID + "-spectator")
-	spectator.Assign(gorbac.NewStdPermission("view-" + workspaceData.ID))
-	conf.RolesManager.Add(spectator)
-
-	editor := gorbac.NewStdRole(workspaceData.ID + "-editor")
-	editor.Assign(gorbac.NewStdPermission("edit-" + workspaceData.ID))
-	conf.RolesManager.Add(editor)
-
-	supervisor := gorbac.NewStdRole(workspaceData.ID + "-supervisor")
-	supervisor.Assign(gorbac.NewStdPermission("approve-" + workspaceData.ID))
-	conf.RolesManager.Add(supervisor)
-
-	admin := gorbac.NewStdRole(workspaceData.ID + "-admin")
-	admin.Assign(gorbac.NewStdPermission("admin-" + workspaceData.ID))
-	conf.RolesManager.Add(admin)
-
-	conf.RolesManager.SetParent(workspaceData.ID+"-editor", workspaceData.ID+"-spectator")
-	conf.RolesManager.SetParent(workspaceData.ID+"-supervisor", workspaceData.ID+"-editor")
-	conf.RolesManager.SetParent(workspaceData.ID+"-admin", workspaceData.ID+"-supervisor")
-
-	conf.RolesManager.SetParent("superadmin", workspaceData.ID+"-admin")
-
-	message := make(map[string]interface{})
 	message["code"] = 200
 	message["message"] = "success"
 	w.WriteHeader(http.StatusOK)
@@ -75,23 +52,13 @@ func CreateWorkspaceHandler(w http.ResponseWriter, r *http.Request) {
 
 func GetWorkspacesHandler(w http.ResponseWriter, r *http.Request) {
 	user := r.Context().Value("user").(database.User)
-	conf := config.Get()
-	//Get Workspaces
-	workspaces, err := conf.Database.GetWorkspaces()
+
+	workspaces, err := actions.GetWorkspaces(user)
 	if err != nil {
 		log.Println(err)
 	}
-
-	finalWorkspaces := []database.WorkSpace{}
-	for _, v := range workspaces {
-		workspacePermissionString := "view-" + v.ID
-		workspacePermission := gorbac.NewStdPermission(workspacePermissionString)
-		if gorbac.AnyGranted(conf.RolesManager, user.Roles, workspacePermission, nil) {
-			finalWorkspaces = append(finalWorkspaces, v)
-		}
-	}
 	w.Header().Set("Content-type", "application/json")
-	err = json.NewEncoder(w).Encode(finalWorkspaces)
+	err = json.NewEncoder(w).Encode(workspaces)
 	if err != nil {
 		log.Println(err)
 	}
@@ -100,24 +67,12 @@ func GetWorkspacesHandler(w http.ResponseWriter, r *http.Request) {
 func GetWorkspaceUsersAndRolesHandler(w http.ResponseWriter, r *http.Request) {
 	workspaceID := r.URL.Query().Get("w")
 
-	conf := config.Get()
-	workspace, users, err := conf.Database.GetWorkspaceUsersAndRoles(workspaceID)
-
-	finalUsers := []database.User{}
-	for _, u := range users {
-		workspacePermissionString := "view-" + workspace.ID
-		log.Println(workspacePermissionString)
-		workspacePermission := gorbac.NewStdPermission(workspacePermissionString)
-		for _, v := range u.Roles {
-			if conf.RolesManager.IsGranted(v, workspacePermission, nil) {
-				u.CurrentRoleString = v
-				finalUsers = append(finalUsers, u)
-				continue
-			}
-		}
+	users, err := actions.GetWorkspaceUsersAndRoles(workspaceID)
+	if err != nil {
+		log.Println(err)
 	}
 	w.Header().Set("Content-type", "application/json")
-	err = json.NewEncoder(w).Encode(finalUsers)
+	err = json.NewEncoder(w).Encode(users)
 	if err != nil {
 		log.Println(err)
 	}
@@ -127,12 +82,10 @@ func GetWorkspaceBySlugHandler(w http.ResponseWriter, r *http.Request) {
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
 
-	conf := config.Get()
-	workspace, err := conf.Database.GetWorkspaceBySlug(workspaceID)
+	workspace, err := actions.GetWorkspaceBySlug(workspaceID)
 	if err != nil {
 		log.Println(err)
 	}
-
 	w.Header().Set("Content-type", "application/json")
 	err = json.NewEncoder(w).Encode(workspace)
 	if err != nil {

@@ -6,8 +6,7 @@ import (
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/metal3d/go-slugify"
-	"gitlab.com/middlefront/workspace/config"
+	"gitlab.com/middlefront/workspace/actions"
 	"gitlab.com/middlefront/workspace/database"
 )
 
@@ -22,10 +21,8 @@ func CreateFormHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	formData.Creator = r.Context().Value("username").(string)
-	formData.ID = slugify.Marshal(formData.Name, true)
 
-	conf := config.Get()
-	err = conf.Database.CreateForm(workspaceID, formData)
+	err = actions.CreateForm(workspaceID, formData)
 	if err != nil {
 		log.Println(err)
 	}
@@ -44,8 +41,7 @@ func GetFormsHandler(w http.ResponseWriter, r *http.Request) {
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
 
-	conf := config.Get()
-	forms, err := conf.Database.GetForms(workspaceID)
+	forms, err := actions.GetForms(workspaceID)
 	if err != nil {
 		log.Println(err)
 	}
@@ -62,8 +58,7 @@ func GetFormBySlugHandler(w http.ResponseWriter, r *http.Request) {
 	workspaceID := httprouterParams.ByName("workspaceID")
 	formID := httprouterParams.ByName("formID")
 
-	conf := config.Get()
-	form, err := conf.Database.GetFormBySlug(workspaceID, formID)
+	form, err := actions.GetFormBySlug(workspaceID, formID)
 	if err != nil {
 		log.Println(err)
 	}
