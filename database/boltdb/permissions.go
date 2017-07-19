@@ -46,7 +46,6 @@ func (boltDBProvider *BoltDBProvider) GetRoles() (string, error) {
 
 		return nil
 	})
-
 	return string(dataByte), nil
 }
 

@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"gitlab.com/middlefront/workspace/actions"
 	"gitlab.com/middlefront/workspace/config"
 
 	"github.com/Jeffail/gabs"
@@ -77,6 +78,8 @@ func GetUserInfoFromToken(next http.Handler) http.Handler {
 		username := responseObject.Path("username").Data().(string)
 
 		db := config.Get().Database
+		users, _ := db.GetAllUsers()
+
 		user, err := db.GetUser(username)
 		if err != nil {
 			log.Println(err)
@@ -97,6 +100,12 @@ func GetUserInfoFromToken(next http.Handler) http.Handler {
 			}
 		}
 
+		if len(users) < 1 {
+			err := actions.SetupSuperAdmin(user.Email)
+			if err != nil {
+				log.Println(err)
+			}
+		}
 		r = r.WithContext(context.WithValue(r.Context(), "user", user))
 		r = r.WithContext(context.WithValue(r.Context(), "username", user.Username))
 

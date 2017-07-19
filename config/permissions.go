@@ -45,27 +45,33 @@ func GenerateRolesInstance() *gorbac.RBAC {
 	permissions := make(gorbac.Permissions)
 	conf := Get()
 	// map[RoleId]PermissionIds
-	var jsonRoles map[string][]string
+	jsonRoles := make(map[string][]string)
 	// map[RoleId]ParentIds
-	var jsonInher map[string][]string
+	jsonInher := make(map[string][]string)
+
 	// Load roles information
 	rolesJSONString, err := conf.Database.GetRoles()
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = json.Unmarshal([]byte(rolesJSONString), &jsonRoles)
-	if err != nil {
-		log.Fatal(err)
-	}
 
+	if rolesJSONString != "" {
+		err = json.Unmarshal([]byte(rolesJSONString), &jsonRoles)
+		if err != nil {
+			log.Println(err)
+		}
+	}
 	inheritanceJSONString, err := conf.Database.GetInheritance()
 	// Load inheritance information
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
-	err = json.Unmarshal([]byte(inheritanceJSONString), &jsonInher)
-	if err != nil {
-		log.Fatal(err)
+
+	if inheritanceJSONString != "" {
+		err = json.Unmarshal([]byte(inheritanceJSONString), &jsonInher)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	for rid, pids := range jsonRoles {
