@@ -32,11 +32,11 @@ func SavePermissions() {
 	}
 
 	// Save roles information
-	if err := SaveJSON("roles.json", &jsonOutputRoles); err != nil {
+	if err := conf.Database.SaveRoles(&jsonOutputRoles); err != nil {
 		log.Fatal(err)
 	}
 	// Save inheritance information
-	if err := SaveJSON("inheritance.json", &jsonOutputInher); err != nil {
+	if err := conf.Database.SaveInheritance(&jsonOutputInher); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -44,19 +44,31 @@ func SavePermissions() {
 func GenerateRolesInstance() *gorbac.RBAC {
 	rbac := gorbac.New()
 	permissions := make(gorbac.Permissions)
-
+	conf := Get()
 	// map[RoleId]PermissionIds
 	var jsonRoles map[string][]string
 	// map[RoleId]ParentIds
 	var jsonInher map[string][]string
 	// Load roles information
-	if err := LoadJSON("roles.json", &jsonRoles); err != nil {
+	rolesJSONString, err := conf.Database.GetRoles()
+	if err != nil {
 		log.Fatal(err)
 	}
+	err = json.Unmarshal([]byte(rolesJSONString), &jsonRoles)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	inheritanceJSONString, err := conf.Database.GetInheritance()
 	// Load inheritance information
-	if err := LoadJSON("inheritance.json", &jsonInher); err != nil {
+	if err != nil {
 		log.Fatal(err)
 	}
+	err = json.Unmarshal([]byte(inheritanceJSONString), &jsonInher)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	for rid, pids := range jsonRoles {
 		role := gorbac.NewStdRole(rid)
 		for _, pid := range pids {

@@ -16,6 +16,7 @@ import (
 )
 
 type Config struct {
+	AppMetadata         string
 	FormsMetadata       string
 	WorkspacesContainer string
 	WorkspacesMetadata  string
@@ -84,7 +85,9 @@ func Init(c Config) {
 
 	switch config.DatabaseType {
 	case "boltdb":
-		db, err := boltdb.New(config.RootDirectory, config.WorkspacesMetadata, config.WorkspacesContainer, config.UsersBucket, config.FormsMetadata)
+		db, err := boltdb.New(config.RootDirectory,
+			config.AppMetadata,
+			config.WorkspacesMetadata, config.WorkspacesContainer, config.UsersBucket, config.FormsMetadata)
 		if err != nil {
 			log.Println(err)
 		}

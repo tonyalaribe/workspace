@@ -44,6 +44,12 @@ type Files struct {
 }
 
 type Database interface {
+	GetInheritance() (string, error)
+	SaveInheritance(roles interface{}) error
+
+	GetRoles() (string, error)
+	SaveRoles(roles interface{}) error
+
 	CreateWorkspace(WorkSpace) error
 	GetWorkspaces() ([]WorkSpace, error)
 	GetWorkspaceUsersAndRoles(workspaceID string) (WorkSpace, []User, error)

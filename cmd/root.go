@@ -55,6 +55,7 @@ func initConfig() {
 	//This initialization is placed here, because initConfig is a callback that is called after cobra has parsed the config file and other variables. The other ideal location would have been the init function, but the init function is called before the config has been parsed, and hence the absense of the needed variables.
 
 	config := conf.Config{}
+	config.AppMetadata = viper.GetString("app-metadata")
 	config.FormsMetadata = viper.GetString("forms-metadata")
 	config.WorkspacesContainer = viper.GetString("workspaces-container")
 	config.WorkspacesMetadata = viper.GetString("workspaces-metadata")

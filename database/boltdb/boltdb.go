@@ -12,15 +12,17 @@ import (
 type BoltDBProvider struct {
 	db                  *bolt.DB
 	RootDirectory       string
+	AppMetadata         string
 	WorkspacesMetadata  string
 	WorkspacesContainer string
 	UsersBucket         string
 	FormsMetadata       string
 }
 
-func New(RootDirectory, WorkspacesMetadata, WorkspacesContainer, UsersBucket, FormsMetadata string) (*BoltDBProvider, error) {
+func New(RootDirectory, AppMetadata, WorkspacesMetadata, WorkspacesContainer, UsersBucket, FormsMetadata string) (*BoltDBProvider, error) {
 
 	var boltdb BoltDBProvider
+	boltdb.AppMetadata = AppMetadata
 	boltdb.RootDirectory = RootDirectory
 	boltdb.WorkspacesMetadata = WorkspacesMetadata
 	boltdb.WorkspacesContainer = WorkspacesContainer
@@ -34,6 +36,7 @@ func New(RootDirectory, WorkspacesMetadata, WorkspacesContainer, UsersBucket, Fo
 		log.Println(err)
 	}
 	db.Update(func(tx *bolt.Tx) error {
+		tx.CreateBucketIfNotExists([]byte(AppMetadata))
 		tx.CreateBucketIfNotExists([]byte(WorkspacesMetadata))
 		tx.CreateBucketIfNotExists([]byte(WorkspacesContainer))
 		tx.CreateBucketIfNotExists([]byte(UsersBucket))

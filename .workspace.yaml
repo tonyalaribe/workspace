@@ -1,4 +1,4 @@
-database-type: boltdb 
+database-type: boltdb
 
 persistence-type: local
 root-directory: data
@@ -17,6 +17,7 @@ AWS_REGION: us-east-1
 AWS_S3_BUCKET: test
 AWS_ENDPOINT: http://127.0.0.1:9000
 
+app-metadata: app_metadata
 forms-metadata: forms_metadata
 workspaces-metadata: workspaces_metadata
 workspaces-container: workspaces_container
