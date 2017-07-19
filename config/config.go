@@ -7,7 +7,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/boltdb/bolt"
 	"github.com/mikespook/gorbac"
 	"gitlab.com/middlefront/workspace/database"
 	"gitlab.com/middlefront/workspace/database/boltdb"
@@ -27,7 +26,6 @@ type Config struct {
 	RootDirectory     string
 	BoltFile          string
 	SubmissionsBucket []byte
-	DB                *bolt.DB
 	FileManager       storage.FileManager
 	RolesManager      *gorbac.RBAC
 

@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/Jeffail/gabs"
-	"github.com/boltdb/bolt"
 	"gitlab.com/middlefront/workspace/config"
 	"gitlab.com/middlefront/workspace/database"
 )
@@ -13,13 +12,10 @@ import (
 func NewFormSubmission(workspaceID, formID string, submission database.SubmissionData) error {
 
 	conf := config.Get()
-	//Get the form metadata
-	var formInfoByte []byte
-	conf.DB.View(func(tx *bolt.Tx) error {
-		formMetaBucket := tx.Bucket([]byte(conf.WorkspacesContainer)).Bucket([]byte(workspaceID)).Bucket([]byte(conf.FormsMetadata))
-		formInfoByte = formMetaBucket.Get([]byte(formID))
-		return nil
-	})
+	formInfoByte, err := conf.Database.GetFormJSONBySlug(workspaceID, formID)
+	if err != nil {
+		return err
+	}
 
 	formInfo, err := gabs.ParseJSON(formInfoByte)
 	if err != nil {
@@ -70,12 +66,6 @@ func NewFormSubmission(workspaceID, formID string, submission database.Submissio
 			submission.FormData[k] = submission.FormData[k].(string)
 		}
 	}
-
-	conf.DB.Update(func(tx *bolt.Tx) error {
-		formMetaBucket := tx.Bucket([]byte(conf.WorkspacesContainer)).Bucket([]byte(workspaceID)).Bucket([]byte(conf.FormsMetadata))
-		formInfoByte = formMetaBucket.Get([]byte(formID))
-		return nil
-	})
 
 	err = conf.Database.NewFormSubmission(workspaceID, formID, submission)
 	if err != nil {
