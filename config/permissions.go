@@ -2,7 +2,6 @@ package config
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"log"
 
 	"github.com/mikespook/gorbac"
@@ -86,27 +85,5 @@ func GenerateRolesInstance() *gorbac.RBAC {
 		}
 	}
 	return rbac
-
-}
-
-func SaveJSON(filename string, jsonObject interface{}) error {
-	jsonByte, _ := json.Marshal(jsonObject)
-	err := ioutil.WriteFile(filename, jsonByte, 0644)
-	if err != nil {
-		log.Println(err)
-	}
-	return nil
-}
-
-func LoadJSON(filename string, jsonObject interface{}) error {
-	fileByte, err := ioutil.ReadFile(filename)
-	if err != nil {
-		log.Println(err)
-	}
-	err = json.Unmarshal(fileByte, &jsonObject)
-	if err != nil {
-		log.Println(err)
-	}
-	return nil
 
 }
