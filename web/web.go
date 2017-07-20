@@ -93,8 +93,6 @@ func App() {
 	router.Get("/api/workspaces/:workspaceID/forms/:formID/submissions/:submissionID", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(GetSubmissionInfoHandler))
 	router.Put("/api/workspaces/:workspaceID/forms/:formID/submissions/:submissionID", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(UpdateSubmissionHandler))
 
-	router.Get("/api/make_superadmin", commonHandlers.ThenFunc(SetupSuperAdmin))
-
 	router.Get("/", commonHandlers.ThenFunc(HomePageHandler))
 
 	fileServer := http.FileServer(http.Dir("./ui/build/static"))

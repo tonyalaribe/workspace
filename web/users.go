@@ -42,15 +42,3 @@ func ChangeUserWorkspacePermission(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 }
-
-func SetupSuperAdmin(w http.ResponseWriter, r *http.Request) {
-
-	adminUsername := r.URL.Query().Get("u")
-	err := actions.SetupSuperAdmin(adminUsername)
-	if err != nil {
-		log.Println(err)
-		w.Write([]byte("error: " + err.Error()))
-		return
-	}
-	w.Write([]byte("success "))
-}
