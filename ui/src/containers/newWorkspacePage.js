@@ -12,15 +12,16 @@ class NewWorkspacePage extends Component {
     this.setState({showSuccessMessage: false});
     let workspace = {};
     workspace.name = this.refs.workspaceName.value;
+    let {props,refs} = this;
 
-    this.props.MainStore.submitNewWorkspaceToServer(workspace, () => {
+    props.MainStore.submitNewWorkspaceToServer(workspace, () => {
       this.setState({showSuccessMessage: true});
-      this.refs.workspaceName.value = '';
+      refs.workspaceName.value = '';
       setTimeout(()=>{
         window.requestAnimationFrame(
           window.requestAnimationFrame(
-            ()=>{
-              this.props.history.push("/")
+            function(){
+              props.history.push("/")
             }
           )
         )

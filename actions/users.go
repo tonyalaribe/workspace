@@ -36,6 +36,7 @@ func ChangeUserWorkspacePermission(workspaceID string, permissions map[string]in
 func SetupSuperAdmin(adminUsername string) error {
 	conf := config.Get()
 	db := conf.Database
+	log.Println(adminUsername)
 	adminUser, err := db.GetUser(adminUsername)
 	if err != nil {
 		log.Println(err)

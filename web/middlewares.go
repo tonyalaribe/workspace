@@ -48,7 +48,7 @@ func GetUserInfoFromToken(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		tokenValue := r.Header.Get("authorization")
 		client := &http.Client{}
-
+		log.Println("get user info from token")
 		param := make(map[string]string)
 		param["id_token"] = strings.Split(tokenValue, " ")[1]
 
@@ -101,7 +101,7 @@ func GetUserInfoFromToken(next http.Handler) http.Handler {
 		}
 
 		if len(users) < 1 {
-			err := actions.SetupSuperAdmin(user.Email)
+			err := actions.SetupSuperAdmin(user.Username)
 			if err != nil {
 				log.Println(err)
 			}

@@ -55,25 +55,27 @@ func GenerateRolesInstance() *gorbac.RBAC {
 		log.Fatal(err)
 	}
 
-	if rolesJSONString != "" {
-		err = json.Unmarshal([]byte(rolesJSONString), &jsonRoles)
-		if err != nil {
-			log.Println(err)
-		}
+	if rolesJSONString == "" {
+		rolesJSONString = `{"superadmin":["superadmin"]}`
 	}
+	err = json.Unmarshal([]byte(rolesJSONString), &jsonRoles)
+	if err != nil {
+		log.Println(err)
+	}
+
 	inheritanceJSONString, err := conf.Database.GetInheritance()
 	// Load inheritance information
 	if err != nil {
 		log.Println(err)
 	}
 
-	if inheritanceJSONString != "" {
-		err = json.Unmarshal([]byte(inheritanceJSONString), &jsonInher)
-		if err != nil {
-			log.Fatal(err)
-		}
+	if inheritanceJSONString == "" {
+		inheritanceJSONString = `{"superadmin":[]}`
 	}
-
+	err = json.Unmarshal([]byte(inheritanceJSONString), &jsonInher)
+	if err != nil {
+		log.Fatal(err)
+	}
 	for rid, pids := range jsonRoles {
 		role := gorbac.NewStdRole(rid)
 		for _, pid := range pids {
