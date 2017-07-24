@@ -33,7 +33,7 @@ func NewFormSubmission(workspaceID, formID string, submission database.Submissio
 			}
 			switch itemFormat {
 			case "data-uri", "data-url":
-				pathToItem, err := conf.FileManager.Save(submission.SubmissionName, workspaceID, v.(string))
+				pathToItem, err := conf.FileManager.Save(workspaceID, formID, submission.SubmissionName, v.(string))
 				if err != nil {
 					log.Println(err)
 				}
@@ -50,7 +50,7 @@ func NewFormSubmission(workspaceID, formID string, submission database.Submissio
 				case "data-url":
 					items := []string{}
 					for _, item := range v.([]interface{}) {
-						pathToItem, err := conf.FileManager.Save(submission.SubmissionName, workspaceID, item.(string))
+						pathToItem, err := conf.FileManager.Save(workspaceID, formID, submission.SubmissionName, item.(string))
 						if err != nil {
 							log.Println(err)
 						}
@@ -113,7 +113,7 @@ func UpdateSubmission(workspaceID, formID string, submissionIDString string, new
 			switch itemFormat {
 			case "data-uri", "data-url":
 				//file formatting
-				pathToItem, err := conf.FileManager.Save(newSubmission.SubmissionName, workspaceID, v.(string))
+				pathToItem, err := conf.FileManager.Save(workspaceID, formID, submission.SubmissionName, v.(string))
 				if err != nil {
 					log.Println(err)
 				}
@@ -130,7 +130,7 @@ func UpdateSubmission(workspaceID, formID string, submissionIDString string, new
 				case "data-url":
 					items := []string{}
 					for _, item := range v.([]interface{}) {
-						pathToItem, err := conf.FileManager.Save(newSubmission.SubmissionName, workspaceID, item.(string))
+						pathToItem, err := conf.FileManager.Save(workspaceID, formID, submission.SubmissionName, item.(string))
 						if err != nil {
 							log.Println(err)
 						}

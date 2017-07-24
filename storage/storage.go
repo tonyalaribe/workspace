@@ -1,5 +1,5 @@
 package storage
 
 type FileManager interface {
-	Save(name string, workspace string, b64Data string) (string, error)
+	Save(workspaceID string, formID string, submissionName string, b64Data string) (string, error)
 }

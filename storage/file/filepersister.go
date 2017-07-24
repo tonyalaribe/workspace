@@ -15,8 +15,8 @@ type Persister struct {
 }
 
 // Save persists data to a loader.
-func (fp Persister) Save(name string, workspace string, b64Data string) (string, error) {
-	pathToSubmission := filepath.Join(fp.RootDirectory, workspace, name)
+func (fp Persister) Save(workspaceID string, formID string, submissionName string, b64Data string) (string, error) {
+	pathToSubmission := filepath.Join(fp.RootDirectory, workspaceID, formID, submissionName)
 	err := os.MkdirAll(pathToSubmission, os.ModePerm)
 	if err != nil {
 		return "", err
