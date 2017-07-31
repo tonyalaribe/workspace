@@ -14,34 +14,6 @@ class mainStore {
 		uischema: {}
 	};
 
-	@action submitFormToServer = async (
-		workspaceID,
-		formID,
-		formData,
-		callback
-	) => {
-		let authToken = AuthService.getToken();
-		const response = await fetch(
-			"/api/workspaces/" + workspaceID + "/forms/" + formID + "/new_submission",
-			{
-				method: "POST",
-				body: JSON.stringify(formData),
-				mode: "cors",
-				headers: {
-					"Content-type": "application/json",
-					authorization: "Bearer " + authToken
-				}
-			}
-		);
-
-		const data = await response.json();
-		/* required in strict mode to be allowed to update state: */
-		runInAction("update state after fetching data", () => {
-			console.log(data);
-			callback();
-		});
-	};
-
 	@action updateFormOnServer = async (
 		workspaceID,
 		formID,

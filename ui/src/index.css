@@ -107,3 +107,20 @@ i.glyphicon { display: none; }
 .bw-tiny /*borderwidth tiny*/{
       border-width: .05rem;
 }
+
+.hover-grow{
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-transform: translateZ( 0 );
+    transform: translateZ( 0 );
+    -webkit-transition: -webkit-transform .25s ease-out;
+    transition: -webkit-transform .25s ease-out;
+    transition: transform .25s ease-out;
+    transition: transform .25s ease-out, -webkit-transform .25s ease-out;
+}
+.hover-grow:hover,.hover-grow:focus {
+  -webkit-transform: scale( 1.05 );
+  -ms-transform: scale( 1.05 );
+  transform: scale( 1.05 );
+}
