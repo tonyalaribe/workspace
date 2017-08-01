@@ -12,7 +12,8 @@
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "react-jsonschema-form": "^0.45.0",
-    "react-router-dom": "^4.0.0"
+    "react-router-dom": "^4.0.0",
+    "react-tabs": "^1.1.0"
   },
   "devDependencies": {
     "autoprefixer": "6.7.2",
