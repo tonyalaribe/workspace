@@ -46,16 +46,12 @@ class NewFormPage extends Component {
 	state = {};
 
 	submitFormToServer() {
-		console.log("submitFormToServer 1 ")
 		let workspaceID = this.props.match.params.workspaceID;
 		this.setState({ showSuccessMessage: false });
-		console.log("submitNewFormToServer")
 
 		this.props.FormBuilderStore.submitNewFormToServer(workspaceID,() => {
 			this.setState({ showSuccessMessage: true });
 			this.refs.formName.value = "";
-			this.refs.jsonSchema.value = "";
-			this.refs.uiSchema.value = "";
 			setTimeout(() => {
 				window.requestAnimationFrame(() => {
 					this.props.history.push("/workspaces/" + workspaceID);
@@ -135,7 +131,7 @@ class NewFormPage extends Component {
 						<div className="pv3 tr">
 							<button
 								className="pa3 bg-navy grow shadow-4  bw0 white-80 hover-white ml2 pointer"
-								onClick={()=>{console.log("DF");this.submitFormToServer}}
+								onClick={()=>{this.submitFormToServer()}}
 							>
 								Create Form
 							</button>

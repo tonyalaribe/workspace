@@ -7,14 +7,16 @@ class mainStore {
 	@observable AllForms = [];
 
 	@observable SubmissionInfo = {};
-	@observable CurrentForm = {
+	@observable
+	CurrentForm = {
 		jsonschema: {
 			properties: {}
 		},
 		uischema: {}
 	};
 
-	@action updateFormOnServer = async (
+	@action
+	updateFormOnServer = async (
 		workspaceID,
 		formID,
 		submissionID,
@@ -46,14 +48,15 @@ class mainStore {
 			callback();
 		});
 	};
-	@action submitNewFormToServer = async (workspaceID, form, callback) => {
-		let authToken = AuthService.getToken();
 
+	@action
+	submitFormToServer = async (workspaceID, formID, formData, callback) => {
+		let authToken = AuthService.getToken();
 		const response = await fetch(
-			"/api/workspaces/" + workspaceID + "/new_form",
+			"/api/workspaces/" + workspaceID + "/forms/" + formID + "/new_submission",
 			{
 				method: "POST",
-				body: JSON.stringify(form),
+				body: JSON.stringify(formData),
 				mode: "cors",
 				headers: {
 					"Content-type": "application/json",
@@ -61,6 +64,7 @@ class mainStore {
 				}
 			}
 		);
+
 		const data = await response.json();
 		/* required in strict mode to be allowed to update state: */
 		runInAction("update state after fetching data", () => {
@@ -68,8 +72,8 @@ class mainStore {
 			callback();
 		});
 	};
-
-	@action getAllForms = async workspaceID => {
+	@action
+	getAllForms = async workspaceID => {
 		let authToken = AuthService.getToken();
 		const response = await fetch("/api/workspaces/" + workspaceID + "/forms", {
 			method: "GET",
@@ -87,7 +91,8 @@ class mainStore {
 		});
 	};
 
-	@action getFormInfo = async (workspaceID, formID) => {
+	@action
+	getFormInfo = async (workspaceID, formID) => {
 		this.CurrentForm.id = workspaceID;
 
 		let authToken = AuthService.getToken();
@@ -111,7 +116,8 @@ class mainStore {
 		});
 	};
 
-	@action getAllWorkspaces = async () => {
+	@action
+	getAllWorkspaces = async () => {
 		let authToken = AuthService.getToken();
 		const response = await fetch("/api/workspaces", {
 			method: "GET",
@@ -128,7 +134,8 @@ class mainStore {
 		});
 	};
 
-	@action submitNewWorkspaceToServer = async (workspace, callback) => {
+	@action
+	submitNewWorkspaceToServer = async (workspace, callback) => {
 		let authToken = AuthService.getToken();
 
 		const response = await fetch("/api/new_workspace", {
@@ -148,7 +155,8 @@ class mainStore {
 		});
 	};
 
-	@action getMySubmissions = async (workspaceID, formID) => {
+	@action
+	getMySubmissions = async (workspaceID, formID) => {
 		let authToken = AuthService.getToken();
 		const response = await fetch(
 			"/api/workspaces/" + workspaceID + "/forms/" + formID + "/submissions",
@@ -169,7 +177,8 @@ class mainStore {
 		});
 	};
 
-	@action getSubmissionInfo = async (workspaceID, formID, submissionID) => {
+	@action
+	getSubmissionInfo = async (workspaceID, formID, submissionID) => {
 		let authToken = AuthService.getToken();
 
 		const response = await fetch(
