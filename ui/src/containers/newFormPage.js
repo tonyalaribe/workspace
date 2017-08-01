@@ -46,15 +46,12 @@ class NewFormPage extends Component {
 	state = {};
 
 	submitFormToServer() {
+		console.log("submitFormToServer 1 ")
 		let workspaceID = this.props.match.params.workspaceID;
 		this.setState({ showSuccessMessage: false });
-		let form = {};
-		form.name = this.refs.formName.value;
-		form.jsonschema = JSON.parse(this.refs.jsonSchema.value);
-		form.uischema = JSON.parse(this.refs.uiSchema.value);
-		console.log(form);
+		console.log("submitNewFormToServer")
 
-		this.props.FormBuilderStore.submitNewFormToServer(workspaceID, form, () => {
+		this.props.FormBuilderStore.submitNewFormToServer(workspaceID,() => {
 			this.setState({ showSuccessMessage: true });
 			this.refs.formName.value = "";
 			this.refs.jsonSchema.value = "";
@@ -79,8 +76,8 @@ class NewFormPage extends Component {
 				<Nav workspaceID={workspaceID} />
 				<section className="tc pt5">
 					<section className="pt5 dib w-100 w-70-m w-50-l ">
-						<div className="pv3 ">
-							<span className="navy w-100 f3 db">New Form</span>
+						<div className="pt3 pb5 ">
+							<span className="navy w-100 f2 db">New Form</span>
 						</div>
 
 						<section>
@@ -89,7 +86,6 @@ class NewFormPage extends Component {
 						      <Tab>Builder</Tab>
 						      <Tab>Preview</Tab>
 						    </TabList>
-
 						    <TabPanel>
 									<section>
 										<div className="pv3 tl">
@@ -127,9 +123,6 @@ class NewFormPage extends Component {
 						  </Tabs>
 
 						</section>
-
-
-
 						<div className="pv3">
 							{state.showSuccessMessage
 								? <p className="pa3 ba">Submitted Successfully</p>
@@ -142,9 +135,9 @@ class NewFormPage extends Component {
 						<div className="pv3 tr">
 							<button
 								className="pa3 bg-navy grow shadow-4  bw0 white-80 hover-white ml2 pointer"
-								onClick={()=>this.submitFormToServer}
+								onClick={()=>{console.log("DF");this.submitFormToServer}}
 							>
-								publish
+								Create Form
 							</button>
 						</div>
 					</section>

@@ -1,4 +1,4 @@
-import { observable, action, runInAction } from "mobx";
+import { observable, action, runInAction,toJS } from "mobx";
 import AuthService from "../utils/auth0.js";
 
 class formBuilderStore {
@@ -12,13 +12,20 @@ class formBuilderStore {
 
 
 	@action
-	submitFormToServer = async (workspaceID, formID, formData, callback) => {
+	submitFormToServer = async (workspaceID, formID, callback) => {
+
+		let form = {};
+		form.name = this.JSONSchema.title
+		form.jsonschema = JSON.parse(toJS(this.JSONSchema));
+		form.uischema = JSON.parse(toJS(this.UISchema));
+
+
 		let authToken = AuthService.getToken();
 		const response = await fetch(
 			"/api/workspaces/" + workspaceID + "/forms/" + formID + "/new_submission",
 			{
 				method: "POST",
-				body: JSON.stringify(formData),
+				body: JSON.stringify(form),
 				mode: "cors",
 				headers: {
 					"Content-type": "application/json",

@@ -22,12 +22,9 @@ class FormBuilder extends Component {
 		let {state} = this;
 
 		let otherOptions = function(key, kind){
-			console.log("xxxxxxx")
-			console.log(kind)
 		 switch (kind) {
 
 			 case "File upload":
-				 console.log("yyyyyys")
 				 return (
 					 <div>
 						 <div>
@@ -49,8 +46,7 @@ class FormBuilder extends Component {
 					 </div>
 				 )
 			 default:
-				 console.log("default")
-				 return ("options go here")
+				 return ("")
 		 }
 	 }
 
@@ -99,7 +95,6 @@ class FormBuilder extends Component {
 					</div>
 					<div>
 						{otherOptions(key, FormBuilderStore.Kinds.get(key))}
-						{FormBuilderStore.Kinds.get(key)}
 					</div>
 					<div className="bt b--light-gray bw1 cf pa2">
 						<div className="fr">
@@ -113,14 +108,14 @@ class FormBuilder extends Component {
 		});
 
 		return (
-			<section className="vh-75">
+			<section >
 				<section>
 					{formFields}
 				</section>
 				<div className="pv2 cf">
 					<a
 						href="#"
-						className="pv2 ph3  link grow bg-navy shadow-4 white-90 fr"
+						className="pv2 ph3  link grow bg-light-gray shadow-4 black-90 fr"
 						onClick={() => this.AddRow()}
 					>
 						Add Row
