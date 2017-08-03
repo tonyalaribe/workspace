@@ -1,20 +1,14 @@
 import React, { Component } from "react";
 import { observer, inject } from "mobx-react";
+import {toJS} from "mobx";
 
 
 
 @inject("MainStore", "FormBuilderStore")
 @observer
 class FormBuilder extends Component {
-	state = {kinds:{}}
-	AddRow() {
-		console.log("add row");
-		let { FormBuilderStore } = this.props;
-		let count = FormBuilderStore.propertiesOrder.length;
-		FormBuilderStore.propertiesOrder.push(count);
-		FormBuilderStore.JSONSchema.properties[count] = { type: "string",kind:"Short answer" };
-
-
+	state = {
+		kinds:{},
 	}
 
 	render() {
@@ -24,7 +18,7 @@ class FormBuilder extends Component {
 		let otherOptions = function(key, kind){
 		 switch (kind) {
 
-			 case "File upload":
+			 case "FileUpload":
 				 return (
 					 <div>
 						 <div>
@@ -45,6 +39,36 @@ class FormBuilder extends Component {
 						 </div>
 					 </div>
 				 )
+			case "Checkboxes":
+				let checkboxes = FormBuilderStore.Checkboxes.get(key)
+				console.log(checkboxes)
+				let options = checkboxes.map((value, i)=>{
+					return (
+						<div className="cf pa2" key={i}>
+						<input type="text" placeholder={"eg. option "+(i+1)} className="w-80 pv2 ph3 dib fl" defaultValue={value} onInput={(e)=>{FormBuilderStore.setCheckboxOption(key, i, e.target.value)}}/>
+						<div className="dib w-20 fl">
+							<button className="pv2 ph3 bg-white ba b--light-gray shadow-4" >
+								✖
+							</button>
+						</div>
+					</div>
+				)
+				})
+				return (
+					<div>
+						<div className="pv3">
+							<strong>Options</strong>
+							<section className="pa3 ">
+								{options}
+								<div className="cf pa2">
+									<div className="dib  fl">
+										<button className="pv2 ph3 bg-white ba b--light-gray shadow-4"  onClick={()=>FormBuilderStore.addCheckbox(key)}>+ add</button>
+									</div>
+								</div>
+							</section>
+						</div>
+					</div>
+				)
 			 default:
 				 return ("")
 		 }
@@ -64,31 +88,24 @@ class FormBuilder extends Component {
 									defaultValue={
 										FormBuilderStore.JSONSchema.properties[key].title
 									}
-									onChange={e => {
-										console.log(e.target.value);
-										FormBuilderStore.JSONSchema.properties[key].title =
-											e.target.value;
+									onChange={(e) => {
+										FormBuilderStore.updateTitle(key, e.target.value)
 									}}
 								/>
 							</div>
 							<div className="w-40 dib fl pa2">
 								<select
 									className="pv2 ph3 w-100"
-									defaultValue={
-										FormBuilderStore.JSONSchema.properties[key].kind
-									}
+									value={FormBuilderStore.JSONSchema.properties[key].kind}
 									onChange={e => {
-										console.log(e.target.value);
-										console.log(state)
 										FormBuilderStore.onFormKindChange(key, e.target.value)
 									}}
 								>
-									<option className="pv2 ph3 w-100">Short answer</option>
-									<option className="pv2 ph3 w-100">Paragraph</option>
-									<option className="pv2 ph3 w-100">Multiple Choice</option>
-									<option className="pv2 ph3 w-100">Checkboxes</option>
-									<option className="pv2 ph3 w-100">Dropdown</option>
-									<option className="pv2 ph3 w-100">File upload</option>
+									<option className="pv2 ph3 w-100" value="ShortAnswer">Short answer</option>
+									<option className="pv2 ph3 w-100" value="Paragraph">Paragraph</option>
+									<option className="pv2 ph3 w-100" value="Checkboxes">Checkboxes</option>
+									<option className="pv2 ph3 w-100" value="list">List</option>
+									<option className="pv2 ph3 w-100" value="FileUpload">File upload</option>
 								</select>
 							</div>
 						</div>
@@ -116,11 +133,23 @@ class FormBuilder extends Component {
 					<a
 						href="#"
 						className="pv2 ph3  link grow bg-light-gray shadow-4 black-90 fr"
-						onClick={() => this.AddRow()}
+						onClick={() => FormBuilderStore.addRow()}
 					>
 						Add Row
 					</a>
 				</div>
+
+				<section>
+					<div className="code pv3">
+						{JSON.stringify(toJS(FormBuilderStore.JSONSchema))}
+					</div>
+
+					<div className="code pv3">
+						{JSON.stringify(toJS(FormBuilderStore.UISchema))}
+					</div>
+
+				</section>
+
 			</section>
 		);
 	}
