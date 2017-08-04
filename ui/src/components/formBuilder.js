@@ -1,23 +1,15 @@
 import React, { Component } from "react";
 import { observer, inject } from "mobx-react";
-import {toJS} from "mobx";
-
 
 
 @inject("MainStore", "FormBuilderStore")
 @observer
 class FormBuilder extends Component {
-	state = {
-		kinds:{},
-	}
-
 	render() {
 		let { FormBuilderStore } = this.props;
-		let {state} = this;
 
 		let otherOptions = function(key, kind){
 		 switch (kind) {
-
 			 case "FileUpload":
 				 return (
 					 <div>
@@ -41,13 +33,15 @@ class FormBuilder extends Component {
 				 )
 			case "Checkboxes":
 				let checkboxes = FormBuilderStore.Checkboxes.get(key)
+				// let checkboxes = FormBuilderStore.JSONSchema.properties[key].items.enum
+				// let checkboxes = FormBuilderStore.checkboxValue[key].items.enum
 				console.log(checkboxes)
-				let options = checkboxes.map((value, i)=>{
+				let options = checkboxes.map(function(value, checkboxKey){
 					return (
-						<div className="cf pa2" key={i}>
-						<input type="text" placeholder={"eg. option "+(i+1)} className="w-80 pv2 ph3 dib fl" defaultValue={value} onInput={(e)=>{FormBuilderStore.setCheckboxOption(key, i, e.target.value)}}/>
+						<div className="cf pa2" key={checkboxKey}>
+						<input type="text" placeholder={"eg. option "+(checkboxKey+1)} className="w-80 pv2 ph3 dib fl" value={value} onInput={(e)=>{FormBuilderStore.setCheckboxOption(key, checkboxKey, e.target.value)}}/>
 						<div className="dib w-20 fl">
-							<button className="pv2 ph3 bg-white ba b--light-gray shadow-4" >
+							<button className="pv2 ph3 bg-white ba b--light-gray shadow-4" onClick={()=>FormBuilderStore.deleteCheckbox(key, checkboxKey)}>
 								✖
 							</button>
 						</div>
@@ -77,7 +71,7 @@ class FormBuilder extends Component {
 		let formFields = FormBuilderStore.propertiesOrder.map(function(key, i) {
 			// let property = FormBuilderStore.JSONSchema.properties[key];
 			return (
-				<div className="ba bw1 b--light-gray hover-grow mv3" key={key}>
+				<div className="ba bw1 b--light-gray hover-grow mv3" key={i}>
 					<div>
 						<div className="cf w-100">
 							<div className="w-60 dib fl pa2">
@@ -85,7 +79,7 @@ class FormBuilder extends Component {
 									type="text"
 									className="pv2 ph3 w-100"
 									placeholder="Title"
-									defaultValue={
+									value={
 										FormBuilderStore.JSONSchema.properties[key].title
 									}
 									onChange={(e) => {
@@ -104,7 +98,7 @@ class FormBuilder extends Component {
 									<option className="pv2 ph3 w-100" value="ShortAnswer">Short answer</option>
 									<option className="pv2 ph3 w-100" value="Paragraph">Paragraph</option>
 									<option className="pv2 ph3 w-100" value="Checkboxes">Checkboxes</option>
-									<option className="pv2 ph3 w-100" value="list">List</option>
+									<option className="pv2 ph3 w-100" value="List">List</option>
 									<option className="pv2 ph3 w-100" value="FileUpload">File upload</option>
 								</select>
 							</div>
@@ -115,7 +109,7 @@ class FormBuilder extends Component {
 					</div>
 					<div className="bt b--light-gray bw1 cf pa2">
 						<div className="fr">
-							<a href="#" className="dib link pa2 navy">
+							<a className="dib link pa2 navy pointer" onClick={()=>{FormBuilderStore.deleteRow(key)}} >
 								delete
 							</a>
 						</div>
@@ -131,14 +125,13 @@ class FormBuilder extends Component {
 				</section>
 				<div className="pv2 cf">
 					<a
-						href="#"
-						className="pv2 ph3  link grow bg-light-gray shadow-4 black-90 fr"
+						className="pv2 ph3  link grow bg-light-gray shadow-4 black-90 fr pointer"
 						onClick={() => FormBuilderStore.addRow()}
 					>
 						Add Row
 					</a>
 				</div>
-
+{/*
 				<section>
 					<div className="code pv3">
 						{JSON.stringify(toJS(FormBuilderStore.JSONSchema))}
@@ -147,12 +140,15 @@ class FormBuilder extends Component {
 					<div className="code pv3">
 						{JSON.stringify(toJS(FormBuilderStore.UISchema))}
 					</div>
-
+}
 				</section>
-
+*/}
 			</section>
+
 		);
+
 	}
+
 }
 
 export default FormBuilder;

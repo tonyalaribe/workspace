@@ -37,7 +37,7 @@ class formBuilderStore {
 		const data = await response.json();
 		/* required in strict mode to be allowed to update state: */
 		runInAction("update state after fetching data", () => {
-			console.log(data);
+			console.log(data)
 			callback();
 		});
 	};
@@ -51,6 +51,12 @@ class formBuilderStore {
 		};
 	}
 
+	@action deleteRow = (propertyKey)=>{
+		this.propertiesOrder.splice(this.propertiesOrder.indexOf(propertyKey),1);
+		delete this.JSONSchema.properties[propertyKey];
+	}
+
+
 	@action updateTitle = (propertyKey, title)=>{
 		this.JSONSchema.properties[propertyKey].title = title;
 	}
@@ -59,7 +65,6 @@ class formBuilderStore {
 	onFormKindChange = (propertyKey, kind) => {
 		this.JSONSchema.properties[propertyKey].kind = kind;
 		this.Kinds.set(propertyKey, kind);
-		console.log(this.Kinds);
 		switch (kind) {
 			case "ShortAnswer":
 				this.JSONSchema.properties[propertyKey].type = "string";
@@ -80,11 +85,19 @@ class formBuilderStore {
 				this.JSONSchema.properties[propertyKey].type = "array";
 				this.JSONSchema.properties[propertyKey].items = {
 					type:"string",
+					enum:[],
 				};
+				this.JSONSchema.properties[propertyKey].uniqueItems = true
 				this.UISchema[propertyKey] = {
 					"ui:widget":"checkboxes"
 				};
 				this.Checkboxes.set(propertyKey, [""])
+				break;
+			case "List":
+				this.JSONSchema.properties[propertyKey].type = "array";
+				this.JSONSchema.properties[propertyKey].items = {
+					type:"string",
+				};
 				break;
 			default:
 				this.JSONSchema.properties[propertyKey].type = "string";
@@ -108,6 +121,7 @@ class formBuilderStore {
 			this.JSONSchema.properties[propertyKey].format = "data-url";
 
 			this.JSONSchema.properties[propertyKey].items = {};
+			this.JSONSchema.properties[propertyKey].items.enum.push("")
 		}
 	};
 
@@ -115,14 +129,24 @@ class formBuilderStore {
 		let propertyCheckboxes = this.Checkboxes.get(propertyKey)
 		propertyCheckboxes.push("")
 		this.Checkboxes.set(propertyKey, propertyCheckboxes)
+
+		this.JSONSchema.properties[propertyKey].items.enum.push("a")
+		console.log(this.JSONSchema.properties[propertyKey].items.enum)
 	};
 
+	@action deleteCheckbox = (propertyKey, checkboxKey) =>{
+		let propertyCheckboxes = this.Checkboxes.get(propertyKey)
+		propertyCheckboxes.splice(checkboxKey, 1)
+		this.Checkboxes.set(propertyKey, propertyCheckboxes)
+		this.JSONSchema.properties[propertyKey].items.enum.splice(checkboxKey, 1)
+	}
+
 	@action setCheckboxOption = (propertyKey, checkboxKey, checkboxValue)=>{
-		console.log(checkboxValue)
 		let propertyCheckboxes = this.Checkboxes.get(propertyKey)
 		propertyCheckboxes[checkboxKey] = checkboxValue
 		this.Checkboxes.set(propertyKey, propertyCheckboxes)
-		console.log(this.Checkboxes.get(propertyKey))
+
+		this.JSONSchema.properties[propertyKey].items.enum[checkboxKey] = checkboxValue
 
 	};
 
