@@ -151,6 +151,19 @@ func UpdateSubmission(workspaceID, formID string, submissionIDString string, new
 	if err != nil {
 		return err
 	}
+
+	changelogItem := database.ChangelogItem{
+		Created:      oldSubmission.LastModified,
+		Notes:        newSubmission.SubmissionNotes,
+		WorkspaceID:  workspaceID,
+		SubmissionID: submissionID,
+		FormID:       formID,
+	}
+	err = conf.Database.AddToSubmissionChangelog(workspaceID, formID, submissionID, changelogItem)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

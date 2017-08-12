@@ -7,6 +7,7 @@ class mainStore {
 	@observable AllForms = [];
 
 	@observable SubmissionInfo = {};
+	@observable Changelog = [];
 	@observable
 	CurrentForm = {
 		jsonschema: {
@@ -202,6 +203,34 @@ class mainStore {
 		/* required in strict mode to be allowed to update state: */
 		runInAction("update state after fetching data", () => {
 			this.SubmissionInfo = data;
+		});
+	};
+	@action
+	getSubmissionChangelog = async (workspaceID, formID, submissionID) => {
+		let authToken = AuthService.getToken();
+
+		const response = await fetch(
+			"/api/workspaces/" +
+				workspaceID +
+				"/forms/" +
+				formID +
+				"/submissions/" +
+				submissionID + "/changelog",
+			{
+				method: "GET",
+				mode: "cors",
+				headers: {
+					"Content-type": "application/json",
+					authorization: "Bearer " + authToken
+				}
+			}
+		);
+		const data = await response.json();
+		console.log(data);
+		/* required in strict mode to be allowed to update state: */
+		runInAction("update state after fetching data", () => {
+			this.Changelog = data;
+			console.log(data)
 		});
 	};
 }

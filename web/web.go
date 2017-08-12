@@ -90,6 +90,8 @@ func App() {
 
 	router.Get("/api/workspaces/:workspaceID/forms/:formID/submissions", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(GetSubmissionsHandler))
 
+	router.Get("/api/workspaces/:workspaceID/forms/:formID/submissions/:submissionID/changelog", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(GetSubmissionChangelogHandler))
+
 	router.Get("/api/workspaces/:workspaceID/forms/:formID/submissions/:submissionID", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(GetSubmissionInfoHandler))
 	router.Put("/api/workspaces/:workspaceID/forms/:formID/submissions/:submissionID", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(UpdateSubmissionHandler))
 

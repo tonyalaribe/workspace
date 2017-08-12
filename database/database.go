@@ -25,12 +25,22 @@ type Form struct {
 }
 
 type SubmissionData struct {
-	FormData       map[string]interface{} `json:"formData"`
-	Created        int                    `json:"created"`
-	LastModified   int                    `json:"lastModified"`
-	SubmissionName string                 `json:"submissionName"`
-	Status         string                 `json:"status"`
-	ID             int                    `json:"id"`
+	FormData        map[string]interface{} `json:"formData"`
+	Created         int                    `json:"created"`
+	LastModified    int                    `json:"lastModified"`
+	SubmissionName  string                 `json:"submissionName"`
+	Status          string                 `json:"status"`
+	ID              int                    `json:"id"`
+	SubmissionNotes string                 `json:"submissionNotes"`
+}
+
+type ChangelogItem struct {
+	Created      int    `json:"created"`
+	WorkspaceID  string `json:"workspaceID"`
+	FormID       string `json:"formID"`
+	SubmissionID int    `json:"submissionID"`
+
+	Notes string `json:"note"`
 }
 
 type Files struct {
@@ -69,4 +79,7 @@ type Database interface {
 	GetUser(username string) (User, error)
 	GetUserByEmail(email string) (User, error)
 	GetAllUsers() ([]User, error)
+
+	AddToSubmissionChangelog(workspaceID, formID string, submissionID int, changelogItem ChangelogItem) error
+	GetSubmissionChangelog(workspaceID, formID string, submissionID int) ([]ChangelogItem, error)
 }

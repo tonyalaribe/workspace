@@ -96,5 +96,21 @@ func GetSubmissionInfoHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+}
+
+func GetSubmissionChangelogHandler(w http.ResponseWriter, r *http.Request) {
+	// username := r.Context().Value("username").(string)
+	httprouterParams := r.Context().Value("params").(httprouter.Params)
+	workspaceID := httprouterParams.ByName("workspaceID")
+	formID := httprouterParams.ByName("formID")
+	submissionID := httprouterParams.ByName("submissionID")
+
+	submissionData, err := actions.GetSubmissionChangelog(workspaceID, formID, submissionID)
+
+	w.Header().Set("Content-type", "application/json")
+	err = json.NewEncoder(w).Encode(submissionData)
+	if err != nil {
+		log.Println(err)
+	}
 
 }

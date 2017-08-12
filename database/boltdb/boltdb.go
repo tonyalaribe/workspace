@@ -17,6 +17,7 @@ type BoltDBProvider struct {
 	WorkspacesContainer string
 	UsersBucket         string
 	FormsMetadata       string
+	ChangelogBucket     string
 }
 
 func New(RootDirectory, AppMetadata, WorkspacesMetadata, WorkspacesContainer, UsersBucket, FormsMetadata string) (*BoltDBProvider, error) {
@@ -28,6 +29,7 @@ func New(RootDirectory, AppMetadata, WorkspacesMetadata, WorkspacesContainer, Us
 	boltdb.WorkspacesContainer = WorkspacesContainer
 	boltdb.UsersBucket = UsersBucket
 	boltdb.FormsMetadata = FormsMetadata
+	boltdb.ChangelogBucket = "ChangelogBucket"
 	boltFile := filepath.Join(RootDirectory, "workspace.db")
 
 	os.MkdirAll(RootDirectory, os.ModePerm)
@@ -40,6 +42,7 @@ func New(RootDirectory, AppMetadata, WorkspacesMetadata, WorkspacesContainer, Us
 		tx.CreateBucketIfNotExists([]byte(WorkspacesMetadata))
 		tx.CreateBucketIfNotExists([]byte(WorkspacesContainer))
 		tx.CreateBucketIfNotExists([]byte(UsersBucket))
+		tx.CreateBucketIfNotExists([]byte(boltdb.ChangelogBucket))
 		return nil
 	})
 
