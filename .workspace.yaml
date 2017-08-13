@@ -2,7 +2,8 @@ database-type: boltdb
 
 # persistence-type: local
 root-directory: data
-persistence-type: s3
+# persistence-type: s3
+persistence-type: openstack
 
 #aws
 AWS_ACCESS_KEY_ID:  AKIAIUC2R3AVIIJWTTLQ

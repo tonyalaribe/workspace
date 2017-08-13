@@ -8,6 +8,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/mikespook/gorbac"
+	"github.com/rackspace/gophercloud"
+	"github.com/rackspace/gophercloud/openstack"
 	"gitlab.com/middlefront/workspace/database"
 	"gitlab.com/middlefront/workspace/database/boltdb"
 	"gitlab.com/middlefront/workspace/storage"
@@ -73,6 +75,24 @@ func Init(c Config) {
 			AWSSession: sess,
 			BucketName: config.AWSS3BucketName,
 		}
+		break
+	case "openstack":
+		// creds := credentials.NewEnvCredentials()
+		opts := gophercloud.AuthOptions{
+			IdentityEndpoint: "https://storage.bhs1.cloud.ovh.net/v2.0/",
+			Username:         "nGaW4ryDxkz3",
+			Password:         "GmEhvEHWMzwheeJB6hRz8q283HNubYC2",
+			TenantID:         "AUTH_74439eb9176b44c78f1a279cb21f554d",
+		}
+		provider, err := openstack.AuthenticatedClient(opts)
+		if err != nil {
+			log.Println(err)
+		}
+		client, err := openstack.NewObjectStorageV1(provider, gophercloud.EndpointOpts{})
+		if err != nil {
+			log.Println(err)
+		}
+		log.Print(client.ResourceBaseURL())
 		break
 	case "local":
 		config.FileManager = file.Persister{
