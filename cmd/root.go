@@ -74,6 +74,15 @@ func initConfig() {
 
 	config.DatabaseType = viper.GetString("database-type")
 
+	openstack := viper.GetStringMapString("openstack")
+	config.Openstack = conf.Openstack{
+		IdentityEndpoint: openstack["identity-endpoint"],
+		Username:         openstack["username"],
+		Password:         openstack["password"],
+		TenantID:         openstack["tenant-id"],
+		TenantName:       openstack["tenant-name"],
+	}
+
 	conf.Init(config)
 
 }

@@ -10,12 +10,22 @@ import (
 	"github.com/mikespook/gorbac"
 	"github.com/rackspace/gophercloud"
 	"github.com/rackspace/gophercloud/openstack"
+	"github.com/rackspace/gophercloud/openstack/objectstorage/v1/containers"
 	"gitlab.com/middlefront/workspace/database"
 	"gitlab.com/middlefront/workspace/database/boltdb"
 	"gitlab.com/middlefront/workspace/storage"
 	"gitlab.com/middlefront/workspace/storage/file"
+	openstackStorage "gitlab.com/middlefront/workspace/storage/openstack"
 	"gitlab.com/middlefront/workspace/storage/s3"
 )
+
+type Openstack struct {
+	IdentityEndpoint string
+	Username         string
+	Password         string
+	TenantID         string
+	TenantName       string
+}
 
 type Config struct {
 	AppMetadata         string
@@ -41,6 +51,8 @@ type Config struct {
 
 	DatabaseType string
 	Database     database.Database
+
+	Openstack Openstack
 }
 
 var (
@@ -79,20 +91,42 @@ func Init(c Config) {
 	case "openstack":
 		// creds := credentials.NewEnvCredentials()
 		opts := gophercloud.AuthOptions{
-			IdentityEndpoint: "https://storage.bhs1.cloud.ovh.net/v2.0/",
-			Username:         "nGaW4ryDxkz3",
-			Password:         "GmEhvEHWMzwheeJB6hRz8q283HNubYC2",
-			TenantID:         "AUTH_74439eb9176b44c78f1a279cb21f554d",
+			IdentityEndpoint: config.Openstack.IdentityEndpoint,
+			Username:         config.Openstack.Username,
+			Password:         config.Openstack.Password,
+			TenantID:         config.Openstack.TenantID,
+			TenantName:       config.Openstack.TenantName,
 		}
 		provider, err := openstack.AuthenticatedClient(opts)
 		if err != nil {
 			log.Println(err)
 		}
-		client, err := openstack.NewObjectStorageV1(provider, gophercloud.EndpointOpts{})
+
+		containerOpts := containers.CreateOpts{}
+
+		client, err := openstack.NewObjectStorageV1(provider, gophercloud.EndpointOpts{
+			Region: "BHS1",
+		})
 		if err != nil {
 			log.Println(err)
 		}
 		log.Print(client.ResourceBaseURL())
+		log.Println(client.ResourceBase)
+		res := containers.Create(client, "bucket_name", containerOpts)
+
+		headers, err := res.ExtractHeader()
+		if err != nil {
+			log.Println(err)
+		}
+		log.Printf("%#v", headers)
+		log.Printf("%#v", res)
+		log.Println(openstackStorage.Persister{})
+		config.FileManager = openstackStorage.Persister{
+			OpenstackSession: client,
+			BucketName:       "bucket_name",
+			ResourceBaseURL:  client.ResourceBaseURL(),
+		}
+
 		break
 	case "local":
 		config.FileManager = file.Persister{

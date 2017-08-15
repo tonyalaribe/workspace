@@ -3,21 +3,20 @@ package openstack
 import (
 	"bytes"
 	"encoding/base64"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+	"github.com/rackspace/gophercloud"
+	"github.com/rackspace/gophercloud/openstack/objectstorage/v1/objects"
 )
 
 // Persister is an implementation of the File Persister
 type Persister struct {
-	AWSSession *session.Session
-	BucketName string
+	OpenstackSession *gophercloud.ServiceClient
+	BucketName       string
+	ResourceBaseURL  string
 }
 
 // Save persists data to a loader.
@@ -27,12 +26,13 @@ func (fp Persister) Save(workspaceID string, formID string, submissionName strin
 	if err != nil {
 		return "", err
 	}
-	fullPath, err := Base64ToOpenstack(b64Data, pathToSubmission, fp.AWSSession, fp.BucketName)
+	fullPath, err := Base64ToOpenstack(b64Data, fp.ResourceBaseURL, pathToSubmission, fp.OpenstackSession, fp.BucketName)
 	return fullPath, err
 }
 
 //Base64ToOpenstack puts file into s3 bucket
-func Base64ToOpenstack(b64 string, imagename string, awsSession *session.Session, bucketName string) (string, error) {
+func Base64ToOpenstack(b64 string, resourcePath, imagename string, openstackClient *gophercloud.ServiceClient, bucketName string) (string, error) {
+	log.Println("in base64ToOpenstack")
 	if len(strings.Split(b64, "base64,")) < 2 {
 		return b64, nil
 	}
@@ -45,19 +45,15 @@ func Base64ToOpenstack(b64 string, imagename string, awsSession *session.Session
 	filename := strings.Replace(strings.Split(meta, "name=")[1], ";", "", -1)
 	pathToFile := filepath.Join(imagename, filename)
 
-	uploader := s3manager.NewUploader(awsSession)
-	result, err := uploader.Upload(&s3manager.UploadInput{
-		Bucket:      aws.String(bucketName),
-		Key:         aws.String(pathToFile),
-		ACL:         aws.String("public-read"),
-		Body:        bytes.NewReader(byt),
-		ContentType: aws.String(meta),
-	})
+	// You have the option of specifying additional configuration options.
+	opts := objects.CreateOpts{}
 
-	if err != nil {
-		return "", fmt.Errorf("failed to upload file, %v", err)
+	// Now execute the upload
+	res := objects.Create(openstackClient, bucketName, pathToFile, bytes.NewReader(byt), opts)
+	if res.Err != nil {
+		log.Println(res)
 	}
-	fmt.Printf("file uploaded to, %s\n", result.Location)
 
-	return result.Location, nil
+	// We have the option of extracting the resulting
+	return resourcePath + "/" + pathToFile, nil
 }
