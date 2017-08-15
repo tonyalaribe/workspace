@@ -25,6 +25,7 @@ type Openstack struct {
 	Password         string
 	TenantID         string
 	TenantName       string
+	BucketName       string
 }
 
 type Config struct {
@@ -112,18 +113,15 @@ func Init(c Config) {
 		}
 		log.Print(client.ResourceBaseURL())
 		log.Println(client.ResourceBase)
-		res := containers.Create(client, "bucket_name", containerOpts)
+		_ = containers.Create(client, config.Openstack.BucketName, containerOpts)
 
-		headers, err := res.ExtractHeader()
-		if err != nil {
-			log.Println(err)
-		}
-		log.Printf("%#v", headers)
-		log.Printf("%#v", res)
-		log.Println(openstackStorage.Persister{})
+		// headers, err := res.ExtractHeader()
+		// if err != nil {
+		// 	log.Println(err)
+		// }
 		config.FileManager = openstackStorage.Persister{
 			OpenstackSession: client,
-			BucketName:       "bucket_name",
+			BucketName:       config.Openstack.BucketName,
 			ResourceBaseURL:  client.ResourceBaseURL(),
 		}
 

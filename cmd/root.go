@@ -81,6 +81,7 @@ func initConfig() {
 		Password:         openstack["password"],
 		TenantID:         openstack["tenant-id"],
 		TenantName:       openstack["tenant-name"],
+		BucketName:       openstack["bucket-name"],
 	}
 
 	conf.Init(config)
