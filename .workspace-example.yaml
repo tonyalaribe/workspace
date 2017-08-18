@@ -2,13 +2,13 @@ database-type: boltdb
 
 # persistence-type: local
 root-directory: data
-persistence-type: s3
+persistence-type: openstack
 
 #aws
-AWS_ACCESS_KEY_ID:  AKIAIUC2R3AVIIJWTTLQ
-AWS_SECRET_ACCESS_KEY:  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
-AWS_REGION: us-west-2
-AWS_S3_BUCKET: test-past3
+# AWS_ACCESS_KEY_ID:  AKIAIUC2R3AVIIJWTTLQ
+# AWS_SECRET_ACCESS_KEY:  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
+# AWS_REGION: us-west-2
+# AWS_S3_BUCKET: test-past3
 
 #minio
 # AWS_ACCESS_KEY_ID:  PIYBOILAKIFLTJHWXKCY
