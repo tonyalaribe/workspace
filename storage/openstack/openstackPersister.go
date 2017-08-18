@@ -55,5 +55,5 @@ func Base64ToOpenstack(b64 string, resourcePath, imagename string, openstackClie
 	}
 
 	// We have the option of extracting the resulting
-	return resourcePath + "/" + pathToFile, nil
+	return resourcePath + bucketName + "/" + pathToFile, nil
 }

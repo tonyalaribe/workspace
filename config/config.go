@@ -103,7 +103,9 @@ func Init(c Config) {
 			log.Println(err)
 		}
 
-		containerOpts := containers.CreateOpts{}
+		containerOpts := containers.CreateOpts{
+			ContainerRead: ".r:*,.rlistings",
+		}
 
 		client, err := openstack.NewObjectStorageV1(provider, gophercloud.EndpointOpts{
 			Region: "BHS1",
