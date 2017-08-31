@@ -3,10 +3,10 @@ import AuthService from "../utils/auth0.js";
 
 class integrationsStore {
 	@observable Integrations = []
+	@observable CurrentIntegration = {}
 
 	@action getFormIntegrationSettings = async (workspaceID, formID) => {
-		console.log(workspaceID)
-		console.log(formID)
+
 		let authToken = AuthService.getToken();
 		const response = await fetch(`/api/workspaces/${workspaceID}/forms/${formID}/integrations`, {
 			method: "GET",
@@ -19,7 +19,7 @@ class integrationsStore {
 		const data = await response.json();
 		/* required in strict mode to be allowed to update state: */
 		runInAction("update state after fetching data", () => {
-			console.log(data);
+
 			this.Integrations.replace(data);
 		});
 	};
@@ -39,10 +39,17 @@ class integrationsStore {
 		const data = await response.json();
 		/* required in strict mode to be allowed to update state: */
 		runInAction("update state after fetching data", () => {
-			console.log(data);
 			callback();
 		});
 	};
+
+	@action selectIntegration = async(ID) =>{
+		this.CurrentIntegration = this.Integrations.find(function(integration){
+			if (integration.ID===ID){
+				return integration
+			}
+		})
+	}
 }
 
 export const IntegrationsStore = new integrationsStore();

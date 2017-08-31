@@ -73,7 +73,7 @@ class modal extends Component {
 							<section className="cf mb3">
 								<div className="mv2">
 									<label className="ma0 pv2 pb3 fw6 ph2">URL</label>
-									<input type="text" className="pv2 ph3 w-100  mv1" ref="URL" />
+									<input type="text" className="pv2 ph3 w-100  mv1" ref="URL" value={IntegrationsStore.CurrentIntegration.URL}/>
 								</div>
 								<div className="mv2">
 									<label className="ma0 pv2 pb3 fw6 ph2">Secret Token</label>
@@ -81,6 +81,7 @@ class modal extends Component {
 										type="text"
 										className="pv2 ph3 w-100  mv1"
 										ref="SecretToken"
+										value={IntegrationsStore.CurrentIntegration.SecretToken}
 									/>
 									<p className="gray">
 										This Token will be sent with the request in the
@@ -97,6 +98,8 @@ class modal extends Component {
 													className="mr2 dib "
 													ref="NewSubmission"
 													id="NewSubmission"
+													checked={IntegrationsStore.CurrentIntegration.NewSubmission}
+
 												/>
 											<label className="dib" htmlFor="NewSubmission">New Submission</label>
 											</div>
@@ -112,6 +115,7 @@ class modal extends Component {
 													className="mr2 dib "
 													ref="UpdateSubmission"
 													id="UpdateSubmission"
+													checked={IntegrationsStore.CurrentIntegration.UpdateSubmission}
 												/>
 											<label className="dib" htmlFor="UpdateSubmission">Update Submission</label>
 											</div>
@@ -126,6 +130,7 @@ class modal extends Component {
 													type="checkbox"
 													className="mr2 dib "
 													ref="DeleteSubmission"
+													checked={IntegrationsStore.CurrentIntegration.DeleteSubmission}
 												/>
 												<label className="dib">Delete Submission</label>
 											</div>
@@ -141,6 +146,7 @@ class modal extends Component {
 													className="mr2 dib "
 													ref="ApproveSubmission"
 													id="ApproveSubmission"
+													checked={IntegrationsStore.CurrentIntegration.ApproveSubmission}
 												/>
 											<label className="dib" htmlFor="ApproveSubmission">Approve Submission</label>
 											</div>
@@ -166,29 +172,31 @@ class modal extends Component {
 								</div>
 								<div>
 									<div>
-										{IntegrationsStore.Integrations.map(function(integrations) {
+										{IntegrationsStore.Integrations.map(function(integration, key) {
+											console.log(integration)
 											return (
-										<div className="pa2 mv2 ba b--light-gray grow ">
+										<div className="pa2 mv2 ba b--light-gray  " key={key}>
 											<div className="db cf">
 												<strong className="f5 fw5 db ">
-													{integrations.URL}
+													{integration.URL}
 												</strong>
 											</div>
 											<div className="cf pv2">
 												<a
-													className="ba b--light-gray navy bg-transparent pv1 ph2 link "
+													className="ba b--light-gray navy bg-transparent pv1 ph2 link pointer "
+													onClick={()=>IntegrationsStore.selectIntegration(integration.ID)}
 												>
 													Edit
 												</a>
 												<div className="di">
-													<button className="pv1 ph2 ba b--light-gray navy bg-transparent pv1 ph2 link  " >
+													<button className="pv1 ph2 ba b--light-gray navy bg-transparent pv1 ph2 link  pointer" >
 														Test
 													</button>
 												</div>
 
 												<a
 													data-confirm="Are you sure?"
-													className=" link bg-transparent b--light-gray navy pv1 ph2 ba "
+													className=" link bg-transparent b--light-gray navy pv1 ph2 ba pointer"
 													rel="nofollow"
 												>
 													<span className="">Remove</span>
