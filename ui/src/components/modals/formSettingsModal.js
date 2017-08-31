@@ -14,6 +14,10 @@ class modal extends Component {
 		// this.props.IntegrationsStore.getWorkspaceUsersAndRoles(
 		// 	this.props.match.params.workspaceID
 		// );
+		this.props.IntegrationsStore.getFormIntegrationSettings(
+			this.props.match.params.workspaceID,
+			this.props.match.params.formID
+		)
 	}
 	AddIntegration() {
 		let Result = {};
@@ -25,10 +29,8 @@ class modal extends Component {
 		Result.DeleteSubmission = this.refs.DeleteSubmission.value==="on"?true:false;
 		Result.ApproveSubmission = this.refs.ApproveSubmission.value==="on"?true:false;
 
-		console.log(Result);
-
 		let { IntegrationsStore, match, closeModal } = this.props;
-console.log(this.props)
+
 		IntegrationsStore.updateFormIntegrationSettings(
 			match.params.workspaceID,
 			match.params.formID,
@@ -40,7 +42,7 @@ console.log(this.props)
 	}
 
 	render() {
-		let { openModal, closeModal } = this.props;
+		let { openModal, closeModal, IntegrationsStore } = this.props;
 		return (
 			<section
 				className={
@@ -164,35 +166,36 @@ console.log(this.props)
 								</div>
 								<div>
 									<div>
+										{IntegrationsStore.Integrations.map(function(integrations) {
+											return (
 										<div className="pa2 mv2 ba b--light-gray grow ">
 											<div className="db cf">
 												<strong className="f5 fw5 db ">
-													http://past3.com.ng
+													{integrations.URL}
 												</strong>
 											</div>
 											<div className="cf pv2">
 												<a
-													className="ba-gray pv1 ph2 link "
-													href="/middlefront/workspace/hooks/239557/edit"
+													className="ba b--light-gray navy bg-transparent pv1 ph2 link "
 												>
 													Edit
 												</a>
 												<div className="di">
-													<button className="pv1 ph2 " >
-														Test ▼
+													<button className="pv1 ph2 ba b--light-gray navy bg-transparent pv1 ph2 link  " >
+														Test
 													</button>
 												</div>
 
 												<a
 													data-confirm="Are you sure?"
-													className=" link bg-transparent ba-gray navy pv1 ph2"
+													className=" link bg-transparent b--light-gray navy pv1 ph2 ba "
 													rel="nofollow"
-													href="/middlefront/workspace/hooks/239557"
 												>
-													<span className="sr-only">Remove</span> &#x1f5d1;
+													<span className="">Remove</span>
 												</a>
 											</div>
 										</div>
+									)})}
 									</div>
 								</div>
 							</section>

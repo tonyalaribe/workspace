@@ -75,6 +75,33 @@ func (boltDBProvider *BoltDBProvider) GetTriggers(WorkspaceID, FormID, ID string
 	return trigger, nil
 }
 
+func (boltDBProvider *BoltDBProvider) GetFormTriggers(WorkspaceID, FormID string) ([]database.Trigger, error) {
+
+	var trigger database.Trigger
+	var triggers []database.Trigger
+	err := boltDBProvider.db.View(func(tx *bolt.Tx) error {
+		triggersBucket := tx.Bucket([]byte(boltDBProvider.Triggers)).Cursor()
+		prefix := []byte(WorkspaceID + ":" + FormID)
+
+		var err error
+		for k, v := triggersBucket.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, v = triggersBucket.Next() {
+			// fmt.Printf("key=%s, value=%s\n", k, v)
+			err = json.Unmarshal(v, &trigger)
+			if err != nil {
+				log.Println(err)
+				return err
+			}
+			triggers = append(triggers, trigger)
+			log.Println(triggers)
+		}
+		return nil
+	})
+	if err != nil {
+		return triggers, err
+	}
+	return triggers, nil
+}
+
 func (boltDBProvider *BoltDBProvider) GetEventTriggers(WorkspaceID, FormID string, EventType database.TriggerEvent) ([]database.Trigger, error) {
 
 	var trigger database.Trigger

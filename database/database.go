@@ -101,6 +101,6 @@ type Database interface {
 	UpdateTrigger(trigger Trigger) error //Each event would be stored as one trigger
 	//The root triggers (push, etc). Used in constructing the form on settings page
 	GetTriggers(workspaceID string, formID string, ID string, event TriggerEvent) (Trigger, error)
-
+	GetFormTriggers(WorkSpace string, formID string) ([]Trigger, error)
 	GetEventTriggers(WorkSpace string, formID string, event TriggerEvent) ([]Trigger, error)
 }

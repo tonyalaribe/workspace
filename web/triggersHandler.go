@@ -49,30 +49,56 @@ func UpdateTriggerHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		trigger.EventType = database.NewSubmissionTriggerEvent
 	}
-	log.Println("update trigger")
-	log.Println(trigger)
+
 	err = actions.UpdateTrigger(trigger)
 	if err != nil {
 		log.Println(err)
 	}
 }
 
-func GetTriggersHandler(w http.ResponseWriter, r *http.Request) {
+func GetFormTriggersHandler(w http.ResponseWriter, r *http.Request) {
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
 	formID := httprouterParams.ByName("formID")
-	url := r.URL.Query().Get("url")
+	// url := r.URL.Query().Get("url")
 
-	triggerJSON := TriggerJSON{}
-	err := json.NewDecoder(r.Body).Decode(&triggerJSON)
+	// triggerJSON := TriggerJSON{}
+
+	triggers, err := actions.GetFormTriggers(workspaceID, formID)
 	if err != nil {
 		log.Println(err)
 	}
 
-	resp, err := actions.GetTriggers(workspaceID, formID, url)
-	if err != nil {
-		log.Println(err)
+	log.Println(triggers)
+	ts := make(map[string]TriggerJSON)
+	for _, trigger := range triggers {
+		ts[trigger.URL] = TriggerJSON{
+			ID:          trigger.ID,
+			URL:         trigger.URL, //TODO: delete one of URL and Endpoints
+			SecretToken: trigger.SecretToken,
+		}
+	}
+	log.Println(ts)
+	for _, trigger := range triggers {
+		if trigger.EventType == database.NewSubmissionTriggerEvent {
+			t := ts[trigger.URL]
+			t.NewSubmission = true
+			ts[trigger.URL] = t
+		} else if trigger.EventType == database.UpdateSubmissionTriggerEvent {
+			t := ts[trigger.URL]
+			t.UpdateSubmission = true
+			ts[trigger.URL] = t
+		} else if trigger.EventType == database.ApproveSubmissionTriggerEvent {
+			t := ts[trigger.URL]
+			t.ApproveSubmission = true
+			ts[trigger.URL] = t
+		}
 	}
 
-	json.NewEncoder(w).Encode(resp)
+	triggersJSON := []TriggerJSON{}
+	for _, v := range ts {
+		triggersJSON = append(triggersJSON, v)
+	}
+
+	json.NewEncoder(w).Encode(triggersJSON)
 }
