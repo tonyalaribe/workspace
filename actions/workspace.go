@@ -16,7 +16,7 @@ func CreateWorkspace(workspaceData database.WorkSpace, user database.User) error
 	workspaceData.ID = slugify.Marshal(workspaceData.Name, true)
 	workspaceData.Created = int(time.Now().UnixNano() / 1000000) //Get the time since epoch in milli seconds (javascript date compatible)
 	conf := config.Get()
-	////// Persist workspace
+	// Persist workspace
 
 	err := conf.Database.CreateWorkspace(workspaceData)
 	if err != nil {

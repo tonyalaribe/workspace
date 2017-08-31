@@ -18,6 +18,7 @@ type BoltDBProvider struct {
 	UsersBucket         string
 	FormsMetadata       string
 	ChangelogBucket     string
+	Triggers            string
 }
 
 func New(RootDirectory, AppMetadata, WorkspacesMetadata, WorkspacesContainer, UsersBucket, FormsMetadata string) (*BoltDBProvider, error) {
@@ -30,6 +31,8 @@ func New(RootDirectory, AppMetadata, WorkspacesMetadata, WorkspacesContainer, Us
 	boltdb.UsersBucket = UsersBucket
 	boltdb.FormsMetadata = FormsMetadata
 	boltdb.ChangelogBucket = "ChangelogBucket"
+	boltdb.Triggers = "Triggers"
+
 	boltFile := filepath.Join(RootDirectory, "workspace.db")
 
 	os.MkdirAll(RootDirectory, os.ModePerm)
@@ -38,10 +41,11 @@ func New(RootDirectory, AppMetadata, WorkspacesMetadata, WorkspacesContainer, Us
 		log.Println(err)
 	}
 	db.Update(func(tx *bolt.Tx) error {
-		tx.CreateBucketIfNotExists([]byte(AppMetadata))
-		tx.CreateBucketIfNotExists([]byte(WorkspacesMetadata))
-		tx.CreateBucketIfNotExists([]byte(WorkspacesContainer))
-		tx.CreateBucketIfNotExists([]byte(UsersBucket))
+		tx.CreateBucketIfNotExists([]byte(boltdb.AppMetadata))
+		tx.CreateBucketIfNotExists([]byte(boltdb.WorkspacesMetadata))
+		tx.CreateBucketIfNotExists([]byte(boltdb.WorkspacesContainer))
+		tx.CreateBucketIfNotExists([]byte(boltdb.UsersBucket))
+		tx.CreateBucketIfNotExists([]byte(boltdb.Triggers))
 		tx.CreateBucketIfNotExists([]byte(boltdb.ChangelogBucket))
 		return nil
 	})

@@ -1,0 +1,208 @@
+import React, { Component } from "react";
+import { inject, observer } from "mobx-react";
+import { withRouter } from "react-router";
+
+@inject("MainStore", "IntegrationsStore")
+@observer
+class modal extends Component {
+	constructor(props) {
+		super(props);
+		this.AddIntegration = this.AddIntegration.bind(this);
+	}
+	state = {};
+	componentDidMount() {
+		// this.props.IntegrationsStore.getWorkspaceUsersAndRoles(
+		// 	this.props.match.params.workspaceID
+		// );
+	}
+	AddIntegration() {
+		let Result = {};
+    console.log(this.refs)
+		Result.URL = this.refs.URL.value;
+		Result.SecretToken = this.refs.SecretToken.value;
+		Result.NewSubmission = this.refs.NewSubmission.value==="on"?true:false;
+		Result.UpdateSubmission = this.refs.UpdateSubmission.value==="on"?true:false;
+		Result.DeleteSubmission = this.refs.DeleteSubmission.value==="on"?true:false;
+		Result.ApproveSubmission = this.refs.ApproveSubmission.value==="on"?true:false;
+
+		console.log(Result);
+
+		let { IntegrationsStore, match, closeModal } = this.props;
+console.log(this.props)
+		IntegrationsStore.updateFormIntegrationSettings(
+			match.params.workspaceID,
+			match.params.formID,
+			Result,
+			() => {
+				closeModal();
+			}
+		);
+	}
+
+	render() {
+		let { openModal, closeModal } = this.props;
+		return (
+			<section
+				className={
+					"vh-100 fixed w-100  justify-center items-center z-4 top-0 left-0 animated " +
+					(openModal ? "flex fadeIn" : "dn fadeOut ")
+				}
+				style={{ backgroundColor: "rgba(0,0,0,0.4)" }}
+			>
+				<div className="bg-white w-100 w-60-ns modal-shadow giorgia f6 ">
+					<div className=" bg-light-gray pv2 ph3 shadow-btm ">
+						<div className="pv1 cf">
+							<strong className="dib v-mid fw4 pv2 ph3">Settings</strong>
+							<button
+								className="fr dib v-mid pv2 ph3 bg-navy white shadow-4 bw0 grow pointer"
+								onClick={closeModal}
+							>
+								close
+							</button>
+						</div>
+					</div>
+					<div>
+						<div className="w-20 dib fl br1 ph2 pv3">
+							<a className="dib pv2 ph3 hover-bg-light-gray w-100">
+								integrations
+							</a>
+						</div>
+						<div className="w-80 dib fl pl2 pv3 pr4">
+							<section className="cf mb3">
+								<div className="mv2">
+									<label className="ma0 pv2 pb3 fw6 ph2">URL</label>
+									<input type="text" className="pv2 ph3 w-100  mv1" ref="URL" />
+								</div>
+								<div className="mv2">
+									<label className="ma0 pv2 pb3 fw6 ph2">Secret Token</label>
+									<input
+										type="text"
+										className="pv2 ph3 w-100  mv1"
+										ref="SecretToken"
+									/>
+									<p className="gray">
+										This Token will be sent with the request in the
+										X-Workspace-Token HTTP header.
+									</p>
+								</div>
+								<div className="mv2">
+									<h4 className="ma0 pv2 pb3 fw6 ph2">Trigger</h4>
+									<div>
+										<div className="pv2">
+											<div>
+												<input
+													type="checkbox"
+													className="mr2 dib "
+													ref="NewSubmission"
+													id="NewSubmission"
+												/>
+											<label className="dib" htmlFor="NewSubmission">New Submission</label>
+											</div>
+											<p className="gray mt1 mb2 pl3">
+												A message will be sent to this URL when a new submission
+												is made
+											</p>
+										</div>
+										<div className="pv2">
+											<div>
+												<input
+													type="checkbox"
+													className="mr2 dib "
+													ref="UpdateSubmission"
+													id="UpdateSubmission"
+												/>
+											<label className="dib" htmlFor="UpdateSubmission">Update Submission</label>
+											</div>
+											<p className="gray mt1 mb2 pl3">
+												A message will be sent to this URL when a submission is
+												updated
+											</p>
+										</div>
+										<div className="pv2">
+											<div>
+												<input
+													type="checkbox"
+													className="mr2 dib "
+													ref="DeleteSubmission"
+												/>
+												<label className="dib">Delete Submission</label>
+											</div>
+											<p className="gray mt1 mb2 pl3">
+												A message will be sent to this URL when a submission is
+												deleted
+											</p>
+										</div>
+										<div className="pv2">
+											<div>
+												<input
+													type="checkbox"
+													className="mr2 dib "
+													ref="ApproveSubmission"
+													id="ApproveSubmission"
+												/>
+											<label className="dib" htmlFor="ApproveSubmission">Approve Submission</label>
+											</div>
+											<p className="gray mt1 mb2 pl3">
+												A message will be sent to this URL when a submission is
+												approved
+											</p>
+										</div>
+									</div>
+								</div>
+								<div className="pv2 fr">
+									<button
+										className="bg-green grow pv2 ph3 shadow-4 bw0 white-80"
+										onClick={() => this.AddIntegration()}
+									>
+										Add Integration
+									</button>
+								</div>
+							</section>
+							<section className="pv2 db">
+								<div>
+									<h3>web hooks</h3>
+								</div>
+								<div>
+									<div>
+										<div className="pa2 mv2 ba b--light-gray grow ">
+											<div className="db cf">
+												<strong className="f5 fw5 db ">
+													http://past3.com.ng
+												</strong>
+											</div>
+											<div className="cf pv2">
+												<a
+													className="ba-gray pv1 ph2 link "
+													href="/middlefront/workspace/hooks/239557/edit"
+												>
+													Edit
+												</a>
+												<div className="di">
+													<button className="pv1 ph2 " >
+														Test ▼
+													</button>
+												</div>
+
+												<a
+													data-confirm="Are you sure?"
+													className=" link bg-transparent ba-gray navy pv1 ph2"
+													rel="nofollow"
+													href="/middlefront/workspace/hooks/239557"
+												>
+													<span className="sr-only">Remove</span> &#x1f5d1;
+												</a>
+											</div>
+										</div>
+									</div>
+								</div>
+							</section>
+						</div>
+					</div>
+				</div>
+			</section>
+		);
+	}
+}
+
+var Modal = withRouter(modal);
+export default Modal;

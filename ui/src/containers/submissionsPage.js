@@ -4,16 +4,35 @@ import { Link } from "react-router-dom";
 import { inject, observer } from "mobx-react";
 import moment from "moment";
 var fileImageRepresentation = require("../assets/files.png");
+import Modal from '../components/modals/formSettingsModal.js';
 
 @inject("MainStore")
 @observer
 class SubmissionsPage extends Component {
+	constructor () {
+		super();
+		this.state = {
+			showModal: false
+		};
+
+		this.handleOpenModal = this.handleOpenModal.bind(this);
+		this.handleCloseModal = this.handleCloseModal.bind(this);
+	}
+
 	componentDidMount() {
 		let { workspaceID, formID } = this.props.match.params;
 
 		let { MainStore } = this.props;
 		MainStore.getAllForms(workspaceID);
 		MainStore.getMySubmissions(workspaceID, formID);
+	}
+
+	handleOpenModal () {
+		this.setState({ showModal: true });
+	}
+
+	handleCloseModal () {
+		this.setState({ showModal: false });
 	}
 
 	componentWillUpdate(nextProps, nextState) {
@@ -110,18 +129,22 @@ class SubmissionsPage extends Component {
 							{AllForms}
 						</div><div className="w-70 dib v-top">
 							<div className="pv3 cf">
-								<Link
-									to={
-										"/workspaces/" +
-											workspaceID +
-											"/forms/" +
-											formID +
-											"/new_submission"
-									}
-									className="ph3 pv2 ba fr link navy dib grow"
-								>
-									New Submission
-								</Link>
+								<div className="fr ">
+									<Link
+										to={
+											"/workspaces/" +
+												workspaceID +
+												"/forms/" +
+												formID +
+												"/new_submission"
+										}
+										className="ph3 pv2 ba link navy dib grow"
+									>
+										New Submission
+									</Link>
+									<a href="#" className="dib link pa2 navy" onClick={this.handleOpenModal}>⚙ &nbsp;settings</a>
+									<Modal openModal={this.state.showModal} closeModal={this.handleCloseModal}/>
+								</div>
 								<span className="navy w-100 v-btm">All Form Submissions</span>
 							</div>
 

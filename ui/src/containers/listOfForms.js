@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Nav from "../components/nav.js";
 import { inject, observer } from "mobx-react";
 import { Link } from "react-router-dom";
-import Modal from '../components/workspacePermissionsModal.js';
+import Modal from '../components/modals/workspacePermissionsModal.js';
 
 @inject("MainStore")
 @observer

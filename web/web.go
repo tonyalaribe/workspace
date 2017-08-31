@@ -95,6 +95,10 @@ func App() {
 	router.Get("/api/workspaces/:workspaceID/forms/:formID/submissions/:submissionID", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(GetSubmissionInfoHandler))
 	router.Put("/api/workspaces/:workspaceID/forms/:formID/submissions/:submissionID", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(UpdateSubmissionHandler))
 
+	//Triggers and Integrations
+	router.Post("/api/workspaces/:workspaceID/forms/:formID/integrations", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(UpdateTriggerHandler))
+	router.Get("/api/workspaces/:workspaceID/forms/:formID/integrations", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(GetTriggersHandler))
+
 	router.Get("/", commonHandlers.ThenFunc(HomePageHandler))
 
 	fileServer := http.FileServer(http.Dir("./ui/build/static"))

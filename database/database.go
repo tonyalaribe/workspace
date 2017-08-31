@@ -53,6 +53,21 @@ type Files struct {
 	UploadDate string `json:"uploadDate"`
 }
 
+type TriggerEvent string
+
+const NewSubmissionTriggerEvent TriggerEvent = "NewSubmission"
+const UpdateSubmissionTriggerEvent TriggerEvent = "UpdateSubmission"
+const ApproveSubmissionTriggerEvent TriggerEvent = "ApproveSubmission"
+
+type Trigger struct {
+	ID          string
+	WorkspaceID string
+	FormID      string
+	EventType   TriggerEvent
+	URL         string
+	SecretToken string
+}
+
 type Database interface {
 	GetInheritance() (string, error)
 	SaveInheritance(roles interface{}) error
@@ -82,4 +97,10 @@ type Database interface {
 
 	AddToSubmissionChangelog(workspaceID, formID string, submissionID int, changelogItem ChangelogItem) error
 	GetSubmissionChangelog(workspaceID, formID string, submissionID int) ([]ChangelogItem, error)
+
+	UpdateTrigger(trigger Trigger) error //Each event would be stored as one trigger
+	//The root triggers (push, etc). Used in constructing the form on settings page
+	GetTriggers(workspaceID string, formID string, ID string, event TriggerEvent) (Trigger, error)
+
+	GetEventTriggers(WorkSpace string, formID string, event TriggerEvent) ([]Trigger, error)
 }
