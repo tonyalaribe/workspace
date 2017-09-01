@@ -29,9 +29,12 @@ class SubmissionsPage extends Component {
 
 	handleOpenModal () {
 		this.setState({ showModal: true });
+		document.getElementById("body").style.overflow = "hidden"
+
 	}
 
 	handleCloseModal () {
+		document.getElementById("body").style.overflow = "scroll"
 		this.setState({ showModal: false });
 	}
 

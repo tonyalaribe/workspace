@@ -24,10 +24,10 @@ class modal extends Component {
     console.log(this.refs)
 		Result.URL = this.refs.URL.value;
 		Result.SecretToken = this.refs.SecretToken.value;
-		Result.NewSubmission = this.refs.NewSubmission.value==="on"?true:false;
-		Result.UpdateSubmission = this.refs.UpdateSubmission.value==="on"?true:false;
-		Result.DeleteSubmission = this.refs.DeleteSubmission.value==="on"?true:false;
-		Result.ApproveSubmission = this.refs.ApproveSubmission.value==="on"?true:false;
+		Result.NewSubmission = this.refs.NewSubmission.checked;
+		Result.UpdateSubmission = this.refs.UpdateSubmission.checked;
+		Result.DeleteSubmission = this.refs.DeleteSubmission.checked;
+		Result.ApproveSubmission = this.refs.ApproveSubmission.checked;
 
 		let { IntegrationsStore, match, closeModal } = this.props;
 
@@ -36,7 +36,13 @@ class modal extends Component {
 			match.params.formID,
 			Result,
 			() => {
-				closeModal();
+				this.refs.URL.value= "";
+				this.refs.SecretToken.value = "";
+				this.refs.NewSubmission.checked = false;
+				this.refs.UpdateSubmission.checked = false;
+				this.refs.DeleteSubmission.checked = false;
+				this.refs.ApproveSubmission.checked = false;
+				// closeModal();
 			}
 		);
 	}
@@ -51,7 +57,7 @@ class modal extends Component {
 				}
 				style={{ backgroundColor: "rgba(0,0,0,0.4)" }}
 			>
-				<div className="bg-white w-100 w-60-ns modal-shadow giorgia f6 ">
+				<div className="bg-white w-100 w-60-ns modal-shadow giorgia f6 " style={{height:"85%"}} >
 					<div className=" bg-light-gray pv2 ph3 shadow-btm ">
 						<div className="pv1 cf">
 							<strong className="dib v-mid fw4 pv2 ph3">Settings</strong>
@@ -63,7 +69,7 @@ class modal extends Component {
 							</button>
 						</div>
 					</div>
-					<div>
+					<div className=" cf overflow-y-scroll" style={{height:"85%"}}>
 						<div className="w-20 dib fl br1 ph2 pv3">
 							<a className="dib pv2 ph3 hover-bg-light-gray w-100">
 								integrations
@@ -73,7 +79,7 @@ class modal extends Component {
 							<section className="cf mb3">
 								<div className="mv2">
 									<label className="ma0 pv2 pb3 fw6 ph2">URL</label>
-									<input type="text" className="pv2 ph3 w-100  mv1" ref="URL" value={IntegrationsStore.CurrentIntegration.URL}/>
+									<input type="text" className="pv2 ph3 w-100  mv1" ref="URL" defaultValue={IntegrationsStore.CurrentIntegration.URL}/>
 								</div>
 								<div className="mv2">
 									<label className="ma0 pv2 pb3 fw6 ph2">Secret Token</label>
@@ -81,7 +87,7 @@ class modal extends Component {
 										type="text"
 										className="pv2 ph3 w-100  mv1"
 										ref="SecretToken"
-										value={IntegrationsStore.CurrentIntegration.SecretToken}
+										defaultValue={IntegrationsStore.CurrentIntegration.SecretToken}
 									/>
 									<p className="gray">
 										This Token will be sent with the request in the

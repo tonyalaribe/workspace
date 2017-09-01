@@ -39,15 +39,14 @@ class integrationsStore {
 		const data = await response.json();
 		/* required in strict mode to be allowed to update state: */
 		runInAction("update state after fetching data", () => {
+			this.getFormIntegrationSettings(workspaceID, formID)
 			callback();
 		});
 	};
 
 	@action selectIntegration = async(ID) =>{
 		this.CurrentIntegration = this.Integrations.find(function(integration){
-			if (integration.ID===ID){
-				return integration
-			}
+			return integration.ID===ID
 		})
 	}
 }
