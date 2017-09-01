@@ -71,7 +71,21 @@ func NewFormSubmission(workspaceID, formID string, submission database.Submissio
 	if err != nil {
 		return err
 	}
+	data := make(map[string]interface{})
+	data["workspaceID"] = workspaceID
+	data["formID"] = formID
+	data["event"] = string(database.NewSubmissionTriggerEvent)
+	data["submission"] = submission
 
+	log.Println(data)
+	// triggerEvent(workspaceID, formID, database.NewSubmissionTriggerEvent, data)
+	// x, err := GetPool().SendWork(func() {
+	triggerEvent(workspaceID, formID, database.NewSubmissionTriggerEvent, data)
+	// })
+	// log.Println(x)
+	if err != nil {
+		log.Println(err)
+	}
 	return nil
 }
 

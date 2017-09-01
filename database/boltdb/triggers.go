@@ -3,6 +3,7 @@ package boltdb
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 
 	"github.com/boltdb/bolt"
@@ -104,20 +105,21 @@ func (boltDBProvider *BoltDBProvider) GetFormTriggers(WorkspaceID, FormID string
 
 func (boltDBProvider *BoltDBProvider) GetEventTriggers(WorkspaceID, FormID string, EventType database.TriggerEvent) ([]database.Trigger, error) {
 
-	var trigger database.Trigger
 	var triggers []database.Trigger
 	err := boltDBProvider.db.View(func(tx *bolt.Tx) error {
 		triggersBucket := tx.Bucket([]byte(boltDBProvider.Triggers)).Cursor()
 		prefix := []byte(WorkspaceID + ":" + FormID + ":" + string(EventType))
 
 		var err error
+		var trigger database.Trigger
 		for k, v := triggersBucket.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, v = triggersBucket.Next() {
-			// fmt.Printf("key=%s, value=%s\n", k, v)
+			fmt.Printf("key=%s, value=%s\n", k, v)
+
 			err = json.Unmarshal(v, &trigger)
 			if err != nil {
 				return err
 			}
-			triggers = append(triggers)
+			triggers = append(triggers, trigger)
 		}
 		return nil
 	})
