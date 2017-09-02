@@ -19,7 +19,6 @@ class integrationsStore {
 		const data = await response.json();
 		/* required in strict mode to be allowed to update state: */
 		runInAction("update state after fetching data", () => {
-
 			this.Integrations.replace(data);
 		});
 	};
@@ -39,6 +38,7 @@ class integrationsStore {
 		const data = await response.json();
 		/* required in strict mode to be allowed to update state: */
 		runInAction("update state after fetching data", () => {
+			console.log(data)
 			this.getFormIntegrationSettings(workspaceID, formID)
 			callback();
 		});

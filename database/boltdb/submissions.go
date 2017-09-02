@@ -103,7 +103,6 @@ func (boltDBProvider *BoltDBProvider) GetFormSubmissionDetails(workspaceID, form
 	return submission, nil
 }
 
-
 func (boltDBProvider *BoltDBProvider) DeleteFormSubmission(workspaceID, formID string, submissionID int) (database.SubmissionData, error) {
 
 	submission := database.SubmissionData{}
@@ -116,10 +115,10 @@ func (boltDBProvider *BoltDBProvider) DeleteFormSubmission(workspaceID, formID s
 			log.Println(err)
 		}
 
-		err = formBucket.Delete(itob(submissionID)))
-	if err != nil {
-		log.Println(err)
-	}
+		err = formBucket.Delete(itob(submissionID))
+		if err != nil {
+			log.Println(err)
+		}
 		return nil
 	})
 	if err != nil {

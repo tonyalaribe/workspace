@@ -29,7 +29,7 @@ class modal extends Component {
 		Result.DeleteSubmission = this.refs.DeleteSubmission.checked;
 		Result.ApproveSubmission = this.refs.ApproveSubmission.checked;
 
-		let { IntegrationsStore, match, closeModal } = this.props;
+		let { IntegrationsStore, match } = this.props;
 
 		IntegrationsStore.updateFormIntegrationSettings(
 			match.params.workspaceID,

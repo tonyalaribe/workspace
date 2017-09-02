@@ -200,3 +200,34 @@ func GetFormSubmissionDetails(workspaceID, formID, submissionIDString string) (d
 	}
 	return submissionData, nil
 }
+
+func DeleteFormSubmission(workspaceID, formID, submissionIDString string) (database.SubmissionData, error) {
+	submissionData := database.SubmissionData{}
+	submissionID, err := strconv.Atoi(submissionIDString)
+	if err != nil {
+		return submissionData, err
+	}
+	conf := config.Get()
+	submissionData, err = conf.Database.DeleteFormSubmission(workspaceID, formID, submissionID)
+	if err != nil {
+		return submissionData, err
+	}
+
+	data := make(map[string]interface{})
+	data["workspaceID"] = workspaceID
+	data["formID"] = formID
+	data["event"] = string(database.NewSubmissionTriggerEvent)
+	data["submission"] = submissionData
+
+	log.Println(data)
+	// triggerEvent(workspaceID, formID, database.NewSubmissionTriggerEvent, data)
+	// x, err := GetPool().SendWork(func() {
+	triggerEvent(workspaceID, formID, database.DeleteSubmissionTriggerEvent, data)
+	// })
+	// log.Println(x)
+	if err != nil {
+		log.Println(err)
+	}
+
+	return submissionData, nil
+}

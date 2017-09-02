@@ -17,7 +17,7 @@ class submissionListItem extends Component {
 	}
 
 	render() {
-		let { fileData, key } = this.props;
+		let { fileData, MainStore, id } = this.props;
 		let { workspaceID,formID } = this.props.match.params;
 
 		return (
@@ -32,7 +32,7 @@ class submissionListItem extends Component {
 					"/" +
 					fileData.id
 				}
-				key={key}
+				key={id}
 				className="link navy"
 			>
 				<div className="shadow-4 hover-grow mv2 " style={{height:"10rem"}}>
@@ -71,7 +71,12 @@ class submissionListItem extends Component {
 						</div>
             <div className="db mt3">
   						<a className="pa2 dib ba b--light-gray fr">
-  							<span className="dib ">delete</span>
+  							<span className="dib " onClick={
+										(e)=>{
+											e.preventDefault()
+											MainStore.deleteSubmission(workspaceID, formID, fileData.id,id,function(){})
+										}
+									}>delete</span>
   						</a>
             </div>
 

@@ -173,7 +173,6 @@ class mainStore {
 		const data = await response.json();
 		/* required in strict mode to be allowed to update state: */
 		runInAction("update state after fetching data", () => {
-			console.log(data);
 			this.Submissions.replace(data);
 		});
 	};
@@ -205,6 +204,38 @@ class mainStore {
 			this.SubmissionInfo = data;
 		});
 	};
+	@action
+	deleteSubmission = async (workspaceID, formID, submissionID, id, callback) => {
+		let authToken = AuthService.getToken();
+
+		const response = await fetch(
+			"/api/workspaces/" +
+				workspaceID +
+				"/forms/" +
+				formID +
+				"/submissions/" +
+				submissionID,
+			{
+				method: "DELETE",
+				mode: "cors",
+				headers: {
+					"Content-type": "application/json",
+					authorization: "Bearer " + authToken
+				}
+			}
+		);
+		const data = await response.json();
+		console.log(data);
+		/* required in strict mode to be allowed to update state: */
+		runInAction("update state after fetching data", () => {
+			console.log(id)
+			let value = this.Submissions[id]
+			console.log(value)
+			this.Submissions.remove(value)
+			callback()
+		});
+	};
+
 	@action
 	getSubmissionChangelog = async (workspaceID, formID, submissionID) => {
 		let authToken = AuthService.getToken();

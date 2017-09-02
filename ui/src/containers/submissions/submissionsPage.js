@@ -68,9 +68,9 @@ class SubmissionsPage extends Component {
 			);
 		});
 
-		let userSubmissions = MainStore.Submissions.map(function(fileData, key) {
+		let userSubmissions = MainStore.Submissions.map(function(fileData, i) {
 			return (
-				<SubmissionListItem fileData={fileData} key={key}/>
+				<SubmissionListItem fileData={fileData} key={i} id={i}/>
 			);
 		});
 

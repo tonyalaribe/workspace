@@ -58,6 +58,7 @@ type TriggerEvent string
 const NewSubmissionTriggerEvent TriggerEvent = "NewSubmission"
 const UpdateSubmissionTriggerEvent TriggerEvent = "UpdateSubmission"
 const ApproveSubmissionTriggerEvent TriggerEvent = "ApproveSubmission"
+const DeleteSubmissionTriggerEvent TriggerEvent = "DeleteSubmission"
 
 type Trigger struct {
 	ID          string
