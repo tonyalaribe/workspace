@@ -1,10 +1,10 @@
 import React, { Component } from "react";
-import Nav from "../components/nav.js";
+import Nav from "../../components/nav.js";
 import { Link } from "react-router-dom";
 import { inject, observer } from "mobx-react";
-import moment from "moment";
-var fileImageRepresentation = require("../assets/files.png");
-import Modal from '../components/modals/formSettingsModal.js';
+import Modal from '../../components/modals/formSettingsModal.js';
+import SubmissionListItem from './submissionListItem';
+
 
 @inject("MainStore")
 @observer
@@ -12,7 +12,8 @@ class SubmissionsPage extends Component {
 	constructor () {
 		super();
 		this.state = {
-			showModal: false
+			showModal: false,
+			showDropdown: false
 		};
 
 		this.handleOpenModal = this.handleOpenModal.bind(this);
@@ -30,7 +31,6 @@ class SubmissionsPage extends Component {
 	handleOpenModal () {
 		this.setState({ showModal: true });
 		document.getElementById("body").style.overflow = "hidden"
-
 	}
 
 	handleCloseModal () {
@@ -46,8 +46,8 @@ class SubmissionsPage extends Component {
 	}
 
 	render() {
-		let { workspaceID } = this.props.match.params;
-		let formID = this.props.match.params.formID;
+		let { workspaceID,formID } = this.props.match.params;
+		// let formID = this.props.match.params.formID;
 		let { MainStore } = this.props;
 
 		let AllForms = MainStore.AllForms.map(function(form, key) {
@@ -70,57 +70,10 @@ class SubmissionsPage extends Component {
 
 		let userSubmissions = MainStore.Submissions.map(function(fileData, key) {
 			return (
-				<Link
-					to={
-						"/workspaces/" +
-							workspaceID +
-							"/forms/" +
-							formID +
-							"/submissions/" +
-							fileData.status +
-							"/" +
-							fileData.id
-					}
-					key={key}
-					className="link navy"
-				>
-					<div className="shadow-4 grow mv2 h4">
-						{/** Upload Item **/}
-						<div className="dib w-30 v-top tc h-100 fl">
-							<div className="h-100 flex flex-column  items-center justify-around">
-								<img
-									src={fileImageRepresentation}
-									className="w3 h3 dib v-mid"
-									alt="file representative logo"
-								/>
-							</div>
-						</div><div className="dib w-70 h-100 v-top bl b--light-gray pa3">
-							<div>
-								<small className="fr pa2 bg-navy white-80">
-									{fileData.status}
-								</small>
-							</div>
-							<h3 className="navy mv1 ">{fileData.submissionName} </h3>
-							<div>
-								<div className=" pv1">
-									<small>
-										created on:&nbsp;&nbsp;&nbsp;
-										{moment(fileData.created).format("h:mma, MM-DD-YYYY")}
-									</small>
-								</div>
-								<div className=" pv1">
-									<small>
-										modified on:&nbsp;&nbsp;
-										{moment(fileData.lastModified).format("h:mma, MM-DD-YYYY")}
-									</small>
-								</div>
-							</div>
-						</div>
-						{/** End Upload Item **/}
-					</div>
-				</Link>
+				<SubmissionListItem fileData={fileData} key={key}/>
 			);
 		});
+
 		return (
 			<section>
 				<Nav workspaceID={workspaceID} />

@@ -102,3 +102,29 @@ func (boltDBProvider *BoltDBProvider) GetFormSubmissionDetails(workspaceID, form
 
 	return submission, nil
 }
+
+
+func (boltDBProvider *BoltDBProvider) DeleteFormSubmission(workspaceID, formID string, submissionID int) (database.SubmissionData, error) {
+
+	submission := database.SubmissionData{}
+	var err error
+	err = boltDBProvider.db.Update(func(tx *bolt.Tx) error {
+		formBucket := tx.Bucket([]byte(boltDBProvider.WorkspacesContainer)).Bucket([]byte(workspaceID)).Bucket([]byte(formID))
+
+		err = json.Unmarshal(formBucket.Get(itob(submissionID)), &submission)
+		if err != nil {
+			log.Println(err)
+		}
+
+		err = formBucket.Delete(itob(submissionID)))
+	if err != nil {
+		log.Println(err)
+	}
+		return nil
+	})
+	if err != nil {
+		return submission, err
+	}
+
+	return submission, nil
+}

@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import Nav from '../components/nav.js';
+import Nav from '../../components/nav.js';
 import {inject, observer} from 'mobx-react';
 import moment from 'moment';
 

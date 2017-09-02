@@ -89,6 +89,7 @@ type Database interface {
 	UpdateFormSubmission(workspaceID, formID string, submissionID int, submission SubmissionData) error
 	GetFormSubmissions(workspaceID, formID string) ([]SubmissionData, error)
 	GetFormSubmissionDetails(workspaceID, formID string, submissionID int) (SubmissionData, error)
+	DeleteFormSubmission(workspaceID, formID string, submissionID int) (SubmissionData, error)
 
 	CreateUser(user User) error
 	GetUser(username string) (User, error)

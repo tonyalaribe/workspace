@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import Nav from "../components/nav.js";
-import FileWidget from "../components/fileWidget.js";
+import Nav from "../../components/nav.js";
+import FileWidget from "../../components/fileWidget.js";
 // import FileSelect from '../components/fileSelect.js';
 import { toJS } from "mobx";
 import { observer, inject } from "mobx-react";
