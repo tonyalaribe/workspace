@@ -43,12 +43,12 @@ class integrationsStore {
 			callback();
 		});
 	};
-
-	@action selectIntegration = async(ID) =>{
-		this.CurrentIntegration = this.Integrations.find(function(integration){
-			return integration.ID===ID
-		})
-	}
+	//
+	// @action selectIntegration = async(ID) =>{
+	// 	this.CurrentIntegration = this.Integrations.find(function(integration){
+	// 		return integration.ID===ID
+	// 	})
+	// }
 }
 
 export const IntegrationsStore = new integrationsStore();

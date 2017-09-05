@@ -3,7 +3,6 @@ package boltdb
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"log"
 
 	"github.com/boltdb/bolt"
@@ -14,27 +13,6 @@ func (boltDBProvider *BoltDBProvider) UpdateTrigger(trigger database.Trigger) er
 	err := boltDBProvider.db.Update(func(tx *bolt.Tx) error {
 		triggersBucket := tx.Bucket([]byte(boltDBProvider.Triggers))
 
-		// prefix := []byte(trigger.WorkspaceID + ":" + trigger.FormID + ":" + string(trigger.EventType))
-
-		// triggersCursor := triggersBucket.Cursor()
-		// lastKey := 0
-
-		// for k, _ := triggersCursor.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, _ = triggersCursor.Next() {
-		// 	// fmt.Printf("key=%s, value=%s\n", k, v)
-		// 	numbersStr := strings.Split(string(k), string(prefix))[0]
-		// 	log.Println(numbersStr)
-		// 	var err error
-		// 	number, err := strconv.Atoi(numbersStr)
-		// 	if err != nil {
-		// 		log.Println(err)
-		// 	}
-		// 	if number > lastKey {
-		// 		lastKey = number
-		// 	}
-		// }
-		//
-		// trigger.ID = trigger.WorkspaceID + ":" + trigger.FormID + ":" + string(trigger.EventType) + ":" + strconv.Itoa(lastKey+1)
-
 		trigger.ID = trigger.WorkspaceID + ":" + trigger.FormID + ":" + string(trigger.EventType) + ":" + trigger.URL
 
 		dataByte, err := json.Marshal(trigger)
@@ -42,6 +20,24 @@ func (boltDBProvider *BoltDBProvider) UpdateTrigger(trigger database.Trigger) er
 			log.Println(err)
 		}
 		err = triggersBucket.Put([]byte(trigger.ID), dataByte)
+		if err != nil {
+			log.Println(err)
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (boltDBProvider *BoltDBProvider) DeleteTrigger(trigger database.Trigger) error {
+	err := boltDBProvider.db.Update(func(tx *bolt.Tx) error {
+		triggersBucket := tx.Bucket([]byte(boltDBProvider.Triggers))
+
+		trigger.ID = trigger.WorkspaceID + ":" + trigger.FormID + ":" + string(trigger.EventType) + ":" + trigger.URL
+
+		err := triggersBucket.Delete([]byte(trigger.ID))
 		if err != nil {
 			log.Println(err)
 		}
@@ -93,7 +89,7 @@ func (boltDBProvider *BoltDBProvider) GetFormTriggers(WorkspaceID, FormID string
 				return err
 			}
 			triggers = append(triggers, trigger)
-			log.Println(triggers)
+			// log.Println(triggers)
 		}
 		return nil
 	})
@@ -113,7 +109,7 @@ func (boltDBProvider *BoltDBProvider) GetEventTriggers(WorkspaceID, FormID strin
 		var err error
 		var trigger database.Trigger
 		for k, v := triggersBucket.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, v = triggersBucket.Next() {
-			fmt.Printf("key=%s, value=%s\n", k, v)
+			// fmt.Printf("key=%s, value=%s\n", k, v)
 
 			err = json.Unmarshal(v, &trigger)
 			if err != nil {

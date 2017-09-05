@@ -13,7 +13,7 @@ class integrationsListItem extends Component {
   render(){
     let {integration,IntegrationsStore } = this.props;
     return (
-      <div className="pa2 mv2 ba b--light-gray  " key={integration.URL}>
+      <div className="pa2 mv2 ba b--light-gray  " >
         <div className="db cf">
           <strong className="f5 fw5 db ">
             {integration.URL}
@@ -23,7 +23,7 @@ class integrationsListItem extends Component {
           <a
             className="ba b--light-gray navy bg-transparent pv1 ph2 link pointer "
             onClick={()=>{
-              IntegrationsStore.selectIntegration(integration.ID)
+              // IntegrationsStore.selectIntegration(integration.ID)
               this.setState({"Edit":!this.state.Edit})
             }}
           >

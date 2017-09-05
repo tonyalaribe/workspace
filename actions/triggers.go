@@ -10,6 +10,7 @@ import (
 func UpdateTrigger(trigger database.Trigger) error {
 	conf := config.Get()
 	// Persist workspace
+	log.Printf("%#v", trigger)
 	err := conf.Database.UpdateTrigger(trigger)
 	if err != nil {
 		return err
@@ -18,36 +19,17 @@ func UpdateTrigger(trigger database.Trigger) error {
 	return nil
 }
 
-// func GetTriggers(workspaceID string, formID string, ID string) ([]database.Trigger, error) {
-// 	conf := config.Get()
-// 	// Persist workspace
-//
-// 	triggers := []database.Trigger{}
-//
-// 	NewSubmissionTrigger, err := conf.Database.GetTriggers(workspaceID, formID, ID, database.NewSubmissionTriggerEvent)
-// 	if err != nil {
-// 		log.Println(err)
-// 		// return trigger, err
-// 	}
-// 	triggers = append(triggers, NewSubmissionTrigger)
-//
-// 	UpdateSubmissionTrigger, err := conf.Database.GetTriggers(workspaceID, formID, ID, database.UpdateSubmissionTriggerEvent)
-// 	if err != nil {
-// 		log.Println(err)
-// 		// return trigger, err
-// 	}
-// 	triggers = append(triggers, UpdateSubmissionTrigger)
-//
-// 	ApproveSubmissionTrigger, err := conf.Database.GetTriggers(workspaceID, formID, ID, database.ApproveSubmissionTriggerEvent)
-// 	if err != nil {
-// 		log.Println(err)
-// 		// return trigger, err
-// 	}
-// 	triggers = append(triggers, ApproveSubmissionTrigger)
-//
-// 	return triggers, nil
-// }
-//
+func DeleteTrigger(trigger database.Trigger) error {
+	conf := config.Get()
+	// Persist workspace
+	log.Printf("%#v", trigger)
+	err := conf.Database.DeleteTrigger(trigger)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func GetFormTriggers(workspaceID string, formID string) ([]database.Trigger, error) {
 	conf := config.Get()

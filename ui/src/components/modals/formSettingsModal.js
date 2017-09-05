@@ -49,7 +49,7 @@ class modal extends Component {
 							</a>
 						</div>
 						<div className="w-80 dib fl pl2 pv3 pr4">
-							<IntegrationForm integration={IntegrationsStore.CurrentIntegration} show={true}/>
+							<IntegrationForm integration={{}} show={true} clear={true}/>
 							<section className="pv2 db">
 								<div>
 									<h3>web hooks</h3>
@@ -58,7 +58,7 @@ class modal extends Component {
 									<div>
 										{IntegrationsStore.Integrations.map(function(item, i) {
 											return (
-												<IntegrationsListItem  integration={item} key={i} />
+												<IntegrationsListItem  integration={item} key={item.URL} />
 									)})}
 									</div>
 								</div>

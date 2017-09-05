@@ -101,6 +101,7 @@ type Database interface {
 	GetSubmissionChangelog(workspaceID, formID string, submissionID int) ([]ChangelogItem, error)
 
 	UpdateTrigger(trigger Trigger) error //Each event would be stored as one trigger
+	DeleteTrigger(trigger Trigger) error //Each event would be stored as one trigger
 	//The root triggers (push, etc). Used in constructing the form on settings page
 	GetTriggers(workspaceID string, formID string, ID string, event TriggerEvent) (Trigger, error)
 	GetFormTriggers(WorkSpace string, formID string) ([]Trigger, error)

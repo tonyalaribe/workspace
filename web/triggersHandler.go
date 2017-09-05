@@ -19,6 +19,7 @@ type TriggerJSON struct {
 	NewSubmission     bool
 	UpdateSubmission  bool
 	ApproveSubmission bool
+	DeleteSubmission  bool
 }
 
 func UpdateTriggerHandler(w http.ResponseWriter, r *http.Request) {
@@ -42,17 +43,58 @@ func UpdateTriggerHandler(w http.ResponseWriter, r *http.Request) {
 
 	if triggerJSON.NewSubmission {
 		trigger.EventType = database.NewSubmissionTriggerEvent
-	} else if triggerJSON.UpdateSubmission {
-		trigger.EventType = database.UpdateSubmissionTriggerEvent
-	} else if triggerJSON.ApproveSubmission {
-		trigger.EventType = database.ApproveSubmissionTriggerEvent
+		err = actions.UpdateTrigger(trigger)
+		if err != nil {
+			log.Println(err)
+		}
 	} else {
 		trigger.EventType = database.NewSubmissionTriggerEvent
+		err = actions.DeleteTrigger(trigger)
+		if err != nil {
+			log.Println(err)
+		}
 	}
 
-	err = actions.UpdateTrigger(trigger)
-	if err != nil {
-		log.Println(err)
+	if triggerJSON.UpdateSubmission {
+		trigger.EventType = database.UpdateSubmissionTriggerEvent
+		err = actions.UpdateTrigger(trigger)
+		if err != nil {
+			log.Println(err)
+		}
+	} else {
+		trigger.EventType = database.UpdateSubmissionTriggerEvent
+		err = actions.DeleteTrigger(trigger)
+		if err != nil {
+			log.Println(err)
+		}
+	}
+
+	if triggerJSON.ApproveSubmission {
+		trigger.EventType = database.ApproveSubmissionTriggerEvent
+		err = actions.UpdateTrigger(trigger)
+		if err != nil {
+			log.Println(err)
+		}
+	} else {
+		trigger.EventType = database.ApproveSubmissionTriggerEvent
+		err = actions.DeleteTrigger(trigger)
+		if err != nil {
+			log.Println(err)
+		}
+	}
+
+	if triggerJSON.DeleteSubmission {
+		trigger.EventType = database.DeleteSubmissionTriggerEvent
+		err = actions.UpdateTrigger(trigger)
+		if err != nil {
+			log.Println(err)
+		}
+	} else {
+		trigger.EventType = database.DeleteSubmissionTriggerEvent
+		err = actions.DeleteTrigger(trigger)
+		if err != nil {
+			log.Println(err)
+		}
 	}
 
 	message := map[string]string{}
@@ -64,16 +106,12 @@ func GetFormTriggersHandler(w http.ResponseWriter, r *http.Request) {
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
 	formID := httprouterParams.ByName("formID")
-	// url := r.URL.Query().Get("url")
-
-	// triggerJSON := TriggerJSON{}
 
 	triggers, err := actions.GetFormTriggers(workspaceID, formID)
 	if err != nil {
 		log.Println(err)
 	}
 
-	log.Println(triggers)
 	ts := make(map[string]TriggerJSON)
 	for _, trigger := range triggers {
 		ts[trigger.URL] = TriggerJSON{
@@ -82,7 +120,7 @@ func GetFormTriggersHandler(w http.ResponseWriter, r *http.Request) {
 			SecretToken: trigger.SecretToken,
 		}
 	}
-	log.Println(ts)
+
 	for _, trigger := range triggers {
 		if trigger.EventType == database.NewSubmissionTriggerEvent {
 			t := ts[trigger.URL]
@@ -95,6 +133,10 @@ func GetFormTriggersHandler(w http.ResponseWriter, r *http.Request) {
 		} else if trigger.EventType == database.ApproveSubmissionTriggerEvent {
 			t := ts[trigger.URL]
 			t.ApproveSubmission = true
+			ts[trigger.URL] = t
+		} else if trigger.EventType == database.DeleteSubmissionTriggerEvent {
+			t := ts[trigger.URL]
+			t.DeleteSubmission = true
 			ts[trigger.URL] = t
 		}
 	}

@@ -26,9 +26,6 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
-	byt, _ := json.MarshalIndent(submission, "", "\t")
-	log.Println(string(byt))
-
 	response := map[string]string{}
 	response["message"] = "Upload Success"
 	w.WriteHeader(http.StatusOK)

@@ -26,14 +26,19 @@ class integrationForm extends Component {
       match.params.formID,
       Result,
       () => {
-        this.refs.URL.value= "";
-        this.refs.SecretToken.value = "";
-        this.refs.NewSubmission.checked = false;
-        this.refs.UpdateSubmission.checked = false;
-        this.refs.DeleteSubmission.checked = false;
-        this.refs.ApproveSubmission.checked = false;
+        if (this.props.clear){
+          this.refs.URL.value= "";
+          this.refs.SecretToken.value = "";
+          this.refs.NewSubmission.checked = false;
+          this.refs.UpdateSubmission.checked = false;
+          this.refs.DeleteSubmission.checked = false;
+          this.refs.ApproveSubmission.checked = false;
+        }
+
         // closeModal();
-        this.props.onSave()
+        if (this.props.onSave){
+          this.props.onSave()
+        }
       }
     );
   }
