@@ -72,7 +72,6 @@ class modal extends Component {
                     </div>
                   </div>)
                 })
-
               }
 
                 <div className="pv3 ph2 mv3  bt bb bw-tiny b--light-gray bg-near-white cf">
@@ -91,7 +90,6 @@ class modal extends Component {
                     <button className="bg-navy bw0 shadow-4 pv2 ph3 white-80 grow" onClick={this.AddCollaborator}>add collaborator</button>
                   </div>
                 </div>
-
               </div>
             </div>
           </div>

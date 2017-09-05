@@ -54,6 +54,10 @@ func UpdateTriggerHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+
+	message := map[string]string{}
+	message["message"] = "Strong"
+	json.NewEncoder(w).Encode(message)
 }
 
 func GetFormTriggersHandler(w http.ResponseWriter, r *http.Request) {

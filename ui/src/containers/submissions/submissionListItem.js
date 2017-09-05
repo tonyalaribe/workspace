@@ -79,7 +79,6 @@ class submissionListItem extends Component {
 									}>delete</span>
   						</a>
             </div>
-
 					</div>
 					{/** End Upload Item **/}
 				</div>
