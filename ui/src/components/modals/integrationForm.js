@@ -43,7 +43,7 @@ class integrationForm extends Component {
     );
   }
   render(){
-    let {integration,IntegrationsStore, show } = this.props;
+    let {integration, show } = this.props;
     return (
       <section className={"cf mb3 "+(show?"":"dn")}>
         <div className="mv2">
