@@ -39,7 +39,7 @@ func PostToURL(url string, secretToken string, body interface{}) {
 
 }
 
-func triggerEvent(workspaceID, formID string, event database.TriggerEvent, data map[string]interface{}) {
+func TriggerEvent(workspaceID, formID string, event database.TriggerEvent, data map[string]interface{}) {
 	conf := config.Get()
 	triggers, err := conf.Database.GetEventTriggers(workspaceID, formID, event)
 	if err != nil {

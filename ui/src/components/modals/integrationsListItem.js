@@ -11,7 +11,9 @@ class integrationsListItem extends Component {
     Edit: false,
   }
   render(){
-    let {integration,IntegrationsStore } = this.props;
+    let {integration,IntegrationsStore  } = this.props;
+    let { workspaceID, formID } = this.props.match.params;
+    console.log(integration)
     return (
       <div className="pa2 mv2 ba b--light-gray  " >
         <div className="db cf">
@@ -23,14 +25,14 @@ class integrationsListItem extends Component {
           <a
             className="ba b--light-gray navy bg-transparent pv1 ph2 link pointer "
             onClick={()=>{
-              // IntegrationsStore.selectIntegration(integration.ID)
               this.setState({"Edit":!this.state.Edit})
             }}
           >
             Edit
           </a>
           <div className="di">
-            <button className="pv1 ph2 ba b--light-gray navy bg-transparent pv1 ph2 link  pointer" >
+            <button className="pv1 ph2 ba b--light-gray navy bg-transparent pv1 ph2 link  pointer"
+              onClick={()=>IntegrationsStore.testFormIntegration(workspaceID, formID, integration)}>
               Test
             </button>
           </div>
@@ -38,6 +40,7 @@ class integrationsListItem extends Component {
             data-confirm="Are you sure?"
             className=" link bg-transparent b--light-gray navy pv1 ph2 ba pointer"
             rel="nofollow"
+            onClick={()=>IntegrationsStore.DeleteFormIntegration(workspaceID, formID, integration)}
           >
             <span className="">Remove</span>
           </a>

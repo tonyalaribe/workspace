@@ -71,21 +71,19 @@ func NewFormSubmission(workspaceID, formID string, submission database.Submissio
 	if err != nil {
 		return err
 	}
+
 	data := make(map[string]interface{})
 	data["workspaceID"] = workspaceID
 	data["formID"] = formID
 	data["event"] = string(database.NewSubmissionTriggerEvent)
 	data["submission"] = submission
 
-	log.Println(data)
-	// triggerEvent(workspaceID, formID, database.NewSubmissionTriggerEvent, data)
-	// x, err := GetPool().SendWork(func() {
-	triggerEvent(workspaceID, formID, database.NewSubmissionTriggerEvent, data)
-	// })
-	// log.Println(x)
+	TriggerEvent(workspaceID, formID, database.NewSubmissionTriggerEvent, data)
+
 	if err != nil {
 		log.Println(err)
 	}
+
 	return nil
 }
 
@@ -178,6 +176,27 @@ func UpdateSubmission(workspaceID, formID string, submissionIDString string, new
 		return err
 	}
 
+	data := make(map[string]interface{})
+	data["workspaceID"] = workspaceID
+	data["formID"] = formID
+
+	data["old_submission"] = oldSubmission
+	data["new_submission"] = newSubmission
+	data["changelog"] = changelogItem
+
+	if newSubmission.Status == "published" {
+		data["event"] = string(database.ApproveSubmissionTriggerEvent)
+		TriggerEvent(workspaceID, formID, database.ApproveSubmissionTriggerEvent, data)
+	} else {
+		data["event"] = string(database.UpdateSubmissionTriggerEvent)
+		TriggerEvent(workspaceID, formID, database.UpdateSubmissionTriggerEvent, data)
+	}
+	TriggerEvent(workspaceID, formID, database.UpdateSubmissionTriggerEvent, data)
+
+	if err != nil {
+		log.Println(err)
+	}
+
 	return nil
 }
 
@@ -216,15 +235,11 @@ func DeleteFormSubmission(workspaceID, formID, submissionIDString string) (datab
 	data := make(map[string]interface{})
 	data["workspaceID"] = workspaceID
 	data["formID"] = formID
-	data["event"] = string(database.NewSubmissionTriggerEvent)
+	data["event"] = string(database.DeleteSubmissionTriggerEvent)
 	data["submission"] = submissionData
 
-	log.Println(data)
-	// triggerEvent(workspaceID, formID, database.NewSubmissionTriggerEvent, data)
-	// x, err := GetPool().SendWork(func() {
-	triggerEvent(workspaceID, formID, database.DeleteSubmissionTriggerEvent, data)
-	// })
-	// log.Println(x)
+	TriggerEvent(workspaceID, formID, database.DeleteSubmissionTriggerEvent, data)
+
 	if err != nil {
 		log.Println(err)
 	}

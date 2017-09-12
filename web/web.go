@@ -98,7 +98,9 @@ func App() {
 
 	//Triggers and Integrations
 	router.Post("/api/workspaces/:workspaceID/forms/:formID/integrations", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(UpdateTriggerHandler))
+	router.Delete("/api/workspaces/:workspaceID/forms/:formID/integrations", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(DeleteTriggerHandler))
 	router.Get("/api/workspaces/:workspaceID/forms/:formID/integrations", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(GetFormTriggersHandler))
+	router.Post("/api/workspaces/:workspaceID/forms/:formID/test_integrations", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(TestTriggerHandler))
 
 	router.Get("/", commonHandlers.ThenFunc(HomePageHandler))
 

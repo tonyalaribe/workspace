@@ -148,3 +148,160 @@ func GetFormTriggersHandler(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(triggersJSON)
 }
+
+func DeleteTriggerHandler(w http.ResponseWriter, r *http.Request) {
+	httprouterParams := r.Context().Value("params").(httprouter.Params)
+	workspaceID := httprouterParams.ByName("workspaceID")
+	formID := httprouterParams.ByName("formID")
+
+	triggerJSON := TriggerJSON{}
+	err := json.NewDecoder(r.Body).Decode(&triggerJSON)
+	if err != nil {
+		log.Println(err)
+	}
+
+	trigger := database.Trigger{
+		ID:          triggerJSON.ID,
+		WorkspaceID: workspaceID,
+		FormID:      formID,
+		URL:         triggerJSON.URL,
+		SecretToken: triggerJSON.SecretToken,
+	}
+
+	trigger.EventType = database.NewSubmissionTriggerEvent
+	err = actions.DeleteTrigger(trigger)
+	if err != nil {
+		log.Println(err)
+	}
+
+	trigger.EventType = database.UpdateSubmissionTriggerEvent
+	err = actions.DeleteTrigger(trigger)
+	if err != nil {
+		log.Println(err)
+	}
+
+	trigger.EventType = database.ApproveSubmissionTriggerEvent
+	err = actions.DeleteTrigger(trigger)
+	if err != nil {
+		log.Println(err)
+	}
+
+	trigger.EventType = database.DeleteSubmissionTriggerEvent
+	err = actions.DeleteTrigger(trigger)
+	if err != nil {
+		log.Println(err)
+	}
+
+	message := map[string]string{}
+	message["message"] = "Success"
+	json.NewEncoder(w).Encode(message)
+}
+
+func TestTriggerHandler(w http.ResponseWriter, r *http.Request) {
+	httprouterParams := r.Context().Value("params").(httprouter.Params)
+	workspaceID := httprouterParams.ByName("workspaceID")
+	formID := httprouterParams.ByName("formID")
+
+	triggerJSON := TriggerJSON{}
+	err := json.NewDecoder(r.Body).Decode(&triggerJSON)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Printf("%#v", triggerJSON)
+	demoSubmission := []byte(`
+	{
+		"formData":{
+			"label1":"value1",
+			"label2":"value2",
+			"label3":"value3",
+		},
+		"created":1504252897414,
+		"lastModified":1504252897414,
+		"submissionName":"Submission Name",
+		"status":"draft",
+		"id":24,
+		"submissionNotes":"lorem ipsum dolores "
+	}
+`)
+
+	demoChangelog := []byte(`
+	{
+		"formData":{
+			"label1":"value1",
+			"label2":"value2",
+			"label3":"value3",
+		},
+		"created":1504252897414,
+		"lastModified":1504252897414,
+		"submissionName":"Submission Name",
+		"status":"draft",
+		"id":24,
+		"submissionNotes":"lorem ipsum dolores "
+	}
+`)
+
+	if triggerJSON.NewSubmission {
+		data := make(map[string]interface{})
+		data["workspaceID"] = workspaceID
+		data["formID"] = formID
+		data["event"] = string(database.NewSubmissionTriggerEvent)
+		data["submission"] = demoSubmission
+
+		actions.TriggerEvent(workspaceID, formID, database.NewSubmissionTriggerEvent, data)
+
+		if err != nil {
+			log.Println(err)
+		}
+	}
+
+	if triggerJSON.UpdateSubmission {
+
+		data := make(map[string]interface{})
+		data["workspaceID"] = workspaceID
+		data["formID"] = formID
+		data["event"] = string(database.UpdateSubmissionTriggerEvent)
+		data["submission"] = demoSubmission
+		data["changelog"] = demoChangelog
+
+		actions.TriggerEvent(workspaceID, formID, database.UpdateSubmissionTriggerEvent, data)
+
+		if err != nil {
+			log.Println(err)
+		}
+
+	}
+
+	if triggerJSON.ApproveSubmission {
+
+		data := make(map[string]interface{})
+		data["workspaceID"] = workspaceID
+		data["formID"] = formID
+		data["event"] = string(database.ApproveSubmissionTriggerEvent)
+		data["submission"] = demoSubmission
+
+		actions.TriggerEvent(workspaceID, formID, database.DeleteSubmissionTriggerEvent, data)
+
+		if err != nil {
+			log.Println(err)
+		}
+	}
+
+	if triggerJSON.DeleteSubmission {
+
+		data := make(map[string]interface{})
+		data["workspaceID"] = workspaceID
+		data["formID"] = formID
+		data["event"] = string(database.DeleteSubmissionTriggerEvent)
+		data["submission"] = demoSubmission
+
+		actions.TriggerEvent(workspaceID, formID, database.DeleteSubmissionTriggerEvent, data)
+
+		if err != nil {
+			log.Println(err)
+		}
+	}
+
+	message := map[string]string{}
+	message["message"] = "Strong"
+	json.NewEncoder(w).Encode(message)
+}

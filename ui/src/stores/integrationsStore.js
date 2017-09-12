@@ -43,12 +43,48 @@ class integrationsStore {
 			callback();
 		});
 	};
-	//
-	// @action selectIntegration = async(ID) =>{
-	// 	this.CurrentIntegration = this.Integrations.find(function(integration){
-	// 		return integration.ID===ID
-	// 	})
-	// }
+	@action DeleteFormIntegration = async (workspaceID,formID, integration) => {
+		let authToken = AuthService.getToken();
+
+		const response = await fetch(`/api/workspaces/${workspaceID}/forms/${formID}/integrations`, {
+			method: "DELETE",
+			body: JSON.stringify(integration),
+			mode: "cors",
+			headers: {
+				"Content-type": "application/json",
+				authorization: "Bearer " + authToken
+			}
+		});
+		const data = await response.json();
+		/* required in strict mode to be allowed to update state: */
+		runInAction("update state after fetching data", () => {
+			console.log(data)
+			this.getFormIntegrationSettings(workspaceID, formID)
+			// callback();
+		});
+	};
+
+
+		@action testFormIntegration = async (workspaceID,formID, integration) => {
+			let authToken = AuthService.getToken();
+
+			const response = await fetch(`/api/workspaces/${workspaceID}/forms/${formID}/test_integrations`, {
+				method: "POST",
+				body: JSON.stringify(integration),
+				mode: "cors",
+				headers: {
+					"Content-type": "application/json",
+					authorization: "Bearer " + authToken
+				}
+			});
+			const data = await response.json();
+			/* required in strict mode to be allowed to update state: */
+			runInAction("update state after fetching data", () => {
+				console.log(data)
+				// this.getFormIntegrationSettings(workspaceID, formID)
+				// callback();
+			});
+		};
 }
 
 export const IntegrationsStore = new integrationsStore();
