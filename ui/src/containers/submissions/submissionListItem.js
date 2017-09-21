@@ -35,7 +35,7 @@ class submissionListItem extends Component {
 				key={id}
 				className="link navy"
 			>
-				<div className="shadow-4 hover-grow mv2 " style={{height:"10rem"}}>
+				<div className="shadow-4 hover-grow mv2 bg-white" style={{height:"10rem"}}>
 					{/** Upload Item **/}
 					<div className="dib w-30 v-top tc h-100 fl">
 						<div className="h-100 flex flex-column  items-center justify-around">

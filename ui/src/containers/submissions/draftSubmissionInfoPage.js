@@ -1,12 +1,11 @@
 import React, { Component } from "react";
 import Nav from "../../components/nav.js";
 import FileWidget from "../../components/fileWidget.js";
-// import FileSelect from '../components/fileSelect.js';
 import { toJS } from "mobx";
 import { observer, inject } from "mobx-react";
 import moment from "moment";
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-
+import iziToast from "izitoast";
 import Form from "react-jsonschema-form";
 
 //This is a dirty and quick workaround, because using setState prevents the form from submitting.
@@ -61,7 +60,11 @@ class DraftSubmissionInfoPage extends Component {
 		let { workspaceID, formID, submissionID } = this.props.match.params;
 
 		this.setState({ showSuccessMessage: false });
-
+		iziToast.success({
+				title: 'Update Submission',
+				message: `submission was updated successfully`,
+				position: 'topRight',
+		});
 		let req = {};
 		req.status = STATUS;
 		req.lastModified = Date.now();

@@ -52,7 +52,8 @@ class Nav extends Component {
 		return (
 			<nav className="bg-navy w-100 fixed shadow-4 pa3 ph4 white-80 dib z-3">
 				<Link to="/" className="pa2 dib link white-80 hover-white">
-					{currentWorkspace.name ? currentWorkspace.name : "Workspace"}
+					Workspace
+					{/*currentWorkspace.name ? currentWorkspace.name : "Workspace"*/}
 				</Link>
 				<div className="dib  fr  w5">
 					<Link

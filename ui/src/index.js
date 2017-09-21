@@ -8,7 +8,7 @@ import {PermissionsStore} from "./stores/permissionsStore.js";
 import {IntegrationsStore} from "./stores/integrationsStore.js";
 import './index.css';
 import './assets/animate.css';
-
+import 'izitoast/dist/css/iziToast.css';
 
 ReactDOM.render(
   <Provider MainStore={MainStore} PermissionsStore={PermissionsStore} FormBuilderStore={FormBuilderStore} IntegrationsStore={IntegrationsStore}>

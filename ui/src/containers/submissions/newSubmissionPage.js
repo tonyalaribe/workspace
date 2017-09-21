@@ -1,10 +1,9 @@
 import React, { Component } from "react";
 import Nav from "../../components/nav.js";
 import FileWidget from "../../components/fileWidget.js";
-// import FileSelect from '../components/fileSelect.js';
 import { inject, observer } from "mobx-react";
 import { toJS } from "mobx";
-
+import iziToast from "izitoast";
 import Form from "react-jsonschema-form";
 
 //This is a dirty and quick workaround, because using setState prevents the form from submitting.
@@ -69,6 +68,12 @@ class NewSubmissionPage extends Component {
 			response,
 			() => {
 				this.setState({ showSuccessMessage: true, files: [] });
+				iziToast.success({
+						title: 'New Submission',
+						message: `"${this.refs.submissionName}" was created successfully`,
+						position: 'topRight',
+				});
+
 				this.refs.submissionName.value = "";
 				setTimeout(() => {
 					window.requestAnimationFrame(() => {

@@ -226,16 +226,9 @@ func TestTriggerHandler(w http.ResponseWriter, r *http.Request) {
 
 	demoChangelog := []byte(`
 	{
-		"formData":{
-			"label1":"value1",
-			"label2":"value2",
-			"label3":"value3",
-		},
 		"created":1504252897414,
 		"lastModified":1504252897414,
 		"submissionName":"Submission Name",
-		"status":"draft",
-		"id":24,
 		"submissionNotes":"lorem ipsum dolores "
 	}
 `)

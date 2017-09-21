@@ -5,10 +5,11 @@ import { inject, observer } from "mobx-react";
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import { toJS } from "mobx";
+import iziToast from "izitoast";
+
 
 import FileWidget from "../components/fileWidget.js";
 import Form from "react-jsonschema-form";
-
 
 const log = type => console.log.bind(console, type);
 const widgets = {
@@ -51,6 +52,11 @@ class NewFormPage extends Component {
 
 		this.props.FormBuilderStore.submitNewFormToServer(workspaceID,() => {
 			this.setState({ showSuccessMessage: true });
+			iziToast.success({
+					title: 'New Form',
+					message: `"${this.refs.formName.value}" was created successfully`,
+					position: 'topRight',
+			});
 			this.refs.formName.value = "";
 			setTimeout(() => {
 				window.requestAnimationFrame(() => {

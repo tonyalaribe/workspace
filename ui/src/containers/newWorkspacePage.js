@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import Nav from '../components/nav.js';
 // import FileSelect from '../components/fileSelect.js';
 import {inject, observer} from 'mobx-react';
+import iziToast from "izitoast";
 
 @inject('MainStore')
 @observer
@@ -16,6 +17,11 @@ class NewWorkspacePage extends Component {
 
     props.MainStore.submitNewWorkspaceToServer(workspace, () => {
       this.setState({showSuccessMessage: true});
+      iziToast.success({
+          title: 'New Workspace',
+          message: `"${workspace.name}" was created successfully`,
+          position: 'topRight',
+      });
       refs.workspaceName.value = '';
       setTimeout(()=>{
         window.requestAnimationFrame(
