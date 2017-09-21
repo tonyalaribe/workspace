@@ -129,3 +129,6 @@ i.glyphicon { display: none; }
 .bg-custom-green{
   background-color: #2e3938;
 }
+.b--custom-green{
+  border-color: #2e3938;
+}

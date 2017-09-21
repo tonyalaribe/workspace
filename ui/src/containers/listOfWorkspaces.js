@@ -23,9 +23,9 @@ class ListOfWorkspaces extends Component {
           key={key}
           className="link navy"
         >
-          <div className="shadow-4 grow mv2 pa3">
+          <div className="bb b--light-gray grow ph3 pv2">
 
-            <h3 className="navy mv1 ">{workspace.name}</h3>
+            <h3 className="navy mv1 fw4">{workspace.name}</h3>
             <div>
               <div className=" pv1">
                 <small>created by:&nbsp;&nbsp;&nbsp;{workspace.creator}</small>
@@ -39,10 +39,10 @@ class ListOfWorkspaces extends Component {
     return (
       <section >
         <Nav />
-        <section className="tc pt5">
-          <section className="pt4 dib w-100 w-70-m w-50-l tl">
+        <section className="tc pt5 vh-100 flex flex-column items-center justify-center">
+          <section className="pt4 dib w-100 w-60-m w-40-l tl ">
             <div className="pv3 cf">
-              <span className="dib navy v-btm">All Available Workspaces</span>
+              <strong className="dib navy v-btm f4">Select a  Workspace</strong>
               <div className="fr  dib">
                 <Link
                   to="/new_workspace"
@@ -53,7 +53,7 @@ class ListOfWorkspaces extends Component {
 
               </div>
             </div>
-            <section>
+            <section className="shadow-4  pa3 bt bw2 b--custom-green">
               {AllWorkspaces}
             </section>
           </section>
