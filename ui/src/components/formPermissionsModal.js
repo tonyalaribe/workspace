@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {inject, observer} from 'mobx-react';
 import { withRouter } from 'react-router'
+import iziToast from "izitoast";
 
 @inject('MainStore','PermissionsStore')
 @observer
@@ -20,6 +21,11 @@ class modal extends Component {
     let {PermissionsStore,match, closeModal} = this.props
 
     PermissionsStore.updateUserWorkspacePermissions(match.params.workspaceID, permissions, ()=>{
+      iziToast.success({
+          title: 'Modify Collaborators',
+          message: `Collaborator was added/modified successfully`,
+          position: 'topRight',
+      });
       closeModal()
     })
   }

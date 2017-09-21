@@ -2,14 +2,13 @@ import React, { Component } from "react";
 import Nav from "../../components/nav.js";
 import { Link } from "react-router-dom";
 import { inject, observer } from "mobx-react";
-import Modal from '../../components/modals/formSettingsModal.js';
-import SubmissionListItem from './submissionListItem';
-
+import Modal from "../../components/modals/formSettingsModal.js";
+import SubmissionListItem from "./submissionListItem";
 
 @inject("MainStore")
 @observer
 class SubmissionsPage extends Component {
-	constructor () {
+	constructor() {
 		super();
 		this.state = {
 			showModal: false,
@@ -28,13 +27,13 @@ class SubmissionsPage extends Component {
 		MainStore.getMySubmissions(workspaceID, formID);
 	}
 
-	handleOpenModal () {
+	handleOpenModal() {
 		this.setState({ showModal: true });
-		document.getElementById("body").style.overflow = "hidden"
+		document.getElementById("body").style.overflow = "hidden";
 	}
 
-	handleCloseModal () {
-		document.getElementById("body").style.overflow = "scroll"
+	handleCloseModal() {
+		document.getElementById("body").style.overflow = "scroll";
 		this.setState({ showModal: false });
 	}
 
@@ -46,7 +45,7 @@ class SubmissionsPage extends Component {
 	}
 
 	render() {
-		let { workspaceID,formID } = this.props.match.params;
+		let { workspaceID, formID } = this.props.match.params;
 		// let formID = this.props.match.params.formID;
 		let { MainStore } = this.props;
 
@@ -57,9 +56,9 @@ class SubmissionsPage extends Component {
 					<div
 						className={
 							" grow pa2 " +
-								(window.location.pathname.startsWith(formURL)
-									? "bg-gray white-80"
-									: "navy")
+							(window.location.pathname.startsWith(formURL)
+								? "bg-blue white-80"
+								: "navy")
 						}
 					>
 						<span className="  ">{form.name}</span>
@@ -69,16 +68,13 @@ class SubmissionsPage extends Component {
 		});
 
 		let userSubmissions = MainStore.Submissions.map(function(fileData, i) {
-			return (
-				<SubmissionListItem fileData={fileData} key={i} id={i}/>
-			);
+			return <SubmissionListItem fileData={fileData} key={i} id={i} />;
 		});
 
 		return (
 			<section>
 				<Nav workspaceID={workspaceID} />
 				<section className="tc ">
-
 					<section className="pt4 dib w-100 tl cf">
 						<div className="w-100 w-25-ns dib v-top ph2 ph3-ns pt4 pb3  pr3 bg-light-gray fixed vh-100">
 							<h3 className="bb dib pa1">Forms</h3>
@@ -90,24 +86,31 @@ class SubmissionsPage extends Component {
 									<Link
 										to={
 											"/workspaces/" +
-												workspaceID +
-												"/forms/" +
-												formID +
-												"/new_submission"
+											workspaceID +
+											"/forms/" +
+											formID +
+											"/new_submission"
 										}
 										className="ph3 pv2 ba link navy dib grow"
 									>
 										New Submission
 									</Link>
-									<a href="#" className="dib link pa2 navy" onClick={this.handleOpenModal}>⚙ &nbsp;settings</a>
-									<Modal openModal={this.state.showModal} closeModal={this.handleCloseModal}/>
+									<a
+										href="#"
+										className="dib link pa2 navy"
+										onClick={this.handleOpenModal}
+									>
+										⚙ &nbsp;settings
+									</a>
+									<Modal
+										openModal={this.state.showModal}
+										closeModal={this.handleCloseModal}
+									/>
 								</div>
 								<span className="navy w-100 v-btm">All Form Submissions</span>
 							</div>
 
-							<section class="pa3-ns">
-								{userSubmissions}
-							</section>
+							<section class="pa3-ns">{userSubmissions}</section>
 						</div>
 					</section>
 				</section>

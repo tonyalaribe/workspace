@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { inject, observer } from "mobx-react";
 import { withRouter } from "react-router";
 import IntegrationForm from "./integrationForm.js";
-
+import iziToast from "izitoast";
 
 @inject("MainStore", "IntegrationsStore")
 @observer
@@ -32,7 +32,18 @@ class integrationsListItem extends Component {
           </a>
           <div className="di">
             <button className="pv1 ph2 ba b--light-gray navy bg-transparent pv1 ph2 link  pointer"
-              onClick={()=>IntegrationsStore.testFormIntegration(workspaceID, formID, integration)}>
+              onClick={()=>{
+                IntegrationsStore.testFormIntegration(workspaceID, formID, integration).then(function(){
+                  iziToast.success({
+                      title: 'Test Integrations',
+                      message: `Integration test messages was triggered successfully`,
+                      position: 'topRight',
+                  });
+                })
+
+              }
+
+              }>
               Test
             </button>
           </div>
@@ -40,7 +51,16 @@ class integrationsListItem extends Component {
             data-confirm="Are you sure?"
             className=" link bg-transparent b--light-gray navy pv1 ph2 ba pointer"
             rel="nofollow"
-            onClick={()=>IntegrationsStore.DeleteFormIntegration(workspaceID, formID, integration)}
+            onClick={()=>{
+              IntegrationsStore.DeleteFormIntegration(workspaceID, formID, integration).then(function(){
+                iziToast.success({
+                    title: 'Delete Submission',
+                    message: `Submission was deleted successfully`,
+                    position: 'topRight',
+                });
+              })
+              }
+            }
           >
             <span className="">Remove</span>
           </a>

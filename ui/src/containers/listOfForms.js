@@ -49,13 +49,13 @@ class ListOfForms extends Component {
 				<Link to={workspaceURL} key={key} className="link navy">
 					<div
 						className={
-							" grow pa1 " +
+							" grow pa2 " +
 								(window.location.pathname.startsWith(workspaceURL)
-									? "bg-light-gray"
-									: "")
+									? "bg-blue white-80 "
+									: "navy")
 						}
 					>
-						<span className="navy  ">{workspace.name}</span>
+						<span className="  ">{workspace.name}</span>
 					</div>
 				</Link>
 			);
@@ -68,7 +68,7 @@ class ListOfForms extends Component {
 					key={key}
 					className="link navy"
 				>
-					<div className="shadow-4 grow mv2 pa3">
+					<div className="shadow-4 grow mv2 pa3 bg-white">
 						<h3 className="navy mv1 ">{form.name}</h3>
 						<div>
 							<div className=" pv1">
@@ -83,12 +83,12 @@ class ListOfForms extends Component {
 		return (
 			<section className="">
 				<Nav workspaceID={workspaceID} />
-				<section className="tc pt5">
-					<section className="pt4 dib w-100 w-80-m w-60-l tl">
-						<div className="w-30 dib v-top pv3 pr3">
+				<section className="tc ">
+					<section className="pt4 dib w-100 tl cf">
+						<div className="w-100 w-25-ns dib v-top ph2 ph3-ns pt4 pb3  pr3 bg-light-gray fixed vh-100">
 							<h3 className="bb dib pa1">Workspaces</h3>
 							{AllWorkspaces}
-						</div><div className="w-70 dib v-top">
+						</div><div className="w-100 w-75-ns dib v-top fr pa3-ns mv5">
 							<div className="pv3 cf">
 								<div className=" fr ">
 										<Link
@@ -103,7 +103,7 @@ class ListOfForms extends Component {
 								<span className="navy w-100 v-btm">All Available Forms</span>
 
 							</div>
-							<section>
+							<section class="pa3-ns">
 								{AllForms}
 							</section>
 						</div>

@@ -22,14 +22,15 @@ class Nav extends Component {
 		this.props.MainStore.getAllWorkspaces();
 	}
 	render() {
-		let { MainStore, workspaceID } = this.props;
-		let currentWorkspace = {};
-
-		if (workspaceID && MainStore.AllWorkspaces.length > 0) {
-			currentWorkspace = MainStore.AllWorkspaces.find(function(workspace) {
-				return workspace.id === workspaceID;
-			});
-		}
+		let { MainStore } = this.props;
+		// let { MainStore, workspaceID } = this.props;
+		// let currentWorkspace = {};
+		//
+		// if (workspaceID && MainStore.AllWorkspaces.length > 0) {
+		// 	currentWorkspace = MainStore.AllWorkspaces.find(function(workspace) {
+		// 		return workspace.id === workspaceID;
+		// 	});
+		// }
 
 		let AllWorkspaces = MainStore.AllWorkspaces.map(function(workspace, key) {
 			let workspaceURL = "/workspaces/" + workspace.id;
@@ -50,12 +51,12 @@ class Nav extends Component {
 		});
 
 		return (
-			<nav className="bg-navy w-100 fixed shadow-4 pa3 ph4 white-80 dib z-3">
+			<nav className="bg-custom-green w-100 fixed shadow-4 pa3 ph4 white-80 dib z-3">
 				<Link to="/" className="pa2 dib link white-80 hover-white">
 					Workspace
 					{/*currentWorkspace.name ? currentWorkspace.name : "Workspace"*/}
 				</Link>
-				<div className="dib  fr  w5">
+				<div className="dib fr  mr4">
 					<Link
 						className="dib pv2 ph4 pointer white-80 link hover-white"
 						to="/"
@@ -69,7 +70,7 @@ class Nav extends Component {
 							onClick={() =>
 								this.setState({ showDropdown: !this.state.showDropdown })}
 						>
-							☰ {this.state.profile.username}
+							☰ {this.state.profile.user_metadata.given_name+" "+this.state.profile.user_metadata.family_name}
 						</a>
 						<div
 							className={

@@ -125,3 +125,7 @@ i.glyphicon { display: none; }
   -ms-transform: scale( 1.05 );
   transform: scale( 1.05 );
 }
+
+.bg-custom-green{
+  background-color: #2e3938;
+}
