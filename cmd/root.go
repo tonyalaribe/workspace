@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	conf "gitlab.com/middlefront/workspace/config"
+	"gitlab.com/middlefront/workspace/storage"
 )
 
 var (
@@ -66,13 +67,23 @@ func initConfig() {
 	config.Auth0ApiToken = viper.GetString("auth0-api-token")
 	config.Auth0ClientSecret = viper.GetString("auth0-client-secret")
 
-	config.AWSAccessKeyID = viper.GetString("AWS_ACCESS_KEY_ID")
-	config.AWSSecretAccessKey = viper.GetString("AWS_SECRET_ACCESS_KEY")
-	config.AWSRegion = viper.GetString("AWS_REGION")
-	config.AWSEndpoint = viper.GetString("AWS_ENDPOINT")
-	config.AWSS3BucketName = viper.GetString("AWS_S3_BUCKET")
-
 	config.DatabaseType = viper.GetString("database-type")
+
+	s3 := viper.GetStringMapString("s3")
+	config.S3 = conf.S3{
+		Endpoint:    s3["endpoint"],
+		AccessKeyID: s3["access-key-id"],
+		SecretKey:   s3["secret-key"],
+		Region:      s3["region"],
+		DisableSSL:  s3["disable-ssl"],
+		BucketName:  s3["bucket-name"],
+	}
+
+	gcs := viper.GetStringMapString("gcs")
+	config.GCS = conf.GCS{
+		ConfigJSON: gcs["config-json"],
+		// ProjectID:  gcs["project-id"],
+	}
 
 	openstack := viper.GetStringMapString("openstack")
 	config.Openstack = conf.Openstack{
@@ -82,8 +93,14 @@ func initConfig() {
 		TenantID:         openstack["tenant-id"],
 		TenantName:       openstack["tenant-name"],
 		BucketName:       openstack["bucket-name"],
+		ApiKey:           openstack["api-key"],
+	}
+
+	filesystem := viper.GetStringMapString("filesystem")
+	config.FileSystem = conf.FileSystem{
+		Path: filesystem["path"],
 	}
 
 	conf.Init(config)
-
+	storage.StorageInit()
 }

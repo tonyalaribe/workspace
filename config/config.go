@@ -4,19 +4,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/mikespook/gorbac"
-	"github.com/rackspace/gophercloud"
-	"github.com/rackspace/gophercloud/openstack"
-	"github.com/rackspace/gophercloud/openstack/objectstorage/v1/containers"
 	"gitlab.com/middlefront/workspace/database"
 	"gitlab.com/middlefront/workspace/database/boltdb"
-	"gitlab.com/middlefront/workspace/storage"
-	"gitlab.com/middlefront/workspace/storage/file"
-	openstackStorage "gitlab.com/middlefront/workspace/storage/openstack"
-	"gitlab.com/middlefront/workspace/storage/s3"
 )
 
 type Openstack struct {
@@ -26,6 +16,23 @@ type Openstack struct {
 	TenantID         string
 	TenantName       string
 	BucketName       string
+	ApiKey           string
+}
+type S3 struct {
+	Endpoint    string
+	AccessKeyID string
+	SecretKey   string
+	Region      string
+	DisableSSL  string
+	BucketName  string
+}
+type GCS struct {
+	ConfigJSON string
+	BucketName string
+}
+type FileSystem struct {
+	Path       string
+	BucketName string
 }
 
 type Config struct {
@@ -40,20 +47,18 @@ type Config struct {
 	RootDirectory     string
 	BoltFile          string
 	SubmissionsBucket []byte
-	FileManager       storage.FileManager
-	RolesManager      *gorbac.RBAC
-
-	PersistenceType    string
-	AWSAccessKeyID     string
-	AWSSecretAccessKey string
-	AWSRegion          string
-	AWSEndpoint        string
-	AWSS3BucketName    string
+	// FileManager       storage.FileManager
+	RolesManager *gorbac.RBAC
 
 	DatabaseType string
 	Database     database.Database
 
-	Openstack Openstack
+	PersistenceType string
+
+	Openstack  Openstack
+	S3         S3
+	GCS        GCS
+	FileSystem FileSystem
 }
 
 var (
@@ -64,78 +69,6 @@ var (
 func Init(c Config) {
 	config = c
 	config.SubmissionsBucket = []byte("submissions")
-	switch config.PersistenceType {
-	case "s3":
-		// creds := credentials.NewEnvCredentials()
-		creds := credentials.NewStaticCredentials(config.AWSAccessKeyID, config.AWSSecretAccessKey, "")
-		credValue, err := creds.Get()
-		if err != nil {
-			log.Fatal(err)
-		}
-		log.Printf("%#v", credValue)
-		awsConfig := &aws.Config{
-			Credentials: creds,
-			Region:      aws.String(config.AWSRegion),
-		}
-		endpoint := config.AWSEndpoint
-		if endpoint != "" {
-			awsConfig.Endpoint = aws.String(endpoint)
-			awsConfig.DisableSSL = aws.Bool(true)
-			awsConfig.S3ForcePathStyle = aws.Bool(true)
-		}
-		sess := session.New(awsConfig)
-		config.FileManager = s3.Persister{
-			AWSSession: sess,
-			BucketName: config.AWSS3BucketName,
-		}
-		break
-	case "openstack":
-		// creds := credentials.NewEnvCredentials()
-		opts := gophercloud.AuthOptions{
-			IdentityEndpoint: config.Openstack.IdentityEndpoint,
-			Username:         config.Openstack.Username,
-			Password:         config.Openstack.Password,
-			TenantID:         config.Openstack.TenantID,
-			TenantName:       config.Openstack.TenantName,
-		}
-		provider, err := openstack.AuthenticatedClient(opts)
-		if err != nil {
-			log.Println(err)
-		}
-
-		containerOpts := containers.CreateOpts{
-			ContainerRead: ".r:*,.rlistings",
-		}
-
-		client, err := openstack.NewObjectStorageV1(provider, gophercloud.EndpointOpts{
-			Region: "BHS1",
-		})
-		if err != nil {
-			log.Println(err)
-		}
-		log.Print(client.ResourceBaseURL())
-		log.Println(client.ResourceBase)
-		_ = containers.Create(client, config.Openstack.BucketName, containerOpts)
-
-		// headers, err := res.ExtractHeader()
-		// if err != nil {
-		// 	log.Println(err)
-		// }
-		config.FileManager = openstackStorage.Persister{
-			OpenstackSession: client,
-			BucketName:       config.Openstack.BucketName,
-			ResourceBaseURL:  client.ResourceBaseURL(),
-		}
-
-		break
-	case "local":
-		config.FileManager = file.Persister{
-			RootDirectory: config.RootDirectory,
-		}
-		break
-	default:
-		log.Fatal("unknown storage Type: " + config.PersistenceType)
-	}
 
 	switch config.DatabaseType {
 	case "boltdb":

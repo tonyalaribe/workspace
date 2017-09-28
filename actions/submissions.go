@@ -2,11 +2,13 @@ package actions
 
 import (
 	"log"
+	"path/filepath"
 	"strconv"
 
 	"github.com/Jeffail/gabs"
 	"gitlab.com/middlefront/workspace/config"
 	"gitlab.com/middlefront/workspace/database"
+	"gitlab.com/middlefront/workspace/storage"
 )
 
 func NewFormSubmission(workspaceID, formID string, submission database.SubmissionData) error {
@@ -33,11 +35,11 @@ func NewFormSubmission(workspaceID, formID string, submission database.Submissio
 			}
 			switch itemFormat {
 			case "data-uri", "data-url":
-				pathToItem, err := conf.FileManager.Save(workspaceID, formID, submission.SubmissionName, v.(string))
+				file, err := storage.UploadBase64(filepath.Join(workspaceID, formID, submission.SubmissionName), v.(string))
 				if err != nil {
 					log.Println(err)
 				}
-				submission.FormData[k] = pathToItem
+				submission.FormData[k] = file.URL
 				break
 			default:
 				submission.FormData[k] = v.(string)
@@ -50,11 +52,11 @@ func NewFormSubmission(workspaceID, formID string, submission database.Submissio
 				case "data-url":
 					items := []string{}
 					for _, item := range v.([]interface{}) {
-						pathToItem, err := conf.FileManager.Save(workspaceID, formID, submission.SubmissionName, item.(string))
+						file, err := storage.UploadBase64(filepath.Join(workspaceID, formID, submission.SubmissionName), item.(string))
 						if err != nil {
 							log.Println(err)
 						}
-						items = append(items, pathToItem)
+						items = append(items, file.URL)
 					}
 					submission.FormData[k] = items
 				}
@@ -125,11 +127,12 @@ func UpdateSubmission(workspaceID, formID string, submissionIDString string, new
 			switch itemFormat {
 			case "data-uri", "data-url":
 				//file formatting
-				pathToItem, err := conf.FileManager.Save(workspaceID, formID, newSubmission.SubmissionName, v.(string))
+				file, err := storage.UploadBase64(filepath.Join(workspaceID, formID, newSubmission.SubmissionName), v.(string))
 				if err != nil {
 					log.Println(err)
 				}
-				oldSubmission.FormData[k] = pathToItem
+
+				oldSubmission.FormData[k] = file.URL
 				break
 			default:
 				oldSubmission.FormData[k] = v.(string)
@@ -142,11 +145,11 @@ func UpdateSubmission(workspaceID, formID string, submissionIDString string, new
 				case "data-url":
 					items := []string{}
 					for _, item := range v.([]interface{}) {
-						pathToItem, err := conf.FileManager.Save(workspaceID, formID, newSubmission.SubmissionName, item.(string))
+						file, err := storage.UploadBase64(filepath.Join(workspaceID, formID, newSubmission.SubmissionName), item.(string))
 						if err != nil {
 							log.Println(err)
 						}
-						items = append(items, pathToItem)
+						items = append(items, file.URL)
 					}
 					oldSubmission.FormData[k] = items
 				}
