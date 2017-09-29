@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	jwtmiddleware "github.com/auth0/go-jwt-middleware"
 	jwt "github.com/dgrijalva/jwt-go"
@@ -129,8 +130,10 @@ func App() {
 	router.GET("/uploads/*filepath", func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		w.Header().Set("Vary", "Accept-Encoding")
 		w.Header().Set("Cache-Control", "public, max-age=7776000")
-		r.URL.Path = p.ByName("filepath")
-		item, err := storage.GetByURL(p.ByName("filepath"))
+		fileURL := strings.TrimLeft(p.ByName("filepath"), "/")
+		log.Printf("fileURL %#v", fileURL)
+
+		item, err := storage.GetByURL(fileURL)
 		if err != nil {
 			log.Println(err)
 		}

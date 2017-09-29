@@ -99,7 +99,8 @@ func initConfig() {
 
 	filesystem := viper.GetStringMapString("filesystem")
 	config.FileSystem = conf.FileSystem{
-		Path: filesystem["path"],
+		Path:       filesystem["path"],
+		BucketName: filesystem["bucket-name"],
 	}
 
 	conf.Init(config)

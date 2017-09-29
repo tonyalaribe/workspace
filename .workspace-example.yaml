@@ -1,11 +1,12 @@
 database-type: boltdb
 
-# persistence-type: local
+
 root-directory: data
-persistence-type: s3
+persistence-type: local
+# persistence-type: s3
 # persistence-type: openstack
 
-#aws
+# #aws
 s3:
   # endpoint:
   access-key-id: AKIAIUC2R3AVIIJWTTLQ
@@ -13,14 +14,14 @@ s3:
   region: us-west-2
   bucket-name: test-past3
 
-#minio
+# minio
 # s3:
 #   endpoint: http://127.0.0.1:9000
 #   access-key-id: PIYBOILAKIFLTJHWXKCY
 #   secret-key: tSFgFhSrkP4PwnvL9DvT9cgNUW//F3KFz2jgeVw/
 #   region: us-east-1
 #   bucket-name: test
-#
+
 
 #openstack
 openstack:
@@ -29,8 +30,12 @@ openstack:
   password:         "GmEhvEHWMzwheeJB6hRz8q283HNubYC2"
   tenant-id:         "74439eb9176b44c78f1a279cb21f554d"
   tenant-name:       "5129921842576950"
-  bucket-name: "bucket-name"
+  bucket-name:        "bucket-name"
 
+#file
+filesystem:
+  path: "./data"
+  bucket-name: "bucket-name"
 
 app-metadata: app_metadata
 forms-metadata: forms_metadata

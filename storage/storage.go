@@ -18,7 +18,9 @@ import (
 	"errors"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/url"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -110,15 +112,25 @@ func StorageInit() error {
 		break
 
 	case "local":
+		os.MkdirAll(filepath.Join(conf.FileSystem.Path, conf.FileSystem.BucketName), 0755)
+		log.Printf("dir %v", conf.FileSystem.Path)
+		fileinfo, err := ioutil.ReadDir(conf.FileSystem.Path)
+		if err != nil {
+			log.Println(err)
+		}
+		log.Printf("%#v", fileinfo)
+
 		stowLoc, err = stow.Dial(stowlocal.Kind, stow.ConfigMap{
 			stowlocal.ConfigKeyPath: conf.FileSystem.Path,
 		})
 		if err != nil {
+			log.Printf("dail: %v", err)
 			return err
 		}
 
-		stowBucket, err = stowLoc.Container(conf.FileSystem.BucketName)
+		stowBucket, err = stowLoc.Container(filepath.Join(conf.FileSystem.Path, conf.FileSystem.BucketName))
 		if err != nil {
+			log.Printf("container: %v", err)
 			return err
 		}
 		break

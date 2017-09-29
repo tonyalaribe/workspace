@@ -55,11 +55,13 @@ function FilesInfo(props) {
 									x
 								</a>
 							</div>
+							<a className="db link pointer  pb1 navy pa1" href={"/uploads/"+name} target="_blank">
 							<img
 								src={GetFileRepresentativeImage(name)}
 								className="w3 h3 dib v-mid"
 								alt="file representative logo"
 							/>
+					</a>
 						<a className="db link pointer truncate pb1 navy pa1" href={"/uploads/"+name} target="_blank">
 								{name}
 							</a>
