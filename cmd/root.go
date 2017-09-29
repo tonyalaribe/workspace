@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -102,5 +103,8 @@ func initConfig() {
 	}
 
 	conf.Init(config)
-	storage.StorageInit()
+	err := storage.StorageInit()
+	if err != nil {
+		log.Fatal(err)
+	}
 }

@@ -60,9 +60,9 @@ function FilesInfo(props) {
 								className="w3 h3 dib v-mid"
 								alt="file representative logo"
 							/>
-							<small className="db link pointer truncate pb1 navy pa1">
+						<a className="db link pointer truncate pb1 navy pa1" href={"/uploads/"+name} target="_blank">
 								{name}
-							</small>
+							</a>
 						</div>
 					</div>
 				);

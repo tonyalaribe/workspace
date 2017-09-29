@@ -2,20 +2,25 @@ database-type: boltdb
 
 # persistence-type: local
 root-directory: data
-persistence-type: openstack
+persistence-type: s3
+# persistence-type: openstack
 
 #aws
-# AWS_ACCESS_KEY_ID:  AKIAIUC2R3AVIIJWTTLQ
-# AWS_SECRET_ACCESS_KEY:  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
-# AWS_REGION: us-west-2
-# AWS_S3_BUCKET: test-past3
+s3:
+  # endpoint:
+  access-key-id: AKIAIUC2R3AVIIJWTTLQ
+  secret-key: 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
+  region: us-west-2
+  bucket-name: test-past3
 
 #minio
-# AWS_ACCESS_KEY_ID:  PIYBOILAKIFLTJHWXKCY
-# AWS_SECRET_ACCESS_KEY:  tSFgFhSrkP4PwnvL9DvT9cgNUW//F3KFz2jgeVw/
-# AWS_REGION: us-east-1
-# AWS_S3_BUCKET: test
-# AWS_ENDPOINT: http://127.0.0.1:9000
+# s3:
+#   endpoint: http://127.0.0.1:9000
+#   access-key-id: PIYBOILAKIFLTJHWXKCY
+#   secret-key: tSFgFhSrkP4PwnvL9DvT9cgNUW//F3KFz2jgeVw/
+#   region: us-east-1
+#   bucket-name: test
+#
 
 #openstack
 openstack:
@@ -24,8 +29,7 @@ openstack:
   password:         "GmEhvEHWMzwheeJB6hRz8q283HNubYC2"
   tenant-id:         "74439eb9176b44c78f1a279cb21f554d"
   tenant-name:       "5129921842576950"
-  bucket-name:        "bucket-name"
-
+  bucket-name: "bucket-name"
 
 
 app-metadata: app_metadata

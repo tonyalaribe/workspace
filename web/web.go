@@ -3,6 +3,7 @@ package web
 import (
 	"context"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -14,6 +15,7 @@ import (
 	"github.com/justinas/alice"
 	"github.com/rs/cors"
 	"gitlab.com/middlefront/workspace/config"
+	"gitlab.com/middlefront/workspace/storage"
 )
 
 // Router struct would carry the httprouter instance, so its methods could be verwritten and replaced with methds with wraphandler
@@ -124,13 +126,25 @@ func App() {
 		}))
 	}
 
-	uploadedFileServer := http.FileServer(http.Dir(config.Get().RootDirectory))
-
-	router.GET("/"+config.Get().RootDirectory+"/*filepath", func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	router.GET("/uploads/*filepath", func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		w.Header().Set("Vary", "Accept-Encoding")
 		w.Header().Set("Cache-Control", "public, max-age=7776000")
 		r.URL.Path = p.ByName("filepath")
-		uploadedFileServer.ServeHTTP(w, r)
+		item, err := storage.GetByURL(p.ByName("filepath"))
+		if err != nil {
+			log.Println(err)
+		}
+
+		readCloser, err := item.Open()
+		if err != nil {
+			log.Println(err)
+		}
+
+		_, err = io.Copy(w, readCloser)
+		if err != nil {
+			log.Println(err)
+		}
+
 	})
 
 	router.NotFound = commonHandlers.ThenFunc(HomePageHandler)
