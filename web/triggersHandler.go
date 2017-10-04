@@ -10,6 +10,7 @@ import (
 	"gitlab.com/middlefront/workspace/database"
 )
 
+//TriggerJSON encodes information about triggers and what events are active
 type TriggerJSON struct {
 	ID          string
 	URL         string
@@ -22,6 +23,7 @@ type TriggerJSON struct {
 	DeleteSubmission  bool
 }
 
+//UpdateTriggerHandler Update a trigger in case of changes to the trigger
 func UpdateTriggerHandler(w http.ResponseWriter, r *http.Request) {
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
@@ -102,6 +104,7 @@ func UpdateTriggerHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(message)
 }
 
+//GetFormTriggersHandler  Get all triggers associated with  a form
 func GetFormTriggersHandler(w http.ResponseWriter, r *http.Request) {
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
@@ -149,6 +152,7 @@ func GetFormTriggersHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(triggersJSON)
 }
 
+//DeleteTriggerHandler Deletes a  trigger (removes all trigger event types)
 func DeleteTriggerHandler(w http.ResponseWriter, r *http.Request) {
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
@@ -197,6 +201,7 @@ func DeleteTriggerHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(message)
 }
 
+//TestTriggerHandler Send a test trigger to registered urls tied to trigger actions
 func TestTriggerHandler(w http.ResponseWriter, r *http.Request) {
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")

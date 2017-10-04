@@ -10,6 +10,7 @@ import (
 	"gitlab.com/middlefront/workspace/database"
 )
 
+//NewFormSubmissionHandler is triggered when a new submission is made. This handler is saving the actual variable submission info
 func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")

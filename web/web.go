@@ -3,12 +3,10 @@ package web
 import (
 	"context"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"strings"
 
 	jwtmiddleware "github.com/auth0/go-jwt-middleware"
 	jwt "github.com/dgrijalva/jwt-go"
@@ -16,7 +14,6 @@ import (
 	"github.com/justinas/alice"
 	"github.com/rs/cors"
 	"gitlab.com/middlefront/workspace/config"
-	"gitlab.com/middlefront/workspace/storage"
 )
 
 // Router struct would carry the httprouter instance, so its methods could be verwritten and replaced with methds with wraphandler
@@ -73,40 +70,42 @@ func App() {
 		},
 	})
 
-	commonHandlers := alice.New(LoggingHandler)
-	//RecoverHandler
+	commonHandlers := alice.New(LoggingHandler, RecoverHandler)
+
 	router := NewRouter()
 
-	router.Post("/api/new_workspace", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(CreateWorkspaceHandler))
 	router.Get("/api/workspaces", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(GetWorkspacesHandler))
+	router.Post("/api/workspaces", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(CreateWorkspaceHandler))
 	router.Get("/api/workspaces/:workspaceID", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(GetWorkspaceBySlugHandler))
-
 	router.Post("/api/workspaces/:workspaceID/permissions", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(ChangeUserWorkspacePermission))
-	router.Get("/api/users_and_workspaces", commonHandlers.ThenFunc(UsersAndWorkspaceRoles))
-	router.Get("/api/users_in_workspace", commonHandlers.ThenFunc(GetWorkspaceUsersAndRolesHandler))
 
 	router.Get("/api/workspaces/:workspaceID/forms", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(GetFormsHandler))
-	router.Post("/api/workspaces/:workspaceID/new_form", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(CreateFormHandler))
+	router.Post("/api/workspaces/:workspaceID/forms", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(CreateFormHandler))
+
 	router.Get("/api/workspaces/:workspaceID/forms/:formID", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(GetFormBySlugHandler))
 
-	router.Post("/api/workspaces/:workspaceID/forms/:formID/new_submission", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(NewFormSubmissionHandler))
-
+	router.Post("/api/workspaces/:workspaceID/forms/:formID/submissions", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(NewFormSubmissionHandler))
 	router.Get("/api/workspaces/:workspaceID/forms/:formID/submissions", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(GetSubmissionsHandler))
-
-	router.Get("/api/workspaces/:workspaceID/forms/:formID/submissions/:submissionID/changelog", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(GetSubmissionChangelogHandler))
 
 	router.Get("/api/workspaces/:workspaceID/forms/:formID/submissions/:submissionID", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(GetSubmissionInfoHandler))
 	router.Put("/api/workspaces/:workspaceID/forms/:formID/submissions/:submissionID", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(UpdateSubmissionHandler))
 	router.Delete("/api/workspaces/:workspaceID/forms/:formID/submissions/:submissionID", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(DeleteSubmissionHandler))
 
+	router.Get("/api/workspaces/:workspaceID/forms/:formID/submissions/:submissionID/changelog", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(GetSubmissionChangelogHandler))
+
 	//Triggers and Integrations
 	router.Post("/api/workspaces/:workspaceID/forms/:formID/integrations", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(UpdateTriggerHandler))
 	router.Delete("/api/workspaces/:workspaceID/forms/:formID/integrations", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(DeleteTriggerHandler))
 	router.Get("/api/workspaces/:workspaceID/forms/:formID/integrations", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(GetFormTriggersHandler))
-	router.Post("/api/workspaces/:workspaceID/forms/:formID/test_integrations", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(TestTriggerHandler))
+	router.Post("/api/workspaces/:workspaceID/forms/:formID/integrations/test", commonHandlers.Append(authMiddleware.Handler, GetUserInfoFromToken).ThenFunc(TestTriggerHandler))
+
+	//Permissions ans auth roles
+	router.Get("/api/users/workspaces", commonHandlers.ThenFunc(UsersAndWorkspaceRoles))
+	router.Get("/api/workspace/users", commonHandlers.ThenFunc(GetWorkspaceUsersAndRolesHandler))
 
 	router.Get("/", commonHandlers.ThenFunc(HomePageHandler))
 
+	//Serve static files with cache
 	fileServer := http.FileServer(http.Dir("./ui/build/static"))
 	router.GET("/static/*filepath", func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		w.Header().Set("Vary", "Accept-Encoding")
@@ -115,6 +114,7 @@ func App() {
 		fileServer.ServeHTTP(w, r)
 	})
 
+	//Serve combiled static assets by walking directory and serving each file
 	files, err := ioutil.ReadDir("./ui/build")
 	if err != nil {
 		fmt.Println(err)
@@ -127,34 +127,12 @@ func App() {
 		}))
 	}
 
-	router.GET("/uploads/*filepath", func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		w.Header().Set("Vary", "Accept-Encoding")
-		w.Header().Set("Cache-Control", "public, max-age=7776000")
-		fileURL := strings.TrimLeft(p.ByName("filepath"), "/")
-		log.Printf("fileURL %#v", fileURL)
-
-		item, err := storage.GetByURL(fileURL)
-		if err != nil {
-			log.Println(err)
-		}
-
-		readCloser, err := item.Open()
-		if err != nil {
-			log.Println(err)
-		}
-
-		_, err = io.Copy(w, readCloser)
-		if err != nil {
-			log.Println(err)
-		}
-
-	})
+	router.GET("/uploads/*filepath", GetUploadedFile)
 
 	router.NotFound = commonHandlers.ThenFunc(HomePageHandler)
 
 	PORT := os.Getenv("PORT")
 	if PORT == "" {
-		log.Println("No Global port has been defined, using default")
 		PORT = "8080"
 	}
 
@@ -166,6 +144,6 @@ func App() {
 		AllowedHeaders:   []string{"Accept", "Content-Type", "X-Auth-Token", "*"},
 		Debug:            false,
 	}).Handler(router)
-	log.Println("serving ")
+	log.Println("serving at port " + PORT)
 	log.Fatal(http.ListenAndServe(":"+PORT, handler))
 }

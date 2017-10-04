@@ -5,7 +5,7 @@ class permissionsStore {
 		@observable WorkspaceUsers = []
 		@action getWorkspaceUsersAndRoles = async (workspaceID) => {
 			let authToken = AuthService.getToken();
-			const response = await fetch(`/api/users_in_workspace?w=${workspaceID}`, {
+			const response = await fetch(`/api/workspace/users?w=${workspaceID}`, {
 				method: "GET",
 				mode: "cors",
 				headers: {

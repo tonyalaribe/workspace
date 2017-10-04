@@ -23,7 +23,7 @@ class formBuilderStore {
 		form.uischema = toJS(this.UISchema);
 
 		const response = await fetch(
-			"/api/workspaces/" + workspaceID + "/new_form",
+			"/api/workspaces/" + workspaceID + "/forms",
 			{
 				method: "POST",
 				body: JSON.stringify(form),

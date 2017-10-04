@@ -54,7 +54,7 @@ class mainStore {
 	submitFormToServer = async (workspaceID, formID, formData, callback) => {
 		let authToken = AuthService.getToken();
 		const response = await fetch(
-			"/api/workspaces/" + workspaceID + "/forms/" + formID + "/new_submission",
+			"/api/workspaces/" + workspaceID + "/forms/" + formID + "/submissions",
 			{
 				method: "POST",
 				body: JSON.stringify(formData),
@@ -139,7 +139,7 @@ class mainStore {
 	submitNewWorkspaceToServer = async (workspace, callback) => {
 		let authToken = AuthService.getToken();
 
-		const response = await fetch("/api/new_workspace", {
+		const response = await fetch("/api/workspaces", {
 			method: "POST",
 			body: JSON.stringify(workspace),
 			mode: "cors",

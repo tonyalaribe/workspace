@@ -68,7 +68,7 @@ class integrationsStore {
 		@action testFormIntegration = async (workspaceID,formID, integration) => {
 			let authToken = AuthService.getToken();
 
-			const response = await fetch(`/api/workspaces/${workspaceID}/forms/${formID}/test_integrations`, {
+			const response = await fetch(`/api/workspaces/${workspaceID}/forms/${formID}/integrations/test`, {
 				method: "POST",
 				body: JSON.stringify(integration),
 				mode: "cors",

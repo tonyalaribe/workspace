@@ -9,6 +9,7 @@ import (
 	"gitlab.com/middlefront/workspace/actions"
 )
 
+//UsersAndWorkspaceRoles Get users and their roles in the workspace
 func UsersAndWorkspaceRoles(w http.ResponseWriter, r *http.Request) {
 	users, err := actions.GetUsersAndWorkspaceRoles()
 	if err != nil {
@@ -20,6 +21,7 @@ func UsersAndWorkspaceRoles(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//ChangeUserWorkspacePermission chamges workspace permissions, but only if the user making the action has enough (admin or similar) permissions
 func ChangeUserWorkspacePermission(w http.ResponseWriter, r *http.Request) {
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")

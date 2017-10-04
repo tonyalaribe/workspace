@@ -17,6 +17,7 @@ type WorkSpace struct {
 	Created int    `json:"created"`
 }
 
+//CreateWorkspaceHandler create workspace with database.WorkSpace{} as body.
 func CreateWorkspaceHandler(w http.ResponseWriter, r *http.Request) {
 
 	workspaceData := database.WorkSpace{}
@@ -50,6 +51,7 @@ func CreateWorkspaceHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//GetWorkspacesHandler Get workspaces a user has access to
 func GetWorkspacesHandler(w http.ResponseWriter, r *http.Request) {
 	user := r.Context().Value("user").(database.User)
 
@@ -64,6 +66,7 @@ func GetWorkspacesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//GetWorkspaceUsersAndRolesHandler get users and their roles attached to a workspace
 func GetWorkspaceUsersAndRolesHandler(w http.ResponseWriter, r *http.Request) {
 	workspaceID := r.URL.Query().Get("w")
 
@@ -78,6 +81,7 @@ func GetWorkspaceUsersAndRolesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//GetWorkspaceBySlugHandler Get a workspaces details given the workspaceID(slug) as param.
 func GetWorkspaceBySlugHandler(w http.ResponseWriter, r *http.Request) {
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
