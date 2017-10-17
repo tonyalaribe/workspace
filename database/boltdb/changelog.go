@@ -8,6 +8,7 @@ import (
 	"gitlab.com/middlefront/workspace/database"
 )
 
+//AddToSubmissionChangelog Stores a submissions changelog to db.
 func (boltDBProvider *BoltDBProvider) AddToSubmissionChangelog(workspaceID, formID string, submissionID int, changelogItem database.ChangelogItem) error {
 	dataByte, err := json.Marshal(changelogItem)
 	if err != nil {
@@ -17,68 +18,74 @@ func (boltDBProvider *BoltDBProvider) AddToSubmissionChangelog(workspaceID, form
 
 	/*Save to boltdb*/
 	err = boltDBProvider.db.Update(func(tx *bolt.Tx) error {
-		log.Println("Xxx")
-		workspaceBucket, err := tx.Bucket([]byte(boltDBProvider.ChangelogBucket)).CreateBucketIfNotExists([]byte(workspaceID))
-		if err != nil {
-			log.Println(err)
-		}
-		formBucket, err := workspaceBucket.CreateBucketIfNotExists([]byte(formID))
-		if err != nil {
-			log.Println(err)
-		}
-		submissionBucket, err := formBucket.CreateBucketIfNotExists(itob(submissionID))
+		var workspaceBucket *bolt.Bucket
+		workspaceBucket, err = tx.Bucket([]byte(boltDBProvider.ChangelogBucket)).CreateBucketIfNotExists([]byte(workspaceID))
 		if err != nil {
 			log.Println(err)
 		}
 
-		log.Println("1")
-		nextSeq, err := submissionBucket.NextSequence()
+		var formBucket *bolt.Bucket
+		formBucket, err = workspaceBucket.CreateBucketIfNotExists([]byte(formID))
 		if err != nil {
 			log.Println(err)
 		}
-		log.Println("2")
+		var submissionBucket *bolt.Bucket
+		submissionBucket, err = formBucket.CreateBucketIfNotExists(itob(submissionID))
+		if err != nil {
+			log.Println(err)
+		}
+
+		var nextSeq uint64
+		nextSeq, err = submissionBucket.NextSequence()
+		if err != nil {
+			log.Println(err)
+		}
+
 		err = submissionBucket.Put(itob(int(nextSeq)), dataByte)
 		if err != nil {
 			log.Println(err)
 		}
-		log.Println(3)
+
 		return nil
 	})
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
+//GetSubmissionChangelog retrieves a changelog from db based on its associated submission
 func (boltDBProvider *BoltDBProvider) GetSubmissionChangelog(workspaceID, formID string, submissionID int) ([]database.ChangelogItem, error) {
 	/*Save to boltdb*/
 	var err error
 	changelogItems := []database.ChangelogItem{}
 	changelogItem := database.ChangelogItem{}
-	err = boltDBProvider.db.Update(func(tx *bolt.Tx) error {
 
-		workspaceBucket, err := tx.Bucket([]byte(boltDBProvider.ChangelogBucket)).CreateBucketIfNotExists([]byte(workspaceID))
+	err = boltDBProvider.db.Update(func(tx *bolt.Tx) error {
+		var workspaceBucket *bolt.Bucket
+		workspaceBucket, err = tx.Bucket([]byte(boltDBProvider.ChangelogBucket)).CreateBucketIfNotExists([]byte(workspaceID))
 		if err != nil {
 			log.Println(err)
 		}
-		formBucket, err := workspaceBucket.CreateBucketIfNotExists([]byte(formID))
+
+		var formBucket *bolt.Bucket
+		formBucket, err = workspaceBucket.CreateBucketIfNotExists([]byte(formID))
 		if err != nil {
 			log.Println(err)
 		}
-		submissionBucket, err := formBucket.CreateBucketIfNotExists(itob(submissionID))
+
+		var submissionBucket *bolt.Bucket
+		submissionBucket, err = formBucket.CreateBucketIfNotExists(itob(submissionID))
 		if err != nil {
 			log.Println(err)
 		}
 
 		err = submissionBucket.ForEach(func(k []byte, v []byte) error {
-			err := json.Unmarshal(v, &changelogItem)
+			err = json.Unmarshal(v, &changelogItem)
 			if err != nil {
 				log.Println(err)
+				return err
 			}
 			changelogItems = append(changelogItems, changelogItem)
-
-			return nil
+			return err
 		})
 		if err != nil {
 			log.Println(err)
@@ -86,9 +93,6 @@ func (boltDBProvider *BoltDBProvider) GetSubmissionChangelog(workspaceID, formID
 
 		return nil
 	})
-	if err != nil {
-		return changelogItems, err
-	}
 
-	return changelogItems, nil
+	return changelogItems, err
 }

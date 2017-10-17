@@ -93,6 +93,7 @@ func Init(c Config) {
 	}()
 }
 
+//Get returns a pointer to the config instance which holds
 func Get() *Config {
 	return &config
 }

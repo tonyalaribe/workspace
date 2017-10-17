@@ -8,6 +8,7 @@ import (
 	"gitlab.com/middlefront/workspace/database"
 )
 
+//CreateUser Creates a user in the database
 func (boltDBProvider *BoltDBProvider) CreateUser(user database.User) error {
 	userByte, err := json.Marshal(user)
 	if err != nil {
@@ -16,7 +17,7 @@ func (boltDBProvider *BoltDBProvider) CreateUser(user database.User) error {
 
 	err = boltDBProvider.db.Update(func(tx *bolt.Tx) error {
 		usersBucket := tx.Bucket([]byte(boltDBProvider.UsersBucket))
-		err := usersBucket.Put([]byte(user.Username), userByte)
+		err = usersBucket.Put([]byte(user.Username), userByte)
 		return err
 	})
 
@@ -27,6 +28,7 @@ func (boltDBProvider *BoltDBProvider) CreateUser(user database.User) error {
 	return nil
 }
 
+//GetUser returns a user given the username
 func (boltDBProvider *BoltDBProvider) GetUser(username string) (database.User, error) {
 
 	var userByte []byte
@@ -49,6 +51,7 @@ func (boltDBProvider *BoltDBProvider) GetUser(username string) (database.User, e
 	return existingUser, nil
 }
 
+//GetsUserByEmail returns a user givenits username
 func (boltDBProvider *BoltDBProvider) GetUserByEmail(email string) (database.User, error) {
 
 	var userByte []byte
@@ -77,12 +80,10 @@ func (boltDBProvider *BoltDBProvider) GetUserByEmail(email string) (database.Use
 	}
 
 	err = json.Unmarshal(userByte, &existingUser)
-	if err != nil {
-		return existingUser, err
-	}
-	return existingUser, nil
+	return existingUser, err
 }
 
+//GetAllUsers returns all users from the datababse
 func (boltDBProvider *BoltDBProvider) GetAllUsers() ([]database.User, error) {
 	users := []database.User{}
 

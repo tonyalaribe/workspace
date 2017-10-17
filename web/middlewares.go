@@ -44,6 +44,7 @@ func LoggingHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
+//GetUserInfoFromToken rerturns json encoding of user info
 func GetUserInfoFromToken(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		tokenValue := r.Header.Get("authorization")

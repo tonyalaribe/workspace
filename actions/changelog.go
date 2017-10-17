@@ -8,6 +8,7 @@ import (
 	"gitlab.com/middlefront/workspace/database"
 )
 
+//GetSubmissionChangelog returns the Changelogs for a given submission
 func GetSubmissionChangelog(workspaceID, formID, submissionIDString string) ([]database.ChangelogItem, error) {
 	submissionID, err := strconv.Atoi(submissionIDString)
 	if err != nil {

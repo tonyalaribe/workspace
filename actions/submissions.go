@@ -11,6 +11,7 @@ import (
 	"gitlab.com/middlefront/workspace/storage"
 )
 
+//NewFormSubmission creates a new form submission
 func NewFormSubmission(workspaceID, formID string, submission database.SubmissionData) error {
 
 	conf := config.Get()
@@ -35,7 +36,8 @@ func NewFormSubmission(workspaceID, formID string, submission database.Submissio
 			}
 			switch itemFormat {
 			case "data-uri", "data-url":
-				file, err := storage.UploadBase64(filepath.Join(workspaceID, formID, submission.SubmissionName), v.(string))
+				var file storage.StowFile
+				file, err = storage.UploadBase64(filepath.Join(workspaceID, formID, submission.SubmissionName), v.(string))
 				if err != nil {
 					log.Println(err)
 				}
@@ -51,8 +53,9 @@ func NewFormSubmission(workspaceID, formID string, submission database.Submissio
 				switch schemaObject.Path("items.format").Data().(string) {
 				case "data-url":
 					items := []string{}
+					var file storage.StowFile
 					for _, item := range v.([]interface{}) {
-						file, err := storage.UploadBase64(filepath.Join(workspaceID, formID, submission.SubmissionName), item.(string))
+						file, err = storage.UploadBase64(filepath.Join(workspaceID, formID, submission.SubmissionName), item.(string))
 						if err != nil {
 							log.Println(err)
 						}
@@ -82,13 +85,10 @@ func NewFormSubmission(workspaceID, formID string, submission database.Submissio
 
 	TriggerEvent(workspaceID, formID, database.NewSubmissionTriggerEvent, data)
 
-	if err != nil {
-		log.Println(err)
-	}
-
-	return nil
+	return err
 }
 
+//UpdateSubmission updates a submission with givven workspaceID
 func UpdateSubmission(workspaceID, formID string, submissionIDString string, newSubmission database.SubmissionData) error {
 	submissionID, err := strconv.Atoi(submissionIDString)
 	if err != nil {
@@ -203,12 +203,14 @@ func UpdateSubmission(workspaceID, formID string, submissionIDString string, new
 	return nil
 }
 
+//GetFormSubmissions returns all submissions under a given formID and workspace
 func GetFormSubmissions(workspaceID, formID string) ([]database.SubmissionData, error) {
 	conf := config.Get()
 	submissions, err := conf.Database.GetFormSubmissions(workspaceID, formID)
 	return submissions, err
 }
 
+//GetFormSubmissionDetails returns the submission details given the submission id
 func GetFormSubmissionDetails(workspaceID, formID, submissionIDString string) (database.SubmissionData, error) {
 	submissionData := database.SubmissionData{}
 	submissionID, err := strconv.Atoi(submissionIDString)
@@ -223,6 +225,7 @@ func GetFormSubmissionDetails(workspaceID, formID, submissionIDString string) (d
 	return submissionData, nil
 }
 
+//DeleteFormSubmission deletes a form submission given the submission id
 func DeleteFormSubmission(workspaceID, formID, submissionIDString string) (database.SubmissionData, error) {
 	submissionData := database.SubmissionData{}
 	submissionID, err := strconv.Atoi(submissionIDString)

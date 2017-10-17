@@ -8,10 +8,11 @@ import (
 	"gitlab.com/middlefront/workspace/database"
 )
 
+//NewFormSubmission persists a new form data submission to the database
 func (boltDBProvider *BoltDBProvider) NewFormSubmission(workspaceID, formID string, submission database.SubmissionData) error {
 
 	/*Save to boltdb*/
-	boltDBProvider.db.Update(func(tx *bolt.Tx) error {
+	err := boltDBProvider.db.Update(func(tx *bolt.Tx) error {
 		formBucket := tx.Bucket([]byte(boltDBProvider.WorkspacesContainer)).Bucket([]byte(workspaceID)).Bucket([]byte(formID))
 
 		nextID, err := formBucket.NextSequence()
@@ -33,9 +34,10 @@ func (boltDBProvider *BoltDBProvider) NewFormSubmission(workspaceID, formID stri
 		return nil
 	})
 
-	return nil
+	return err
 }
 
+//UpdateFormSubmission updates a form submission in the db
 func (boltDBProvider *BoltDBProvider) UpdateFormSubmission(workspaceID, formID string, submissionID int, submission database.SubmissionData) error {
 
 	dataByte, err := json.Marshal(submission)
@@ -57,6 +59,7 @@ func (boltDBProvider *BoltDBProvider) UpdateFormSubmission(workspaceID, formID s
 	return nil
 }
 
+//GetFormSubmissions gets the submissions associated with a given form
 func (boltDBProvider *BoltDBProvider) GetFormSubmissions(workspaceID, formID string) ([]database.SubmissionData, error) {
 
 	submissions := []database.SubmissionData{}
@@ -83,6 +86,7 @@ func (boltDBProvider *BoltDBProvider) GetFormSubmissions(workspaceID, formID str
 	return submissions, nil
 }
 
+//GetFormSubmissionDetails gets the details for a given submission ID
 func (boltDBProvider *BoltDBProvider) GetFormSubmissionDetails(workspaceID, formID string, submissionID int) (database.SubmissionData, error) {
 
 	submission := database.SubmissionData{}
@@ -103,6 +107,7 @@ func (boltDBProvider *BoltDBProvider) GetFormSubmissionDetails(workspaceID, form
 	return submission, nil
 }
 
+//DeleteFormSubmission deletes a form submission from the db given the submissionID
 func (boltDBProvider *BoltDBProvider) DeleteFormSubmission(workspaceID, formID string, submissionID int) (database.SubmissionData, error) {
 
 	submission := database.SubmissionData{}

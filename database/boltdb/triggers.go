@@ -9,6 +9,7 @@ import (
 	"gitlab.com/middlefront/workspace/database"
 )
 
+//UpdateTrigger updates a trigger in the database
 func (boltDBProvider *BoltDBProvider) UpdateTrigger(trigger database.Trigger) error {
 	err := boltDBProvider.db.Update(func(tx *bolt.Tx) error {
 		triggersBucket := tx.Bucket([]byte(boltDBProvider.Triggers))
@@ -25,12 +26,11 @@ func (boltDBProvider *BoltDBProvider) UpdateTrigger(trigger database.Trigger) er
 		}
 		return nil
 	})
-	if err != nil {
-		return err
-	}
-	return nil
+
+	return err
 }
 
+//DeleteTrigger deletes a trigger from the database
 func (boltDBProvider *BoltDBProvider) DeleteTrigger(trigger database.Trigger) error {
 	err := boltDBProvider.db.Update(func(tx *bolt.Tx) error {
 		triggersBucket := tx.Bucket([]byte(boltDBProvider.Triggers))
@@ -49,6 +49,7 @@ func (boltDBProvider *BoltDBProvider) DeleteTrigger(trigger database.Trigger) er
 	return nil
 }
 
+//GetTriggers gets all trigger from the database of a given event type associated with a form
 func (boltDBProvider *BoltDBProvider) GetTriggers(WorkspaceID, FormID, ID string, EventType database.TriggerEvent) (database.Trigger, error) {
 	var triggerByte []byte
 	var trigger database.Trigger
@@ -72,6 +73,7 @@ func (boltDBProvider *BoltDBProvider) GetTriggers(WorkspaceID, FormID, ID string
 	return trigger, nil
 }
 
+//GetFormTriggers gets all triggers associated with a given form
 func (boltDBProvider *BoltDBProvider) GetFormTriggers(WorkspaceID, FormID string) ([]database.Trigger, error) {
 
 	var trigger database.Trigger
@@ -99,6 +101,7 @@ func (boltDBProvider *BoltDBProvider) GetFormTriggers(WorkspaceID, FormID string
 	return triggers, nil
 }
 
+//GetEventTrigggers Gets all triggers associated with a given eventType and form
 func (boltDBProvider *BoltDBProvider) GetEventTriggers(WorkspaceID, FormID string, EventType database.TriggerEvent) ([]database.Trigger, error) {
 
 	var triggers []database.Trigger
@@ -109,8 +112,6 @@ func (boltDBProvider *BoltDBProvider) GetEventTriggers(WorkspaceID, FormID strin
 		var err error
 		var trigger database.Trigger
 		for k, v := triggersBucket.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, v = triggersBucket.Next() {
-			// fmt.Printf("key=%s, value=%s\n", k, v)
-
 			err = json.Unmarshal(v, &trigger)
 			if err != nil {
 				return err
@@ -120,9 +121,5 @@ func (boltDBProvider *BoltDBProvider) GetEventTriggers(WorkspaceID, FormID strin
 		return nil
 	})
 
-	if err != nil {
-		return triggers, err
-	}
-
-	return triggers, nil
+	return triggers, err
 }

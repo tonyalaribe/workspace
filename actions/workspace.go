@@ -10,6 +10,7 @@ import (
 	"gitlab.com/middlefront/workspace/database"
 )
 
+//CreateWorkspace creates a workspace with given user as owner
 func CreateWorkspace(workspaceData database.WorkSpace, user database.User) error {
 
 	workspaceData.Creator = user.Username
@@ -48,6 +49,7 @@ func CreateWorkspace(workspaceData database.WorkSpace, user database.User) error
 	return nil
 }
 
+//GetWorkspaces gets workspaces given user can access
 func GetWorkspaces(user database.User) ([]database.WorkSpace, error) {
 	conf := config.Get()
 	finalWorkspaces := []database.WorkSpace{}
@@ -68,6 +70,7 @@ func GetWorkspaces(user database.User) ([]database.WorkSpace, error) {
 	return finalWorkspaces, nil
 }
 
+//Gets users associated with workspace and their roles
 func GetWorkspaceUsersAndRoles(workspaceID string) ([]database.User, error) {
 	conf := config.Get()
 	finalUsers := []database.User{}
@@ -91,6 +94,7 @@ func GetWorkspaceUsersAndRoles(workspaceID string) ([]database.User, error) {
 	return finalUsers, nil
 }
 
+//GetWorkspaceBySlug gets workspace by slug
 func GetWorkspaceBySlug(workspaceID string) (database.WorkSpace, error) {
 	conf := config.Get()
 	workspace, err := conf.Database.GetWorkspaceBySlug(workspaceID)

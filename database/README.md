@@ -1,39 +1,13 @@
-package database
+# database
+--
+    import "gitlab.com/middlefront/workspace/database"
 
-type WorkSpace struct {
-	Creator string `json:"creator"`
-	ID      string `json:"id"`
-	Name    string `json:"name"`
-	Created int    `json:"created"`
-}
 
-type User struct {
-	ProviderUserID    string
-	Username          string
-	Name              string
-	Email             string
-	Roles             []string
-	CurrentRoleString string
-}
+## Usage
 
-type Form struct {
-	Creator    string                 `json:"creator"`
-	ID         string                 `json:"id"`
-	Name       string                 `json:"name"`
-	JSONSchema map[string]interface{} `json:"jsonschema"`
-	UISchema   map[string]interface{} `json:"uischema"`
-}
+#### type ChangelogItem
 
-type SubmissionData struct {
-	FormData        map[string]interface{} `json:"formData"`
-	Created         int                    `json:"created"`
-	LastModified    int                    `json:"lastModified"`
-	SubmissionName  string                 `json:"submissionName"`
-	Status          string                 `json:"status"`
-	ID              int                    `json:"id"`
-	SubmissionNotes string                 `json:"submissionNotes"`
-}
-
+```go
 type ChangelogItem struct {
 	Created      int    `json:"created"`
 	WorkspaceID  string `json:"workspaceID"`
@@ -42,33 +16,12 @@ type ChangelogItem struct {
 
 	Notes string `json:"note"`
 }
+```
 
-type Files struct {
-	Status     string `json:"status"`
-	File       string `json:"file"`
-	Name       string `json:"name"`
-	Type       string `json:"type"`
-	Path       string `json:"path"`
-	CreatedBy  string `json:"createdBy"`
-	UploadDate string `json:"uploadDate"`
-}
 
-type TriggerEvent string
+#### type Database
 
-const NewSubmissionTriggerEvent TriggerEvent = "NewSubmission"
-const UpdateSubmissionTriggerEvent TriggerEvent = "UpdateSubmission"
-const ApproveSubmissionTriggerEvent TriggerEvent = "ApproveSubmission"
-const DeleteSubmissionTriggerEvent TriggerEvent = "DeleteSubmission"
-
-type Trigger struct {
-	ID          string
-	WorkspaceID string
-	FormID      string
-	EventType   TriggerEvent
-	URL         string
-	SecretToken string
-}
-
+```go
 type Database interface {
 	GetInheritance() (string, error)         //GetInheritance Get the current Inheritance tree from database
 	SaveInheritance(roles interface{}) error //SaveInheritance persists tuhe current inheritance tree to database
@@ -109,3 +62,110 @@ type Database interface {
 	GetFormTriggers(WorkSpace string, formID string) ([]Trigger, error)                            //GetFormTriggers gets all triggers associated with a given form
 	GetEventTriggers(WorkSpace string, formID string, event TriggerEvent) ([]Trigger, error)       //GetEventTrigggers Gets all triggers associated with a given eventType and form
 }
+```
+
+
+#### type Files
+
+```go
+type Files struct {
+	Status     string `json:"status"`
+	File       string `json:"file"`
+	Name       string `json:"name"`
+	Type       string `json:"type"`
+	Path       string `json:"path"`
+	CreatedBy  string `json:"createdBy"`
+	UploadDate string `json:"uploadDate"`
+}
+```
+
+
+#### type Form
+
+```go
+type Form struct {
+	Creator    string                 `json:"creator"`
+	ID         string                 `json:"id"`
+	Name       string                 `json:"name"`
+	JSONSchema map[string]interface{} `json:"jsonschema"`
+	UISchema   map[string]interface{} `json:"uischema"`
+}
+```
+
+
+#### type SubmissionData
+
+```go
+type SubmissionData struct {
+	FormData        map[string]interface{} `json:"formData"`
+	Created         int                    `json:"created"`
+	LastModified    int                    `json:"lastModified"`
+	SubmissionName  string                 `json:"submissionName"`
+	Status          string                 `json:"status"`
+	ID              int                    `json:"id"`
+	SubmissionNotes string                 `json:"submissionNotes"`
+}
+```
+
+
+#### type Trigger
+
+```go
+type Trigger struct {
+	ID          string
+	WorkspaceID string
+	FormID      string
+	EventType   TriggerEvent
+	URL         string
+	SecretToken string
+}
+```
+
+
+#### type TriggerEvent
+
+```go
+type TriggerEvent string
+```
+
+
+```go
+const ApproveSubmissionTriggerEvent TriggerEvent = "ApproveSubmission"
+```
+
+```go
+const DeleteSubmissionTriggerEvent TriggerEvent = "DeleteSubmission"
+```
+
+```go
+const NewSubmissionTriggerEvent TriggerEvent = "NewSubmission"
+```
+
+```go
+const UpdateSubmissionTriggerEvent TriggerEvent = "UpdateSubmission"
+```
+
+#### type User
+
+```go
+type User struct {
+	ProviderUserID    string
+	Username          string
+	Name              string
+	Email             string
+	Roles             []string
+	CurrentRoleString string
+}
+```
+
+
+#### type WorkSpace
+
+```go
+type WorkSpace struct {
+	Creator string `json:"creator"`
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Created int    `json:"created"`
+}
+```

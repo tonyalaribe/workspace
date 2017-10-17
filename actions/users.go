@@ -12,12 +12,14 @@ import (
 	"gitlab.com/middlefront/workspace/database"
 )
 
+//GetUsersAndWorkspaceRoles retuns all users of a workspace and their associated roles
 func GetUsersAndWorkspaceRoles() ([]database.User, error) {
 	db := config.Get().Database
 	users, err := db.GetAllUsers()
 	return users, err
 }
 
+//ChangeUserWorkspacePermission change permissions for a given workspace
 func ChangeUserWorkspacePermission(workspaceID string, permissions map[string]interface{}) error {
 	db := config.Get().Database
 	user, err := db.GetUserByEmail(permissions["email"].(string))
@@ -33,6 +35,7 @@ func ChangeUserWorkspacePermission(workspaceID string, permissions map[string]in
 	return err
 }
 
+//Setup a default super admin
 func SetupSuperAdmin(adminUsername string) error {
 	conf := config.Get()
 	db := conf.Database
@@ -84,9 +87,5 @@ func SetupSuperAdmin(adminUsername string) error {
 	}
 
 	err = db.CreateUser(user)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	return nil
+	return err
 }

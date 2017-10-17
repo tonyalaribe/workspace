@@ -9,6 +9,7 @@ import (
 	"github.com/boltdb/bolt"
 )
 
+//BoltDBProvider holds information that is required for the boltdb provider to function. Including a pointer to the database instance.
 type BoltDBProvider struct {
 	db                  *bolt.DB
 	RootDirectory       string
@@ -21,6 +22,7 @@ type BoltDBProvider struct {
 	Triggers            string
 }
 
+//New creates a boltdb instance given names of main buckets
 func New(RootDirectory, AppMetadata, WorkspacesMetadata, WorkspacesContainer, UsersBucket, FormsMetadata string) (*BoltDBProvider, error) {
 
 	var boltdb BoltDBProvider
@@ -53,47 +55,3 @@ func New(RootDirectory, AppMetadata, WorkspacesMetadata, WorkspacesContainer, Us
 	boltdb.db = db
 	return &boltdb, nil
 }
-
-//
-// func (BoltDB) Initialize() {
-// 	conf := config.Get()
-// 	conf.BoltFile = filepath.Join(conf.RootDirectory, "workspace.db")
-//
-// 	os.MkdirAll(conf.RootDirectory, os.ModePerm)
-// 	db, err := bolt.Open(conf.BoltFile, 0600, &bolt.Options{Timeout: 3 * time.Second})
-// 	if err != nil {
-// 		log.Println(err)
-// 	}
-// 	db.Update(func(tx *bolt.Tx) error {
-// 		tx.CreateBucketIfNotExists([]byte(conf.WorkspacesMetadata))
-// 		tx.CreateBucketIfNotExists([]byte(conf.WorkspacesContainer))
-// 		tx.CreateBucketIfNotExists([]byte(conf.UsersBucket))
-// 		return nil
-// 	})
-//
-// 	log.Println(db.GoString())
-// 	conf.DB = db
-//
-// }
-//
-//
-// func (BoltDB) Initialize(){
-//   conf := config.Get()
-//   conf.BoltFile = filepath.Join(conf.RootDirectory, "workspace.db")
-//   conf.SubmissionsBucket = []byte("submissions")
-//   os.MkdirAll(conf.RootDirectory, os.ModePerm)
-//   db, err := bolt.Open(conf.BoltFile, 0600, &bolt.Options{Timeout: 3 * time.Second})
-//   if err != nil {
-//     log.Println(err)
-//   }
-//   db.Update(func(tx *bolt.Tx) error {
-//     tx.CreateBucketIfNotExists([]byte(conf.WorkspacesMetadata))
-//     tx.CreateBucketIfNotExists([]byte(conf.WorkspacesContainer))
-//     tx.CreateBucketIfNotExists([]byte(conf.UsersBucket))
-//     return nil
-//   })
-//
-//   log.Println(db.GoString())
-//   conf.DB = db
-//
-// }

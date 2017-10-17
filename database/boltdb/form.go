@@ -9,6 +9,7 @@ import (
 	"gitlab.com/middlefront/workspace/database"
 )
 
+//Create Form Creates a new form inthe db
 func (boltDBProvider *BoltDBProvider) CreateForm(workspaceID string, formData database.Form) error {
 
 	tx, err := boltDBProvider.db.Begin(true)
@@ -39,11 +40,15 @@ func (boltDBProvider *BoltDBProvider) CreateForm(workspaceID string, formData da
 	if err != nil {
 		log.Println(err)
 	}
-	tx.Commit()
 
+	err = tx.Commit()
+	if err != nil {
+		log.Println(err)
+	}
 	return nil
 }
 
+//GetForms Get all fforms associated with given workspaceID
 func (boltDBProvider *BoltDBProvider) GetForms(workspaceID string) ([]database.Form, error) {
 
 	forms := []database.Form{}
@@ -64,6 +69,7 @@ func (boltDBProvider *BoltDBProvider) GetForms(workspaceID string) ([]database.F
 	return forms, nil
 }
 
+//GetFormBySlug gets a form with a given form ID under the given workspaceID
 func (boltDBProvider *BoltDBProvider) GetFormBySlug(workspaceID, formID string) (database.Form, error) {
 
 	form := database.Form{}
@@ -83,6 +89,7 @@ func (boltDBProvider *BoltDBProvider) GetFormBySlug(workspaceID, formID string) 
 	return form, nil
 }
 
+//GetFormJSONBySlug gets raw json byte content for a form, given its slug.
 func (boltDBProvider *BoltDBProvider) GetFormJSONBySlug(workspaceID, formID string) ([]byte, error) {
 
 	formByte := []byte{}

@@ -10,6 +10,7 @@ import (
 	"gitlab.com/middlefront/workspace/database"
 )
 
+//CreateFormHandler Creates  a form in db
 func CreateFormHandler(w http.ResponseWriter, r *http.Request) {
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
@@ -37,6 +38,7 @@ func CreateFormHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//GetFormsHandler Gets the form with given workspaceID
 func GetFormsHandler(w http.ResponseWriter, r *http.Request) {
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
@@ -53,6 +55,7 @@ func GetFormsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//GetFormBySlugHandler gets the form by slug
 func GetFormBySlugHandler(w http.ResponseWriter, r *http.Request) {
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")

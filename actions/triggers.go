@@ -7,6 +7,7 @@ import (
 	"gitlab.com/middlefront/workspace/database"
 )
 
+//UpdateTrigger updates a trigger given a struct with trigger data
 func UpdateTrigger(trigger database.Trigger) error {
 	conf := config.Get()
 	// Persist workspace
@@ -19,6 +20,7 @@ func UpdateTrigger(trigger database.Trigger) error {
 	return nil
 }
 
+//DeleteTrigger deletes a trigger given a struct with the trigger data
 func DeleteTrigger(trigger database.Trigger) error {
 	conf := config.Get()
 	// Persist workspace
@@ -31,6 +33,7 @@ func DeleteTrigger(trigger database.Trigger) error {
 	return nil
 }
 
+//?GetFormTriggers returns triggers associated with given form
 func GetFormTriggers(workspaceID string, formID string) ([]database.Trigger, error) {
 	conf := config.Get()
 	// Persist workspace
@@ -46,6 +49,7 @@ func GetFormTriggers(workspaceID string, formID string) ([]database.Trigger, err
 	return triggers, nil
 }
 
+//GetEventTriggers returns triggers attached to given event
 func GetEventTriggers(workspaceID string, formID string, event database.TriggerEvent) ([]database.Trigger, error) {
 	conf := config.Get()
 	// Persist workspace

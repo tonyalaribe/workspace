@@ -36,6 +36,7 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//UodateSubmissionHandler update submission
 func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
@@ -62,6 +63,7 @@ func UpdateSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//GetSubmissionsHandler returns the submission based on formID
 func GetSubmissionsHandler(w http.ResponseWriter, r *http.Request) {
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
@@ -80,14 +82,17 @@ func GetSubmissionsHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+//GetSubmissionInfoHandler returns information about given  submission
 func GetSubmissionInfoHandler(w http.ResponseWriter, r *http.Request) {
-	// username := r.Context().Value("username").(string)
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
 	formID := httprouterParams.ByName("formID")
 	submissionID := httprouterParams.ByName("submissionID")
 
 	submissionData, err := actions.GetFormSubmissionDetails(workspaceID, formID, submissionID)
+	if err != nil {
+		log.Println(err)
+	}
 
 	w.Header().Set("Content-type", "application/json")
 	err = json.NewEncoder(w).Encode(submissionData)
@@ -96,8 +101,8 @@ func GetSubmissionInfoHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//DeleteSubmissionHandler  deletes a submission given submissionID and formID
 func DeleteSubmissionHandler(w http.ResponseWriter, r *http.Request) {
-	// username := r.Context().Value("username").(string)
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
 	formID := httprouterParams.ByName("formID")
@@ -112,14 +117,17 @@ func DeleteSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//GetSubmissionChangelogHandler returns changelogs associated with submission
 func GetSubmissionChangelogHandler(w http.ResponseWriter, r *http.Request) {
-	// username := r.Context().Value("username").(string)
 	httprouterParams := r.Context().Value("params").(httprouter.Params)
 	workspaceID := httprouterParams.ByName("workspaceID")
 	formID := httprouterParams.ByName("formID")
 	submissionID := httprouterParams.ByName("submissionID")
 
 	submissionData, err := actions.GetSubmissionChangelog(workspaceID, formID, submissionID)
+	if err != nil {
+		log.Println(err)
+	}
 
 	w.Header().Set("Content-type", "application/json")
 	err = json.NewEncoder(w).Encode(submissionData)

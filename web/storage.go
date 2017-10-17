@@ -10,6 +10,7 @@ import (
 	"gitlab.com/middlefront/workspace/storage"
 )
 
+//GetUploadedFile streams the uploaded file to the user irrespective of data store
 func GetUploadedFile(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	w.Header().Set("Vary", "Accept-Encoding")
 	w.Header().Set("Cache-Control", "public, max-age=7776000")

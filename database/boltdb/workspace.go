@@ -9,6 +9,7 @@ import (
 	"gitlab.com/middlefront/workspace/database"
 )
 
+//CreateWorkspace adds a new workspace to the database
 func (boltDBProvider *BoltDBProvider) CreateWorkspace(workspaceData database.WorkSpace) error {
 
 	tx, err := boltDBProvider.db.Begin(true)
@@ -30,7 +31,7 @@ func (boltDBProvider *BoltDBProvider) CreateWorkspace(workspaceData database.Wor
 		return err
 	}
 
-	metadata_bucket, err := tx.CreateBucketIfNotExists([]byte(boltDBProvider.WorkspacesMetadata))
+	metadataBucket, err := tx.CreateBucketIfNotExists([]byte(boltDBProvider.WorkspacesMetadata))
 	if err != nil {
 		log.Println(err)
 		return err
@@ -42,30 +43,28 @@ func (boltDBProvider *BoltDBProvider) CreateWorkspace(workspaceData database.Wor
 		return err
 	}
 
-	err = metadata_bucket.Put([]byte(workspaceData.ID), dataByte)
+	err = metadataBucket.Put([]byte(workspaceData.ID), dataByte)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 	tx.Commit()
-
 	return nil
 }
 
+//GetWorkspaces returns all workspaces on the database
 func (boltDBProvider *BoltDBProvider) GetWorkspaces() ([]database.WorkSpace, error) {
 	workspaces := []database.WorkSpace{}
 
 	boltDBProvider.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(boltDBProvider.WorkspacesMetadata))
 		b.ForEach(func(_ []byte, v []byte) error {
-
 			workspace := database.WorkSpace{}
 			err := json.Unmarshal(v, &workspace)
 			if err != nil {
 				return err
 			}
 			workspaces = append(workspaces, workspace)
-
 			return nil
 		})
 		return nil
@@ -74,6 +73,7 @@ func (boltDBProvider *BoltDBProvider) GetWorkspaces() ([]database.WorkSpace, err
 	return workspaces, nil
 }
 
+//GetWorkspaceBySlug Returns a workspace's meta data by slugname
 func (boltDBProvider *BoltDBProvider) GetWorkspaceBySlug(workspaceID string) (database.WorkSpace, error) {
 	workspaceByte := []byte{}
 	workspace := database.WorkSpace{}
@@ -93,6 +93,7 @@ func (boltDBProvider *BoltDBProvider) GetWorkspaceBySlug(workspaceID string) (da
 	return workspace, nil
 }
 
+//GetWorkspaceUsersAndRoles retuns all users of a workspace and their associated roles
 func (boltDBProvider *BoltDBProvider) GetWorkspaceUsersAndRoles(workspaceID string) (database.WorkSpace, []database.User, error) {
 	workspace := database.WorkSpace{}
 	users := []database.User{}

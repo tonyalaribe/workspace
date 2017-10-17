@@ -7,6 +7,7 @@ import (
 	"github.com/mikespook/gorbac"
 )
 
+//SavePermissions serializes and saves the gorbac permissions using the active datanase
 func SavePermissions() {
 	conf := Get()
 	rbac := conf.RolesManager
@@ -40,6 +41,7 @@ func SavePermissions() {
 	}
 }
 
+//GenerateRolesInstance reads the database to regenerate the roles instance from the saved data
 func GenerateRolesInstance() *gorbac.RBAC {
 	rbac := gorbac.New()
 	permissions := make(gorbac.Permissions)

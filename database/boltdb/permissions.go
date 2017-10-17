@@ -7,6 +7,7 @@ import (
 	"github.com/boltdb/bolt"
 )
 
+//SaveRoles persists the current permissions and roles tree
 func (boltDBProvider *BoltDBProvider) SaveRoles(roles interface{}) error {
 
 	tx, err := boltDBProvider.db.Begin(true)
@@ -35,6 +36,7 @@ func (boltDBProvider *BoltDBProvider) SaveRoles(roles interface{}) error {
 	return nil
 }
 
+//GetRoles gets the current roles json string from database
 func (boltDBProvider *BoltDBProvider) GetRoles() (string, error) {
 
 	var dataByte []byte
@@ -49,6 +51,7 @@ func (boltDBProvider *BoltDBProvider) GetRoles() (string, error) {
 	return string(dataByte), nil
 }
 
+//SaveInheritance persists tuhe current inheritance tree to database
 func (boltDBProvider *BoltDBProvider) SaveInheritance(roles interface{}) error {
 
 	tx, err := boltDBProvider.db.Begin(true)
@@ -77,6 +80,7 @@ func (boltDBProvider *BoltDBProvider) SaveInheritance(roles interface{}) error {
 	return nil
 }
 
+//GetInheritance Get the current Inheritance tree from database
 func (boltDBProvider *BoltDBProvider) GetInheritance() (string, error) {
 
 	var dataByte []byte
