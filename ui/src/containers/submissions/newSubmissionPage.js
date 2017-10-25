@@ -66,7 +66,7 @@ class NewSubmissionPage extends Component {
 			workspaceID,
 			formID,
 			response,
-			() => {
+			(resp) => {
 				this.setState({ showSuccessMessage: true, files: [] });
 				iziToast.success({
 						title: 'New Submission',
@@ -78,6 +78,8 @@ class NewSubmissionPage extends Component {
 				setTimeout(() => {
 					window.requestAnimationFrame(() => {
 						this.props.history.push("/workspaces/" + workspaceID + "/forms/" + formID);
+
+						// this.props.history.push("/workspaces/" + workspaceID + "/forms/" + formID + "/submissions/" + response.status + "/" +  resp.SubmissionID);
 					});
 				}, 1000);
 			}

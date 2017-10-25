@@ -4,6 +4,9 @@ import { inject, observer } from "mobx-react";
 import moment from "moment";
 var fileImageRepresentation = require("../../assets/files.png");
 import { withRouter } from "react-router";
+import alertify from "alertify.js";
+import iziToast from "izitoast";
+
 
 @inject("MainStore")
 @observer
@@ -74,7 +77,20 @@ class submissionListItem extends Component {
   							<span className="dib " onClick={
 										(e)=>{
 											e.preventDefault()
-											MainStore.deleteSubmission(workspaceID, formID, fileData.id,id,function(){})
+											// confirm dialog
+											alertify.confirm("You\'re about to delete \"fileData.submissionName\"", function () {
+											    // user clicked "ok"
+													MainStore.deleteSubmission(workspaceID, formID, fileData.id,id,function(){
+														iziToast.success({
+																title: 'Delete Submission',
+																message: `Submission Deleted Successfully`,
+																position: 'topRight',
+														});
+													})
+											}, function() {
+											    // user clicked "cancel"
+											});
+
 										}
 									}>delete</span>
   						</a>

@@ -4,6 +4,7 @@
   "private": true,
   "proxy": "http://localhost:8080",
   "dependencies": {
+    "alertify.js": "^1.0.12",
     "auth0-lock": "^10.19.0",
     "izitoast": "^1.1.5",
     "mitt": "^1.1.2",

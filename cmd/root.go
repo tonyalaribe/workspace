@@ -67,6 +67,7 @@ func initConfig() {
 
 	config.Auth0ApiToken = viper.GetString("auth0-api-token")
 	config.Auth0ClientSecret = viper.GetString("auth0-client-secret")
+	config.Auth0Endpoint = viper.GetString("auth0-endpoint")
 
 	config.DatabaseType = viper.GetString("database-type")
 

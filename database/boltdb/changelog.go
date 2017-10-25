@@ -94,5 +94,9 @@ func (boltDBProvider *BoltDBProvider) GetSubmissionChangelog(workspaceID, formID
 		return nil
 	})
 
-	return changelogItems, err
+	reversedChangelogItems := []database.ChangelogItem{}
+	for _, v := range changelogItems {
+		reversedChangelogItems = append(reversedChangelogItems, v)
+	}
+	return reversedChangelogItems, err
 }

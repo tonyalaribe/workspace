@@ -60,11 +60,7 @@ class DraftSubmissionInfoPage extends Component {
 		let { workspaceID, formID, submissionID } = this.props.match.params;
 
 		this.setState({ showSuccessMessage: false });
-		iziToast.success({
-				title: 'Update Submission',
-				message: `submission was updated successfully`,
-				position: 'topRight',
-		});
+
 		let req = {};
 		req.status = STATUS;
 		req.lastModified = Date.now();
@@ -82,10 +78,15 @@ class DraftSubmissionInfoPage extends Component {
 			req,
 			() => {
 				this.setState({ showSuccessMessage: true });
+				iziToast.success({
+						title: 'Update Submission',
+						message: `Submission was updated successfully`,
+						position: 'topRight',
+				});
 				setTimeout(() => {
 					window.requestAnimationFrame(() => {
 						this.props.history.push(
-							"/workspaces/" + workspaceID + "/forms/" + formID
+							"/workspaces/" + workspaceID + "/forms/" + formID + "/submissions/" + req.status + "/" +  submissionID
 						);
 					});
 				}, 1000);
@@ -219,8 +220,7 @@ class DraftSubmissionInfoPage extends Component {
 														</div>
 														<div className=" pv1">
 															<small>
-																workspace:&nbsp;&nbsp;
-																{moment(changelogItem.workspaceID).format("h:mma, MM-DD-YYYY")}
+																workspace: {changelogItem.workspaceID}
 															</small>
 														</div>
 													</div>

@@ -43,6 +43,7 @@ type Config struct {
 	UsersBucket         string
 	Auth0ApiToken       string
 	Auth0ClientSecret   string
+	Auth0Endpoint       string
 
 	RootDirectory     string
 	BoltFile          string

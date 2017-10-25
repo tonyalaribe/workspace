@@ -58,8 +58,9 @@ func GetUserInfoFromToken(next http.Handler) http.Handler {
 		if err != nil {
 			log.Println(err)
 		}
+		conf := config.Get()
 
-		req, err := http.NewRequest("POST", "https://emikra.auth0.com/tokeninfo", b)
+		req, err := http.NewRequest("POST", conf.Auth0Endpoint, b)
 		if err != nil {
 			log.Println(err)
 		}
