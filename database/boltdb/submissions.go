@@ -9,7 +9,7 @@ import (
 )
 
 //NewFormSubmission persists a new form data submission to the database
-func (boltDBProvider *BoltDBProvider) NewFormSubmission(workspaceID, formID string, submission database.SubmissionData) error {
+func (boltDBProvider *BoltDBProvider) NewFormSubmission(workspaceID, formID string, submission database.SubmissionData) (database.SubmissionData, error) {
 
 	/*Save to boltdb*/
 	err := boltDBProvider.db.Update(func(tx *bolt.Tx) error {
@@ -34,7 +34,7 @@ func (boltDBProvider *BoltDBProvider) NewFormSubmission(workspaceID, formID stri
 		return nil
 	})
 
-	return err
+	return submission, err
 }
 
 //UpdateFormSubmission updates a form submission in the db

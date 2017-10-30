@@ -7,7 +7,6 @@ import { withRouter } from "react-router";
 import alertify from "alertify.js";
 import iziToast from "izitoast";
 
-
 @inject("MainStore")
 @observer
 class submissionListItem extends Component {
@@ -21,7 +20,7 @@ class submissionListItem extends Component {
 
 	render() {
 		let { fileData, MainStore, id } = this.props;
-		let { workspaceID,formID } = this.props.match.params;
+		let { workspaceID, formID } = this.props.match.params;
 
 		return (
 			<Link
@@ -38,7 +37,10 @@ class submissionListItem extends Component {
 				key={id}
 				className="link navy"
 			>
-				<div className="shadow-4 hover-grow mv2 bg-white" style={{height:"10rem"}}>
+				<div
+					className="shadow-4 hover-grow mv2 bg-white"
+					style={{ height: "10rem" }}
+				>
 					{/** Upload Item **/}
 					<div className="dib w-30 v-top tc h-100 fl">
 						<div className="h-100 flex flex-column  items-center justify-around">
@@ -55,9 +57,7 @@ class submissionListItem extends Component {
 								{fileData.status}
 							</small>
 						</div>
-						<h3 className="navy mv1 ">
-							{fileData.submissionName}{" "}
-						</h3>
+						<h3 className="navy mv1 ">{fileData.submissionName} </h3>
 						<div>
 							<div className=" pv1">
 								<small>
@@ -72,29 +72,41 @@ class submissionListItem extends Component {
 								</small>
 							</div>
 						</div>
-            <div className="db mt3">
-  						<a className="pa2 dib ba b--light-gray fr">
-  							<span className="dib " onClick={
-										(e)=>{
-											e.preventDefault()
-											// confirm dialog
-											alertify.confirm("You\'re about to delete \"fileData.submissionName\"", function () {
-											    // user clicked "ok"
-													MainStore.deleteSubmission(workspaceID, formID, fileData.id,id,function(){
+						<div className="db mt3">
+							<a className="pa2 dib ba b--light-gray fr">
+								<span
+									className="dib "
+									onClick={e => {
+										e.preventDefault();
+										// confirm dialog
+										alertify.confirm(
+											'You\'re about to delete "fileData.submissionName"',
+											function() {
+												// user clicked "ok"
+												MainStore.deleteSubmission(
+													workspaceID,
+													formID,
+													fileData.id,
+													id,
+													function() {
 														iziToast.success({
-																title: 'Delete Submission',
-																message: `Submission Deleted Successfully`,
-																position: 'topRight',
+															title: "Delete Submission",
+															message: `Submission Deleted Successfully`,
+															position: "topRight"
 														});
-													})
-											}, function() {
-											    // user clicked "cancel"
-											});
-
-										}
-									}>delete</span>
-  						</a>
-            </div>
+													}
+												);
+											},
+											function() {
+												// user clicked "cancel"
+											}
+										);
+									}}
+								>
+									delete
+								</span>
+							</a>
+						</div>
 					</div>
 					{/** End Upload Item **/}
 				</div>
@@ -102,7 +114,6 @@ class submissionListItem extends Component {
 		);
 	}
 }
-
 
 var SubmissionListItem = withRouter(submissionListItem);
 export default SubmissionListItem;

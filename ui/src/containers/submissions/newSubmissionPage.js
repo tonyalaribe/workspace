@@ -29,7 +29,8 @@ function CustomFieldTemplate(props) {
 	return (
 		<div className={classNames + " pv2 tl"}>
 			<label htmlFor={id} className="pv2 dib">
-				{label}{required ? "*" : null}
+				{label}
+				{required ? "*" : null}
 			</label>
 			{description}
 			{children}
@@ -66,20 +67,27 @@ class NewSubmissionPage extends Component {
 			workspaceID,
 			formID,
 			response,
-			(resp) => {
+			resp => {
 				this.setState({ showSuccessMessage: true, files: [] });
 				iziToast.success({
-						title: 'New Submission',
-						message: `"${this.refs.submissionName}" was created successfully`,
-						position: 'topRight',
+					title: "New Submission",
+					message: `"${response.submissionName}" was created successfully`,
+					position: "topRight"
 				});
 
 				this.refs.submissionName.value = "";
 				setTimeout(() => {
 					window.requestAnimationFrame(() => {
-						this.props.history.push("/workspaces/" + workspaceID + "/forms/" + formID);
-
-						// this.props.history.push("/workspaces/" + workspaceID + "/forms/" + formID + "/submissions/" + response.status + "/" +  resp.SubmissionID);
+						this.props.history.push(
+							"/workspaces/" +
+								workspaceID +
+								"/forms/" +
+								formID +
+								"/submissions/" +
+								response.status +
+								"/" +
+								resp.submission.id
+						);
 					});
 				}, 1000);
 			}
@@ -89,24 +97,20 @@ class NewSubmissionPage extends Component {
 	render() {
 		let { state } = this;
 		let { CurrentForm } = this.props.MainStore;
-    let { workspaceID } = this.props.match.params;
+		let { workspaceID } = this.props.match.params;
 		return (
 			<section>
-				<Nav workspaceID={workspaceID}/>
+				<Nav workspaceID={workspaceID} />
 				<section className="tc pt5">
 					<section className="pt5 dib w-100 w-70-m w-50-l ">
 						<div className="pv3">
-							<span className="navy w-100 f3 db">
-								New Submission
-							</span>
+							<span className="navy w-100 f3 db">New Submission</span>
 							<span className="db">
 								{CurrentForm.name ? "(" + CurrentForm.name + ")" : ""}
 							</span>
 						</div>
 						<div className="pv3 tl">
-							<label className="pv2 dib">
-								Submission Name
-							</label>
+							<label className="pv2 dib">Submission Name</label>
 							<input
 								type="text"
 								className="form-control"
@@ -124,18 +128,17 @@ class NewSubmissionPage extends Component {
 								this.form = form;
 							}}
 						>
-
 							<div className="pv3">
-								{state.showSuccessMessage
-									? <p className="pa3 ba">
-											Submitted Successfully
-										</p>
-									: ""}
-								{state.showErrorMessage
-									? <p className="pa3 ba">
-											Error In Submission
-										</p>
-									: ""}
+								{state.showSuccessMessage ? (
+									<p className="pa3 ba">Submitted Successfully</p>
+								) : (
+									""
+								)}
+								{state.showErrorMessage ? (
+									<p className="pa3 ba">Error In Submission</p>
+								) : (
+									""
+								)}
 							</div>
 
 							<input
@@ -168,7 +171,6 @@ class NewSubmissionPage extends Component {
 								publish
 							</button>
 						</div>
-
 					</section>
 				</section>
 			</section>

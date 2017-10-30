@@ -22,13 +22,14 @@ func NewFormSubmissionHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
-	err = actions.NewFormSubmission(workspaceID, formID, submission)
+	updatedSubmission, err := actions.NewFormSubmission(workspaceID, formID, submission)
 	if err != nil {
 		log.Println(err)
 	}
 
-	response := map[string]string{}
+	response := make(map[string]interface{})
 	response["message"] = "Upload Success"
+	response["submission"] = updatedSubmission
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(response)
 	if err != nil {

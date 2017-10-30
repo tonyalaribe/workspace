@@ -45,8 +45,7 @@ class mainStore {
 		const data = await response.json();
 		/* required in strict mode to be allowed to update state: */
 		runInAction("update state after fetching data", () => {
-			console.log(data);
-			callback();
+			callback(data);
 		});
 	};
 
@@ -69,8 +68,7 @@ class mainStore {
 		const data = await response.json();
 		/* required in strict mode to be allowed to update state: */
 		runInAction("update state after fetching data", () => {
-			console.log(data);
-			callback();
+			callback(data);
 		});
 	};
 	@action
@@ -87,7 +85,6 @@ class mainStore {
 		const data = await response.json();
 		/* required in strict mode to be allowed to update state: */
 		runInAction("update state after fetching data", () => {
-			console.log(data);
 			this.AllForms.replace(data);
 		});
 	};
@@ -112,7 +109,6 @@ class mainStore {
 		const data = await response.json();
 		/* required in strict mode to be allowed to update state: */
 		runInAction("update state after fetching data", () => {
-			console.log(data);
 			this.CurrentForm = data;
 		});
 	};
@@ -151,8 +147,7 @@ class mainStore {
 		const data = await response.json();
 		/* required in strict mode to be allowed to update state: */
 		runInAction("update state after fetching data", () => {
-			console.log(data);
-			callback();
+			callback(data);
 		});
 	};
 
@@ -198,7 +193,6 @@ class mainStore {
 			}
 		);
 		const data = await response.json();
-		console.log(data);
 		/* required in strict mode to be allowed to update state: */
 		runInAction("update state after fetching data", () => {
 			this.SubmissionInfo = data;
@@ -225,12 +219,9 @@ class mainStore {
 			}
 		);
 		const data = await response.json();
-		console.log(data);
 		/* required in strict mode to be allowed to update state: */
 		runInAction("update state after fetching data", () => {
-			console.log(id)
 			let value = this.Submissions[id]
-			console.log(value)
 			this.Submissions.remove(value)
 			callback()
 		});
@@ -257,11 +248,9 @@ class mainStore {
 			}
 		);
 		const data = await response.json();
-		console.log(data);
 		/* required in strict mode to be allowed to update state: */
 		runInAction("update state after fetching data", () => {
 			this.Changelog = data;
-			console.log(data)
 		});
 	};
 }

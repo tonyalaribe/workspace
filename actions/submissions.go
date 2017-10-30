@@ -12,17 +12,19 @@ import (
 )
 
 //NewFormSubmission creates a new form submission
-func NewFormSubmission(workspaceID, formID string, submission database.SubmissionData) error {
+func NewFormSubmission(workspaceID, formID string, submission database.SubmissionData) (database.SubmissionData, error) {
+
+	submissionResp := database.SubmissionData{}
 
 	conf := config.Get()
 	formInfoByte, err := conf.Database.GetFormJSONBySlug(workspaceID, formID)
 	if err != nil {
-		return err
+		return submissionResp, err
 	}
 
 	formInfo, err := gabs.ParseJSON(formInfoByte)
 	if err != nil {
-		return err
+		return submissionResp, err
 	}
 
 	schema := formInfo.Path("jsonschema")
@@ -72,20 +74,20 @@ func NewFormSubmission(workspaceID, formID string, submission database.Submissio
 		}
 	}
 
-	err = conf.Database.NewFormSubmission(workspaceID, formID, submission)
+	submissionResp, err = conf.Database.NewFormSubmission(workspaceID, formID, submission)
 	if err != nil {
-		return err
+		return submissionResp, err
 	}
 
 	data := make(map[string]interface{})
 	data["workspaceID"] = workspaceID
 	data["formID"] = formID
 	data["event"] = string(database.NewSubmissionTriggerEvent)
-	data["submission"] = submission
+	data["submission"] = submissionResp
 
 	TriggerEvent(workspaceID, formID, database.NewSubmissionTriggerEvent, data)
 
-	return err
+	return submissionResp, err
 }
 
 //UpdateSubmission updates a submission with givven workspaceID

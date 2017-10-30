@@ -4,8 +4,7 @@ import { BrowserRouter as Router, Route } from "react-router-dom";
 import NewSubmissionPage from "./containers/submissions/newSubmissionPage.js";
 import SubmissionsPage from "./containers/submissions/submissionsPage.js";
 import DraftSubmissionInfoPage from "./containers/submissions/draftSubmissionInfoPage";
-import PublishedSubmissionInfoPage
-	from "./containers/submissions/publishedSubmissionInfoPage";
+import PublishedSubmissionInfoPage from "./containers/submissions/publishedSubmissionInfoPage";
 
 import ListOfForms from "./containers/listOfForms.js";
 import NewFormPage from "./containers/newFormPage";
@@ -15,8 +14,6 @@ import ListOfWorkspaces from "./containers/listOfWorkspaces.js";
 
 import LoginPage from "./containers/loginPage.js";
 import ProtectedRoute from "./components/protectedRoute.js";
-
-
 
 import "tachyons";
 

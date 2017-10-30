@@ -86,7 +86,7 @@ type Database interface {
 	GetFormBySlug(workspaceID, formID string) (Form, error)       //GetFormBySlug gets a form with a given form ID under the given workspaceID
 	GetFormJSONBySlug(workspaceID, formID string) ([]byte, error) //GetFormJSONBySlug gets raw json byte content for a form, given its slug.
 
-	NewFormSubmission(workspaceID, formID string, submission SubmissionData) error                      //NewFormSubmission persists a new form data submission to the database
+	NewFormSubmission(workspaceID, formID string, submission SubmissionData) (SubmissionData, error)    //NewFormSubmission persists a new form data submission to the database
 	UpdateFormSubmission(workspaceID, formID string, submissionID int, submission SubmissionData) error //UpdateFormSubmission updates a form submission in the db
 	GetFormSubmissions(workspaceID, formID string) ([]SubmissionData, error)                            //GetFormSubmissions gets the submissions associated with a given form
 	GetFormSubmissionDetails(workspaceID, formID string, submissionID int) (SubmissionData, error)      //GetFormSubmissionDetails gets the details for a given submission ID

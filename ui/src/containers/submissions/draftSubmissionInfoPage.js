@@ -4,7 +4,7 @@ import FileWidget from "../../components/fileWidget.js";
 import { toJS } from "mobx";
 import { observer, inject } from "mobx-react";
 import moment from "moment";
-import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import iziToast from "izitoast";
 import Form from "react-jsonschema-form";
 
@@ -46,13 +46,22 @@ function CustomFieldTemplate(props) {
 @inject("MainStore")
 @observer
 class DraftSubmissionInfoPage extends Component {
-	state = { files: [], showSuccessMessage: false, showErrorMessage: false, submissionNotes:"" };
+	state = {
+		files: [],
+		showSuccessMessage: false,
+		showErrorMessage: false,
+		submissionNotes: ""
+	};
 
 	componentDidMount() {
 		let { workspaceID, formID, submissionID } = this.props.match.params;
 		this.props.MainStore.getFormInfo(workspaceID, formID).then(() => {
 			this.props.MainStore.getSubmissionInfo(workspaceID, formID, submissionID);
-			this.props.MainStore.getSubmissionChangelog(workspaceID, formID, submissionID);
+			this.props.MainStore.getSubmissionChangelog(
+				workspaceID,
+				formID,
+				submissionID
+			);
 		});
 	}
 
@@ -69,8 +78,6 @@ class DraftSubmissionInfoPage extends Component {
 
 		this.props.MainStore.SubmissionInfo = req; //To prevent reverting to old value on form submit.
 
-		console.log(req)
-
 		this.props.MainStore.updateFormOnServer(
 			workspaceID,
 			formID,
@@ -79,14 +86,21 @@ class DraftSubmissionInfoPage extends Component {
 			() => {
 				this.setState({ showSuccessMessage: true });
 				iziToast.success({
-						title: 'Update Submission',
-						message: `Submission was updated successfully`,
-						position: 'topRight',
+					title: "Update Submission",
+					message: `Submission was updated successfully`,
+					position: "topRight"
 				});
 				setTimeout(() => {
 					window.requestAnimationFrame(() => {
 						this.props.history.push(
-							"/workspaces/" + workspaceID + "/forms/" + formID + "/submissions/" + req.status + "/" +  submissionID
+							"/workspaces/" +
+								workspaceID +
+								"/forms/" +
+								formID +
+								"/submissions/" +
+								req.status +
+								"/" +
+								submissionID
 						);
 					});
 				}, 1000);
@@ -112,9 +126,7 @@ class DraftSubmissionInfoPage extends Component {
 
 						<div className="pv2">
 							<strong>status: </strong>
-							<span className="navy">
-								{SubmissionInfo.status}
-							</span>
+							<span className="navy">{SubmissionInfo.status}</span>
 						</div>
 						<div className="pv2 ">
 							<div className="w-100 w-50-ns dib ">
@@ -141,43 +153,52 @@ class DraftSubmissionInfoPage extends Component {
 							<TabPanel>
 								<section>
 									{/* Form does not rerender when after the formdata is retrieved from the server, so its now only being rendered after the data is retrieved from the server */}
-									{SubmissionInfo.formData
-										? <Form
-												schema={toJS(CurrentForm.jsonschema)}
-												uiSchema={toJS(CurrentForm.uischema)}
-												formData={toJS(SubmissionInfo.formData)}
-												onError={log("errors")}
-												FieldTemplate={CustomFieldTemplate}
-												onSubmit={this.submitForm.bind(this)}
-												widgets={widgets}
-												ref={form => {
-													this.form = form;
+									{SubmissionInfo.formData ? (
+										<Form
+											schema={toJS(CurrentForm.jsonschema)}
+											uiSchema={toJS(CurrentForm.uischema)}
+											formData={toJS(SubmissionInfo.formData)}
+											onError={log("errors")}
+											FieldTemplate={CustomFieldTemplate}
+											onSubmit={this.submitForm.bind(this)}
+											widgets={widgets}
+											ref={form => {
+												this.form = form;
+											}}
+										>
+											<input
+												type="submit"
+												ref={btn => {
+													this.submitButton = btn;
 												}}
-											>
-
-
-												<input
-													type="submit"
-													ref={btn => {
-														this.submitButton = btn;
-													}}
-													className="hidden dn"
-												/>
-											</Form>
-										: ""}
+												className="hidden dn"
+											/>
+										</Form>
+									) : (
+										""
+									)}
 
 									<div className="pv2">
 										<label className="pv2">Submission Notes</label>
-										<textarea rows="5" className="w-100 mv2 " onChange={(e)=>this.setState({submissionNotes:e.target.value})}/>
+										<textarea
+											rows="5"
+											className="w-100 mv2 "
+											onChange={e =>
+												this.setState({ submissionNotes: e.target.value })}
+										/>
 									</div>
 
 									<div className="pv3">
-										{state.showSuccessMessage
-											? <p className="pa3 ba">Submitted Successfully</p>
-											: ""}
-										{state.showErrorMessage
-											? <p className="pa3 ba">Error In Submission</p>
-											: ""}
+										{state.showSuccessMessage ? (
+											<p className="pa3 ba">Submitted Successfully</p>
+										) : (
+											""
+										)}
+										{state.showErrorMessage ? (
+											<p className="pa3 ba">Error In Submission</p>
+										) : (
+											""
+										)}
 									</div>
 
 									<div className="pv3 tr">
@@ -205,30 +226,28 @@ class DraftSubmissionInfoPage extends Component {
 							</TabPanel>
 							<TabPanel>
 								<section className="pv2">
-									{
-										Changelog.map(function(changelogItem){
-											return (
-												<div className="w-100 shadow-4 pa3 mv2">
-
-													<p className="navy mv1 ">{changelogItem.note}</p>
-													<div>
-														<div className=" pv1">
-															<small>
-																created on:&nbsp;&nbsp;&nbsp;
-																{moment(changelogItem.created).format("h:mma, MM-DD-YYYY")}
-															</small>
-														</div>
-														<div className=" pv1">
-															<small>
-																workspace: {changelogItem.workspaceID}
-															</small>
-														</div>
+									{Changelog.map(function(changelogItem) {
+										return (
+											<div className="w-100 shadow-4 pa3 mv2">
+												<p className="navy mv1 ">{changelogItem.note}</p>
+												<div>
+													<div className=" pv1">
+														<small>
+															created on:&nbsp;&nbsp;&nbsp;
+															{moment(changelogItem.created).format(
+																"h:mma, MM-DD-YYYY"
+															)}
+														</small>
+													</div>
+													<div className=" pv1">
+														<small>
+															workspace: {changelogItem.workspaceID}
+														</small>
 													</div>
 												</div>
-											)
-										})
-									}
-
+											</div>
+										);
+									})}
 								</section>
 							</TabPanel>
 						</Tabs>

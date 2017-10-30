@@ -110,7 +110,7 @@ class SubmissionsPage extends Component {
 								<span className="navy w-100 v-btm">All Form Submissions</span>
 							</div>
 
-							<section class="pa3-ns">{userSubmissions}</section>
+							<section className="pa3-ns">{userSubmissions}</section>
 						</div>
 					</section>
 				</section>
