@@ -91,6 +91,15 @@ class DraftSubmissionInfoPage extends Component {
 					position: "topRight"
 				});
 				setTimeout(() => {
+					this.props.MainStore.getFormInfo(workspaceID, formID).then(() => {
+						this.props.MainStore.getSubmissionInfo(workspaceID, formID, submissionID);
+						this.props.MainStore.getSubmissionChangelog(
+							workspaceID,
+							formID,
+							submissionID
+						);
+					});
+
 					window.requestAnimationFrame(() => {
 						this.props.history.push(
 							"/workspaces/" +
@@ -226,9 +235,9 @@ class DraftSubmissionInfoPage extends Component {
 							</TabPanel>
 							<TabPanel>
 								<section className="pv2">
-									{Changelog.map(function(changelogItem) {
+									{Changelog.map(function(changelogItem, i) {
 										return (
-											<div className="w-100 shadow-4 pa3 mv2">
+											<div className="w-100 shadow-4 pa3 mv2" key={i}>
 												<p className="navy mv1 ">{changelogItem.note}</p>
 												<div>
 													<div className=" pv1">

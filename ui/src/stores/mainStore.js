@@ -223,7 +223,7 @@ class mainStore {
 		runInAction("update state after fetching data", () => {
 			let value = this.Submissions[id]
 			this.Submissions.remove(value)
-			callback()
+			callback(data)
 		});
 	};
 
