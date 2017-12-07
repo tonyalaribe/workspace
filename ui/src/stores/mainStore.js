@@ -2,6 +2,8 @@ import { observable, action, runInAction } from "mobx";
 import AuthService from "../utils/auth0.js";
 
 class mainStore {
+	@observable Profile = {};
+
 	@observable Submissions = [];
 	@observable AllWorkspaces = [];
 	@observable AllForms = [];
@@ -14,6 +16,10 @@ class mainStore {
 			properties: {}
 		},
 		uischema: {}
+	};
+
+	@action loadProfile = (profile)=>{
+		this.profile = profile
 	};
 
 	@action
@@ -71,6 +77,7 @@ class mainStore {
 			callback(data);
 		});
 	};
+
 	@action
 	getAllForms = async workspaceID => {
 		let authToken = AuthService.getToken();

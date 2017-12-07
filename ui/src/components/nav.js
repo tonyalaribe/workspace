@@ -9,17 +9,10 @@ class Nav extends Component {
 	constructor(props, context) {
 		super(props, context);
 		this.state = {
-			profile: {
-				user_metadata:{}
-			},
 			showDropdown: false
 		};
 
-		AuthService.getProfile()
-		// listen to profile_updated events to update internal state
-		AuthService.emitter.on("profile_updated", newProfile => {
-			this.setState({ profile: newProfile });
-		});
+
 	}
 	componentDidMount() {
 		this.props.MainStore.getAllWorkspaces();
@@ -52,6 +45,7 @@ class Nav extends Component {
 			);
 		});
 
+		console.log(MainStore.profile)
 		return (
 			<nav className="bg-custom-green w-100 fixed shadow-4 pa3 ph4 white-80 dib z-3">
 				<Link to={currentWorkspace.id ? "/workspaces/" + currentWorkspace.name : "/"} className="pa2 dib link white-80 hover-white">
@@ -71,7 +65,7 @@ class Nav extends Component {
 							onClick={() =>
 								this.setState({ showDropdown: !this.state.showDropdown })}
 						>
-							☰ {this.state.profile.user_metadata.given_name+" "+this.state.profile.user_metadata.family_name}
+							☰ {(MainStore.profile?MainStore.profile.user_metadata.given_name:"") + " "+(MainStore.profile?MainStore.profile.user_metadata.family_name:"")}
 						</a>
 						<div
 							className={

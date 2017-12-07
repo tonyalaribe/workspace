@@ -7,6 +7,7 @@
     "alertify.js": "^1.0.12",
     "auth0-lock": "^10.19.0",
     "izitoast": "^1.1.5",
+    "jwt-decode": "^2.2.0",
     "mitt": "^1.1.2",
     "mobx": "^3.1.7",
     "mobx-react": "^4.1.3",

@@ -14,10 +14,22 @@ import ListOfWorkspaces from "./containers/listOfWorkspaces.js";
 
 import LoginPage from "./containers/loginPage.js";
 import ProtectedRoute from "./components/protectedRoute.js";
-
+import AuthService from "./utils/auth0.js";
+import {inject } from "mobx-react";
 import "tachyons";
 
+@inject("MainStore")
 class App extends Component {
+	componentDidMount(){
+		let profile = AuthService.getProfile()
+		console.log(profile)
+		this.props.MainStore.loadProfile(profile)
+		// listen to profile_updated events to update internal state
+		AuthService.emitter.on("profile_updated", newProfile => {
+			AuthService.setProfile(newProfile)
+			this.props.MainStore.loadProfile(newProfile)
+		});
+	}
 	render() {
 		return (
 			<Router>

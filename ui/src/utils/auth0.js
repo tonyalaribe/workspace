@@ -1,6 +1,6 @@
 import Auth0Lock from 'auth0-lock';
 import mitt from 'mitt';
-
+import jwtDecode from 'jwt-decode';
 //import { browserHistory } from 'react-router'
 
  class AuthService {
@@ -47,7 +47,7 @@ import mitt from 'mitt';
     // Retrieves the profile data from local storage
     const profile = localStorage.getItem('profile')
 
-    return profile ? JSON.parse(localStorage.profile) : {}
+    return profile ? JSON.parse(profile) : {}
   }
 
   login() {
@@ -57,7 +57,21 @@ import mitt from 'mitt';
 
   loggedIn() {
     // Checks if there is a saved token and it's still valid
-    return !!this.getToken()
+    let token = this.getToken()
+    if (token && token.length>0){
+      console.log(token)
+      const authMeta = jwtDecode(token);
+      console.log(authMeta)
+      const current_time = new Date().getTime() / 1000;
+      if (current_time > authMeta.exp) {
+        /* expired */
+        this.logout();
+        return false;
+      }
+      return true
+    }
+    this.logout();
+    return false
   }
 
   setToken(idToken) {
