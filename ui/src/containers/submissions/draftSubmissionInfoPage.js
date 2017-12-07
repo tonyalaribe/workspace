@@ -1,47 +1,16 @@
 import React, { Component } from "react";
 import Nav from "../../components/nav.js";
-import FileWidget from "../../components/fileWidget.js";
+
 import { toJS } from "mobx";
 import { observer, inject } from "mobx-react";
 import moment from "moment";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import iziToast from "izitoast";
 import Form from "react-jsonschema-form";
+import {CustomFieldTemplate, widgets, log} from "./JSONSchemaFormsHelper.js";
 
 //This is a dirty and quick workaround, because using setState prevents the form from submitting.
 var STATUS = "";
-
-const log = type => console.log.bind(console, type);
-
-const widgets = {
-	FileWidget: FileWidget
-};
-
-function CustomFieldTemplate(props) {
-	const {
-		id,
-		classNames,
-		label,
-		help,
-		required,
-		description,
-		errors,
-		children
-	} = props;
-
-	return (
-		<div className={classNames + " pv2 tl"}>
-			<label htmlFor={id} className="pv2 dib">
-				{label}
-				{required ? "*" : null}
-			</label>
-			{description}
-			{children}
-			{errors}
-			{help}
-		</div>
-	);
-}
 
 @inject("MainStore")
 @observer
@@ -74,7 +43,7 @@ class DraftSubmissionInfoPage extends Component {
 		req.status = STATUS;
 		req.lastModified = Date.now();
 		req.formData = data.formData;
-		req.submissionNotes = this.state.submissionNotes;
+		req.submissionNotes = this.refs.submissionNotes.value;
 
 		this.props.MainStore.SubmissionInfo = req; //To prevent reverting to old value on form submit.
 
@@ -192,8 +161,7 @@ class DraftSubmissionInfoPage extends Component {
 										<textarea
 											rows="5"
 											className="w-100 mv2 "
-											onChange={e =>
-												this.setState({ submissionNotes: e.target.value })}
+											ref="submissionNotes"
 										/>
 									</div>
 

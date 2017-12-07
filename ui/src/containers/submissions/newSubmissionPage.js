@@ -1,44 +1,13 @@
 import React, { Component } from "react";
 import Nav from "../../components/nav.js";
-import FileWidget from "../../components/fileWidget.js";
 import { inject, observer } from "mobx-react";
 import { toJS } from "mobx";
 import iziToast from "izitoast";
 import Form from "react-jsonschema-form";
-
+import {CustomFieldTemplate, widgets, log} from "./JSONSchemaFormsHelper.js";
 //This is a dirty and quick workaround, because using setState prevents the form from submitting.
 var STATUS = "";
 
-const log = type => console.log.bind(console, type);
-
-const widgets = {
-	FileWidget: FileWidget
-};
-
-function CustomFieldTemplate(props) {
-	const {
-		id,
-		classNames,
-		label,
-		help,
-		required,
-		description,
-		errors,
-		children
-	} = props;
-	return (
-		<div className={classNames + " pv2 tl"}>
-			<label htmlFor={id} className="pv2 dib">
-				{label}
-				{required ? "*" : null}
-			</label>
-			{description}
-			{children}
-			{errors}
-			{help}
-		</div>
-	);
-}
 
 @inject("MainStore")
 @observer
