@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { GetFileRepresentativeImage } from "../utils/representativeImages.js";
+import { GetRepresentativeImageByFileExtension } from "../utils/representativeImages.js";
 
 function addNameToDataURL(dataURL, name) {
 	return dataURL.replace(";base64", `;name=${name};base64`);
@@ -40,10 +40,16 @@ function FilesInfo(props) {
 	if (filesInfo.length === 0) {
 		return null;
 	}
+
 	return (
 		<div className="file-info cf">
 			{filesInfo.map((fileInfo, key) => {
 				const { name } = fileInfo;
+
+				let currentURISplit = name.split("/");
+				let currentURIFileName =
+					currentURISplit[currentURISplit.length - 1];
+
 				return (
 					<div className="pr1 pb1 w-25 fl" key={key}>
 						<div className="h-100 ba b--black-20 tc pa2">
@@ -57,13 +63,13 @@ function FilesInfo(props) {
 							</div>
 							<a className="db link pointer  pb1 navy pa1" href={"/uploads/"+name} target="_blank">
 							<img
-								src={GetFileRepresentativeImage(name)}
+								src={GetRepresentativeImageByFileExtension(currentURIFileName)}
 								className="w3 h3 dib v-mid"
 								alt="file representative logo"
 							/>
 					</a>
 						<a className="db link pointer truncate pb1 navy pa1" href={"/uploads/"+name} target="_blank">
-								{name}
+								{currentURIFileName}
 							</a>
 						</div>
 					</div>

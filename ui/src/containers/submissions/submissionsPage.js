@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { inject, observer } from "mobx-react";
 import Modal from "../../components/modals/formSettingsModal.js";
 import SubmissionListItem from "./submissionListItem";
+import ListOfFormsSideNav from "../ListOfFormsSideNav.js";
 
 @inject("MainStore")
 @observer
@@ -49,24 +50,6 @@ class SubmissionsPage extends Component {
 		// let formID = this.props.match.params.formID;
 		let { MainStore } = this.props;
 
-		let AllForms = MainStore.AllForms.map(function(form, key) {
-			let formURL = "/workspaces/" + workspaceID + "/forms/" + form.id;
-			return (
-				<Link to={formURL} key={key} className="link navy">
-					<div
-						className={
-							" grow pa2 " +
-							(window.location.pathname.startsWith(formURL)
-								? "bg-blue white-80"
-								: "navy")
-						}
-					>
-						<span className="  ">{form.name}</span>
-					</div>
-				</Link>
-			);
-		});
-
 		let userSubmissions = MainStore.Submissions.map(function(fileData, i) {
 			return <SubmissionListItem fileData={fileData} key={i} id={i} />;
 		});
@@ -74,46 +57,38 @@ class SubmissionsPage extends Component {
 		return (
 			<section>
 				<Nav workspaceID={workspaceID} />
-				<section className="tc ">
-					<section className="pt4 dib w-100 tl cf">
-						<div className="w-100 w-25-ns dib v-top ph2 ph3-ns pt4 pb3  pr3 bg-light-gray fixed vh-100">
-							<h3 className="bb dib pa1">Forms</h3>
-							{AllForms}
+				<ListOfFormsSideNav workspaceID={workspaceID}>
+					<div className="pa3 cf">
+						<div className="fr ">
+							<Link
+								to={
+									"/workspaces/" +
+									workspaceID +
+									"/forms/" +
+									formID +
+									"/new_submission"
+								}
+								className="ph3 pv2 ba link navy dib grow"
+							>
+								New Submission
+							</Link>
+							<a
+								href="#"
+								className="dib link pa2 navy"
+								onClick={this.handleOpenModal}
+							>
+								⚙ &nbsp;settings
+							</a>
+							<Modal
+								openModal={this.state.showModal}
+								closeModal={this.handleCloseModal}
+							/>
 						</div>
-						<div className="w-100 w-75-ns dib v-top fr pa3-ns mv5">
-							<div className="pv3 cf">
-								<div className="fr ">
-									<Link
-										to={
-											"/workspaces/" +
-											workspaceID +
-											"/forms/" +
-											formID +
-											"/new_submission"
-										}
-										className="ph3 pv2 ba link navy dib grow"
-									>
-										New Submission
-									</Link>
-									<a
-										href="#"
-										className="dib link pa2 navy"
-										onClick={this.handleOpenModal}
-									>
-										⚙ &nbsp;settings
-									</a>
-									<Modal
-										openModal={this.state.showModal}
-										closeModal={this.handleCloseModal}
-									/>
-								</div>
-								<span className="navy w-100 v-btm">All Form Submissions</span>
-							</div>
+						<span className="navy w-100 v-btm">All Form Submissions</span>
+					</div>
 
-							<section className="pa3-ns">{userSubmissions}</section>
-						</div>
-					</section>
-				</section>
+					<section className="pa3-ns">{userSubmissions}</section>
+				</ListOfFormsSideNav>
 			</section>
 		);
 	}

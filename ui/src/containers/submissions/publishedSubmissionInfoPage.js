@@ -4,6 +4,7 @@ import { inject, observer } from "mobx-react";
 import moment from "moment";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import { GetRepresentativeImageByFileExtension } from "../../utils/representativeImages.js";
+import ListOfFormsSideNav from "../ListOfFormsSideNav.js";
 
 @inject("MainStore")
 @observer
@@ -51,7 +52,9 @@ class PublishedSubmissionInfoPage extends Component {
 												target="_blank"
 											>
 												<img
-													src={GetRepresentativeImageByFileExtension(currentURIFileName)}
+													src={GetRepresentativeImageByFileExtension(
+														currentURIFileName
+													)}
 													className="w3 h3 dib v-mid"
 													alt="file representative logo"
 												/>
@@ -139,77 +142,80 @@ class PublishedSubmissionInfoPage extends Component {
 		return (
 			<section className="">
 				<Nav workspaceID={workspaceID} />
-				<section className="tc pt5">
-					<section className="pt4 dib w-100 w-70-m w-50-l tl">
-						<div className="pv3">
-							<h1 className="navy w-100 mv2">
-								{SubmissionInfo.submissionName}
-							</h1>
-						</div>
-
-						<div className="pv2">
-							<strong>status: </strong>
-							<span className="navy">{SubmissionInfo.status}</span>
-						</div>
-						<div className="pv2">
-							<div className="w-100 w-50-ns dib ">
-								<small>
-									Created:{" "}
-									{moment(SubmissionInfo.created).format("h:mma, MM-DD-YYYY")}
-								</small>
+				<ListOfFormsSideNav workspaceID={workspaceID}>
+					<section className="tc ">
+						<section className="pt4 dib w-100 w-80-ns tl">
+							<div className="pv3">
+								<h1 className="navy w-100 mv2">
+									{SubmissionInfo.submissionName}
+								</h1>
 							</div>
-							<div className="w-100 w-50-ns dib ">
-								<small>
-									Modified:{" "}
-									{moment(SubmissionInfo.lastModified).format(
-										"h:mma, MM-DD-YYYY"
-									)}
-								</small>
-							</div>
-						</div>
 
-						<section className="mt5">
-							<Tabs className="pt4">
-								<TabList>
-									<Tab>Form</Tab>
-									<Tab>Changelog</Tab>
-								</TabList>
-								<TabPanel>
-									<div className="navy tc bb bw1 b--light-gray pv3">
-										<h4 className="mv3">Form Data</h4>
-									</div>
-									<div className=" ph2 pv3 ">{formFields}</div>
-								</TabPanel>
-								<TabPanel>
-									<section className="pv2">
-										{Changelog.map(function(changelogItem,i) {
-											return (
-												<div className="w-100 shadow-4 pa3 mv2" key={i}>
-													<p className="navy mv1 ">{changelogItem.note}</p>
-													<div>
-														<div className=" pv1">
-															<small>
-																created on:&nbsp;&nbsp;&nbsp;
-																{moment(changelogItem.created).format(
-																	"h:mma, MM-DD-YYYY"
-																)}
-															</small>
-														</div>
-														<div className=" pv1">
-															<small>
-																workspace: {changelogItem.workspaceID}
-															</small>
+							<div className="pv2">
+								<strong>status: </strong>
+								<span className="navy">{SubmissionInfo.status}</span>
+							</div>
+							<div className="pv2">
+								<div className="w-100 w-50-ns dib ">
+									<small>
+										Created:{" "}
+										{moment(SubmissionInfo.created).format("h:mma, MM-DD-YYYY")}
+									</small>
+								</div>
+								<div className="w-100 w-50-ns dib ">
+									<small>
+										Modified:{" "}
+										{moment(SubmissionInfo.lastModified).format(
+											"h:mma, MM-DD-YYYY"
+										)}
+									</small>
+								</div>
+							</div>
+
+							<section className="mt5">
+								<Tabs className="pt4">
+									<TabList>
+										<Tab>Form</Tab>
+										<Tab>Changelog</Tab>
+									</TabList>
+									<TabPanel>
+										<div className="navy tc bb bw1 b--light-gray pv3">
+											<h4 className="mv3">Form Data</h4>
+										</div>
+										<div className=" ph2 pv3 ">{formFields}</div>
+									</TabPanel>
+									<TabPanel>
+										<section className="pv2">
+											{Changelog.map(function(changelogItem, i) {
+												return (
+													<div className="w-100 shadow-4 pa3 mv2" key={i}>
+														<p className="navy mv1 ">{changelogItem.note}</p>
+														<div>
+															<div className=" pv1">
+																<small>
+																	created on:&nbsp;&nbsp;&nbsp;
+																	{moment(changelogItem.created).format(
+																		"h:mma, MM-DD-YYYY"
+																	)}
+																</small>
+															</div>
+															<div className=" pv1">
+																<small>
+																	workspace: {changelogItem.workspaceID}
+																</small>
+															</div>
 														</div>
 													</div>
-												</div>
-											);
-										})}
-									</section>
-								</TabPanel>
-							</Tabs>
+												);
+											})}
+										</section>
+									</TabPanel>
+								</Tabs>
+							</section>
+
 						</section>
 					</section>
-				</section>
+				</ListOfFormsSideNav>
 			</section>
 		);
 	}
