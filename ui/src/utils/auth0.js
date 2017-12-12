@@ -93,6 +93,6 @@ import jwtDecode from 'jwt-decode';
 
 }
 
-const authService = new AuthService(process.env.AUTH0_SECRET, process.env.AUTH0_ENDPOINT)
+const authService = new AuthService("yqZpzeiFgoapsnpczQHIz0t6XoZjvEjL", "emikra.auth0.com")
 
 export default authService
